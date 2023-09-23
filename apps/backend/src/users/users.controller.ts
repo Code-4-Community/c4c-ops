@@ -1,4 +1,10 @@
-import { Controller, Get } from '@nestjs/common';
+import {
+  DefaultValuePipe,
+  ParseBoolPipe,
+  Query,
+  Controller,
+  Get,
+} from '@nestjs/common';
 
 import { UsersService } from './users.service';
 
@@ -7,7 +13,10 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  getAllUsers() {
-    return this.usersService.findAll();
+  getAllMembers(
+    @Query('getAllMembers', new DefaultValuePipe(false), ParseBoolPipe)
+    getAllMembers: boolean,
+  ) {
+    return this.usersService.findAll(getAllMembers);
   }
 }
