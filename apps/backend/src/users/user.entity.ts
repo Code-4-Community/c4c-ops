@@ -1,9 +1,9 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, ObjectIdColumn } from 'typeorm';
 import { Status } from './types';
 
 @Entity()
 export class User {
-  @PrimaryGeneratedColumn()
+  @ObjectIdColumn() // https://github.com/typeorm/typeorm/issues/1584
   userId: number;
 
   @Column()

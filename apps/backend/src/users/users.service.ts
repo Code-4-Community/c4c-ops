@@ -4,7 +4,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { MongoRepository } from 'typeorm';
 
 import { User } from './user.entity';
 import { Status } from './types';
@@ -13,7 +13,7 @@ import { Status } from './types';
 export class UsersService {
   constructor(
     @InjectRepository(User)
-    private usersRepository: Repository<User>,
+    private usersRepository: MongoRepository<User>,
   ) {}
 
   async findAll(getAllMembers: boolean): Promise<User[]> {
@@ -36,7 +36,11 @@ export class UsersService {
       throw new UnauthorizedException();
     }
 
-    const users: User[] = await this.usersRepository.find();
+    const users: User[] = await this.usersRepository.find({
+      where: {
+        status: { $not: { $eq: Status.APPLICANT } },
+      },
+    });
 
     //TODO possibly use an interceptor instead here
     users.forEach((user: User) => {
