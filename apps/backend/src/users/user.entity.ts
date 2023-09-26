@@ -18,7 +18,7 @@ export class User {
   email: string;
 
   @Column()
-  profilePicture: string;
+  profilePicture: string | null;
 
   @Column()
   linkedin: string | null;

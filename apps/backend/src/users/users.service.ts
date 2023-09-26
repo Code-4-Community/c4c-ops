@@ -1,10 +1,15 @@
-import { UnauthorizedException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  UnauthorizedException,
+  Injectable,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ObjectId } from 'mongodb';
 import { MongoRepository } from 'typeorm';
 
 import { User } from './user.entity';
 import { Status } from './types';
-import { ObjectId } from 'mongodb';
+import { getCurrentUser } from './utils';
 
 @Injectable()
 export class UsersService {
@@ -40,5 +45,38 @@ export class UsersService {
     });
 
     return users;
+  }
+
+  async findOne(userId: number) {
+    const user = await this.usersRepository.findOneBy({ id: userId });
+
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+
+    const currentUser = getCurrentUser();
+
+    const currentStatus = currentUser.status;
+    const targetStatus = user.status;
+    switch (currentStatus) {
+      case Status.RECRUITER:
+        if (targetStatus === Status.ADMIN) {
+          throw new BadRequestException('User not found');
+        }
+        break;
+      case Status.APPLICANT:
+        if (currentUser.id !== user.id) {
+          throw new BadRequestException('User not found');
+        }
+        break;
+      case Status.MEMBER:
+      case Status.ALUMNI:
+        if (currentUser.status === Status.APPLICANT) {
+          throw new BadRequestException('User not found');
+        }
+        break;
+    }
+
+    return user;
   }
 }
