@@ -8,6 +8,7 @@ import { MongoRepository } from 'typeorm';
 
 import { User } from './user.entity';
 import { Status } from './types';
+import { ObjectId } from 'mongodb';
 
 @Injectable()
 export class UsersService {
@@ -20,7 +21,7 @@ export class UsersService {
     if (!getAllMembers) return [];
 
     const exampleUser: User = {
-      userId: 1,
+      userId: new ObjectId('a0f3efa0f3efa0f3efa0f3ef'),
       status: Status.ADMIN,
       firstName: 'jimmy',
       lastName: 'jimmy2',

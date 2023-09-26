@@ -1,10 +1,9 @@
-import { Entity, Column, ObjectIdColumn } from 'typeorm';
+import { Entity, Column, ObjectIdColumn, ObjectId } from 'typeorm';
 import { Status } from './types';
-
 @Entity()
 export class User {
   @ObjectIdColumn() // https://github.com/typeorm/typeorm/issues/1584
-  userId: number;
+  userId: ObjectId;
 
   @Column()
   status: Status;
