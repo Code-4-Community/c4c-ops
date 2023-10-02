@@ -33,8 +33,9 @@ export class UsersService {
         _id: { $eq: id },
       },
     });
+
     if (!user) {
-      throw new BadRequestException(`Invalid user: ${userId}`);
+      throw new BadRequestException(`User ${userId} not found.`);
     }
 
     const exampleUser: User = {
@@ -52,17 +53,17 @@ export class UsersService {
 
     if (
       exampleUser.status === Status.APPLICANT &&
-      userId != exampleUser.id.toString()
+      userId !== exampleUser.id.toString()
     ) {
       throw new BadRequestException(
-        'Invalid update permissions; applicant cannot update another  applicant',
+        'Invalid update permissions; applicant cannot update another applicant',
       );
     }
 
     if (
       (exampleUser.status === Status.MEMBER ||
         exampleUser.status === Status.ALUMNI) &&
-      user.status == Status.APPLICANT
+      user.status === Status.APPLICANT
     ) {
       throw new BadRequestException(
         'Invalid update permissions; members and alumni cannot update applicants',
@@ -70,8 +71,8 @@ export class UsersService {
     }
 
     if (
-      exampleUser.status != Status.ADMIN &&
-      userId != exampleUser.id.toString()
+      exampleUser.status !== Status.ADMIN &&
+      userId !== exampleUser.id.toString()
     ) {
       throw new UnauthorizedException();
     }

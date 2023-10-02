@@ -18,6 +18,7 @@ export class User {
 
   @Column()
   email: string;
+
   @Column()
   profilePicture: string;
 
@@ -29,6 +30,7 @@ export class User {
 
   @Column()
   team: string | null;
+
   @Column()
   role: string | null;
 }
