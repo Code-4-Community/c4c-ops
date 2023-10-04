@@ -21,18 +21,7 @@ export class UsersService {
   async findAll(getAllMembers: boolean): Promise<User[]> {
     if (!getAllMembers) return [];
 
-    const exampleUser: User = {
-      userId: new ObjectId('a0f3efa0f3efa0f3efa0f3ef'),
-      status: Status.ADMIN,
-      firstName: 'jimmy',
-      lastName: 'jimmy2',
-      email: 'jimmy.jimmy2@mail.com',
-      profilePicture: null,
-      linkedin: null,
-      github: null,
-      team: null,
-      role: null,
-    };
+    const exampleUser = getCurrentUser();
 
     if (exampleUser.status == Status.APPLICANT) {
       throw new UnauthorizedException();
@@ -65,7 +54,7 @@ export class UsersService {
         }
         break;
       case Status.APPLICANT:
-        if (currentUser.id !== user.id) {
+        if (currentUser.userId !== user.userId) {
           throw new BadRequestException('User not found');
         }
         break;

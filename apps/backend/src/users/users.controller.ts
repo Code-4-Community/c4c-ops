@@ -1,14 +1,12 @@
-<<<<<<< HEAD
 import {
   DefaultValuePipe,
   ParseBoolPipe,
+  ParseIntPipe,
   Query,
   Controller,
   Get,
+  Param,
 } from '@nestjs/common';
-=======
-import { Controller, Get, Param } from '@nestjs/common';
->>>>>>> 99f1095 (worked on getUser method and user parameters)
 
 import { UsersService } from './users.service';
 
@@ -24,9 +22,8 @@ export class UsersController {
     return this.usersService.findAll(getAllMembers);
   }
 
-  //TODO get method
   @Get('/:userId')
-  getUser(@Param('userId') userId: string) {
-    return this.usersService.findOne(parseInt(userId));
+  getUser(@Param('userId', ParseIntPipe) userId: number) {
+    return this.usersService.findOne(userId);
   }
 }

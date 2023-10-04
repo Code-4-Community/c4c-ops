@@ -1,14 +1,15 @@
 import { Status } from './types';
 import { User } from './user.entity';
 
-export const getCurrentUser = () => {
-  const user = new User();
-
-  user.id = 1;
-  user.firstName = 'Current';
-  user.lastName = 'User';
-  user.email = 'user.current@northeastern.edu';
-  user.status = Status.MEMBER;
-
-  return user;
-};
+export const getCurrentUser = (): User => ({
+  userId: 1,
+  status: Status.ADMIN,
+  firstName: 'jimmy',
+  lastName: 'jimmy2',
+  email: 'jimmy.jimmy2@mail.com',
+  profilePicture: null,
+  linkedin: null,
+  github: null,
+  team: null,
+  role: null,
+});
