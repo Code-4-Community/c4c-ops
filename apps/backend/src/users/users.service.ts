@@ -43,13 +43,6 @@ export class UsersService {
       },
     });
 
-    //TODO possibly use an interceptor instead here
-    users.forEach((user: User) => {
-      if (user.status == Status.APPLICANT) {
-        throw new BadRequestException();
-      }
-    });
-
     return users;
   }
 }
