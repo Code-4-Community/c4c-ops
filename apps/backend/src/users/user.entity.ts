@@ -1,6 +1,6 @@
 import { ObjectId } from 'mongodb';
 import { Entity, Column, ObjectIdColumn } from 'typeorm';
-import { Status } from './types';
+import { Status, Role, Team } from './types';
 
 @Entity()
 export class User {
@@ -18,8 +18,9 @@ export class User {
 
   @Column()
   email: string;
+
   @Column()
-  profilePicture: string;
+  profilePicture: string | null;
 
   @Column()
   linkedin: string | null;
@@ -28,7 +29,8 @@ export class User {
   github: string | null;
 
   @Column()
-  team: string | null;
+  team: Team | null;
+
   @Column()
-  role: string | null;
+  role: Role[] | null;
 }
