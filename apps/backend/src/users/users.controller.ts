@@ -1,7 +1,8 @@
-import { Body, Controller, Get, Param, Put } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch } from '@nestjs/common';
 import { UpdateUserDTO } from './users.dto';
 import { UsersService } from './users.service';
 import { User } from './user.entity';
+
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
@@ -11,7 +12,7 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
-  @Put(':userId')
+  @Patch(':userId')
   async updateUser(
     @Body() updateUserDTO: UpdateUserDTO,
     @Param('userId') userId: string,

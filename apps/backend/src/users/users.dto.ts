@@ -6,6 +6,7 @@ import {
   IsArray,
   ArrayMinSize,
   ArrayUnique,
+  IsUrl,
 } from 'class-validator';
 
 export class UpdateUserDTO {
@@ -21,9 +22,11 @@ export class UpdateUserDTO {
   profilePicture?: string;
 
   @IsOptional()
+  @IsUrl()
   linkedIn?: string;
 
   @IsOptional()
+  @IsUrl()
   github?: string;
 
   @IsOptional()

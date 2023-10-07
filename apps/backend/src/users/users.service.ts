@@ -23,7 +23,7 @@ export class UsersService {
   }
 
   async updateUser(
-    UpdateUserDTO: UpdateUserDTO,
+    updateUserDTO: UpdateUserDTO,
     userId: string,
   ): Promise<User> {
     let id: ObjectId;
@@ -86,7 +86,7 @@ export class UsersService {
       throw new UnauthorizedException();
     }
 
-    await this.usersRepository.update(id, UpdateUserDTO);
+    await this.usersRepository.update(id, updateUserDTO);
     return await this.usersRepository.findOne({
       where: {
         _id: { $eq: id },
