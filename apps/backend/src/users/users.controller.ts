@@ -15,8 +15,8 @@ export class UsersController {
   @Get()
   getAllMembers(
     @Query('getAllMembers', new DefaultValuePipe(false), ParseBoolPipe)
-    getAllMembers: boolean,
+    AllMembers: boolean,
   ) {
-    return this.usersService.findAll(getAllMembers);
+    return this.usersService.findAll(AllMembers);
   }
 }

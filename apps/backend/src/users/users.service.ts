@@ -13,8 +13,8 @@ export class UsersService {
     private usersRepository: MongoRepository<User>,
   ) {}
 
-  async findAll(getAllMembers: boolean): Promise<User[]> {
-    if (!getAllMembers) return [];
+  async findAll(AllMembers: boolean): Promise<User[]> {
+    if (!AllMembers) return [];
 
     const exampleUser: User = {
       userId: new ObjectId('a0f3efa0f3efa0f3efa0f3ef'),
@@ -29,7 +29,7 @@ export class UsersService {
       role: null,
     };
 
-    if (exampleUser.status == Status.APPLICANT) {
+    if (exampleUser.status === Status.APPLICANT) {
       throw new UnauthorizedException();
     }
 
