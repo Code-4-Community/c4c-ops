@@ -5,11 +5,10 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MongoRepository } from 'typeorm';
-import { Status } from './types';
-
 import { User } from './user.entity';
 import { UpdateUserDTO } from './update-user.dto';
 import { ObjectId } from 'mongodb';
+import { Status } from './types';
 
 @Injectable()
 export class UsersService {
@@ -18,8 +17,33 @@ export class UsersService {
     private usersRepository: MongoRepository<User>,
   ) {}
 
-  findAll(): Promise<User[]> {
-    return this.usersRepository.find();
+  async findAll(getAllMembers: boolean): Promise<User[]> {
+    if (!getAllMembers) return [];
+
+    const exampleUser: User = {
+      userId: new ObjectId('a0f3efa0f3efa0f3efa0f3ef'),
+      status: Status.ADMIN,
+      firstName: 'jimmy',
+      lastName: 'jimmy2',
+      email: 'jimmy.jimmy2@mail.com',
+      profilePicture: null,
+      linkedin: null,
+      github: null,
+      team: null,
+      role: null,
+    };
+
+    if (exampleUser.status == Status.APPLICANT) {
+      throw new UnauthorizedException();
+    }
+
+    const users: User[] = await this.usersRepository.find({
+      where: {
+        status: { $not: { $eq: Status.APPLICANT } },
+      },
+    });
+
+    return users;
   }
 
   async updateUser(
@@ -48,7 +72,7 @@ export class UsersService {
     }
 
     const exampleUser: User = {
-      id: new ObjectId('650f00d4f18cd8be2043e297'),
+      userId: new ObjectId('650f00d4f18cd8be2043e297'),
       status: Status.ADMIN,
       firstName: 'jimmy',
       lastName: 'jimmy2',
@@ -62,7 +86,7 @@ export class UsersService {
 
     if (
       exampleUser.status === Status.APPLICANT &&
-      userId !== exampleUser.id.toString()
+      userId !== exampleUser.userId.toString()
     ) {
       throw new BadRequestException(
         'Invalid update permissions; applicant cannot update another applicant',
@@ -81,7 +105,7 @@ export class UsersService {
 
     if (
       exampleUser.status !== Status.ADMIN &&
-      userId !== exampleUser.id.toString()
+      userId !== exampleUser.userId.toString()
     ) {
       throw new UnauthorizedException();
     }

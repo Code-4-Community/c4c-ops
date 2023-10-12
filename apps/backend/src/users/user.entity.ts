@@ -5,7 +5,7 @@ import { Status, Role, Team } from './types';
 @Entity()
 export class User {
   @ObjectIdColumn()
-  id: ObjectId;
+  userId: ObjectId;
 
   @Column()
   status: Status;

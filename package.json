@@ -3,8 +3,8 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "format:check": "prettier --check apps/{frontend,backend}/src/**/*.{js,ts,tsx}",
-    "format": "prettier --write apps/{frontend,backend}/src/**/*.{js,ts,tsx}",
+    "format:check": "prettier --no-error-on-unmatched-pattern --check apps/{frontend,backend}/src/**/*.{js,ts,tsx}",
+    "format": "prettier --no-error-on-unmatched-pattern --write apps/{frontend,backend}/src/**/*.{js,ts,tsx}",
     "lint:check": "eslint apps/frontend --ext .ts,.tsx && eslint apps/backend --ext .ts,.tsx",
     "lint": "eslint apps/frontend --ext .ts,.tsx --fix && eslint apps/backend --ext .ts,.tsx --fix",
     "prepush": "yarn run format:check && yarn run lint:check",
