@@ -1,5 +1,5 @@
 import { Entity, Column, ObjectIdColumn, ObjectId } from 'typeorm';
-import { Response, Note } from './types';
+import { Response, Note, Semester, ApplicationStatus } from './types';
 
 @Entity()
 export class Application {
@@ -7,8 +7,23 @@ export class Application {
   userId: ObjectId;
 
   @Column()
-  Response: Response;
+  createdAt: Date;
 
   @Column()
-  Note: Note;
+  lastUpdatedAt: Date;
+
+  @Column()
+  cycleSemester: Semester;
+
+  @Column()
+  cycleYear: number;
+
+  @Column()
+  status: ApplicationStatus;
+
+  @Column()
+  application: Response;
+
+  @Column()
+  notes: Note;
 }
