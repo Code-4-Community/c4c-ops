@@ -8,7 +8,7 @@ import { MongoRepository } from 'typeorm';
 import { Status } from './types';
 
 import { User } from './user.entity';
-import { UpdateUserDTO } from './users.dto';
+import { UpdateUserDTO } from './update-user.dto';
 import { ObjectId } from 'mongodb';
 
 @Injectable()

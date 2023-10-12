@@ -14,6 +14,7 @@ export enum Team {
   BREAKTIME = 'Breaktime',
   GI = 'Green Infrastructure',
   CI = 'Core Infrastructure',
+  EBOARD = 'E-Board',
 }
 
 export enum Role {
@@ -24,6 +25,7 @@ export enum Role {
   DIRECTOR_OF_RECRUITMENT = 'Director of Recruitment',
   DIRECTOR_OF_OPERATIONS = 'Director of Operations',
   DIRECTOR_OF_EVENTS = 'Director of Events',
+  DIRECTOR_OF_DESIGN = 'Director of Design',
   PRODUCT_MANAGER = 'Product Manager',
   PRODUCT_DESIGNER = 'Product Designer',
   TECH_LEAD = 'Technical Lead',

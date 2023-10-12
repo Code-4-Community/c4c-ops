@@ -22,11 +22,19 @@ export class UpdateUserDTO {
   profilePicture?: string;
 
   @IsOptional()
-  @IsUrl()
-  linkedIn?: string;
+  @IsUrl({
+    protocols: ['http', 'https'],
+    require_protocol: true,
+    host_whitelist: ['www.linkedin.com'],
+  })
+  linkedin?: string;
 
   @IsOptional()
-  @IsUrl()
+  @IsUrl({
+    protocols: ['http', 'https'],
+    require_protocol: true,
+    host_whitelist: ['github.com'],
+  })
   github?: string;
 
   @IsOptional()
