@@ -10,13 +10,13 @@ export type Note = {
 
 //make these uppercase
 export enum Semester {
-  Fall = 'Fall',
-  Spring = 'Spring',
+  FALL = 'FALL',
+  SPRING = 'SPRING',
 }
 
 export enum ApplicationStatus {
-  Submitted = 'Submitted',
-  Reviewed = 'Reviewed',
-  Accepted = 'Accepted',
-  Rejected = 'Rejected',
+  SUBMITTED = 'SUBMITTED',
+  REVIEWED = 'REVIEWED',
+  ACCEPTED = 'ACCEPTED',
+  REJECTED = 'REJECTED',
 }
