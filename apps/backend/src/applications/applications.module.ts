@@ -10,4 +10,4 @@ import { Application } from './application.entity';
   providers: [ApplicationsService],
   controllers: [ApplicationsController],
 })
-export class UsersModule {}
+export class ApplicationsModule {}
