@@ -7,6 +7,7 @@ import {
   Get,
   Param,
   Patch,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { UpdateUserDTO } from './update-user.dto';
 import { UsersService } from './users.service';
@@ -27,7 +28,7 @@ export class UsersController {
   @Patch(':userId')
   async updateUser(
     @Body() updateUserDTO: UpdateUserDTO,
-    @Param('userId') userId: string,
+    @Param('userId', ParseIntPipe) userId: number,
   ): Promise<User> {
     return this.usersService.updateUser(updateUserDTO, userId);
   }

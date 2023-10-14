@@ -1,11 +1,10 @@
-import { ObjectId } from 'mongodb';
-import { Entity, Column, ObjectIdColumn } from 'typeorm';
+import { Entity, Column } from 'typeorm';
 import { Status, Role, Team } from './types';
 
 @Entity()
 export class User {
-  @ObjectIdColumn()
-  userId: ObjectId;
+  @Column({ primary: true })
+  userId: number;
 
   @Column()
   status: Status;
