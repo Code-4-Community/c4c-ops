@@ -22,7 +22,7 @@ export class UsersService {
 
     const currentUser = getCurrentUser();
 
-    if (currentUser.status == Status.APPLICANT) {
+    if (currentUser.status === Status.APPLICANT) {
       throw new UnauthorizedException();
     }
 

@@ -23,7 +23,7 @@ export class UpdateUserDTO {
 
   @IsOptional()
   @IsUrl({
-    protocols: ['http', 'https'],
+    protocols: ['https'],
     require_protocol: true,
     host_whitelist: ['www.linkedin.com'],
   })
@@ -31,7 +31,7 @@ export class UpdateUserDTO {
 
   @IsOptional()
   @IsUrl({
-    protocols: ['http', 'https'],
+    protocols: ['https'],
     require_protocol: true,
     host_whitelist: ['github.com'],
   })
