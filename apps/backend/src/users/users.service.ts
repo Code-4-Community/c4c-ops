@@ -48,22 +48,22 @@ export class UsersService {
     const currentStatus = currentUser.status;
     const targetStatus = user.status;
     switch (currentStatus) {
+      //admin can access all users
+      case Status.ADMIN:
+        break;
+      //recruiter can access applicant, and themselves
       case Status.RECRUITER:
-        if (targetStatus === Status.ADMIN) {
+        if (targetStatus == Status.APPLICANT) {
+          break;
+        } else if (currentUser.userId !== user.userId) {
           throw new BadRequestException('User not found');
         }
         break;
-      case Status.APPLICANT:
+      //everyone else can only access themselves
+      default:
         if (currentUser.userId !== user.userId) {
           throw new BadRequestException('User not found');
         }
-        break;
-      case Status.MEMBER:
-      case Status.ALUMNI:
-        if (currentUser.status === Status.APPLICANT) {
-          throw new BadRequestException('User not found');
-        }
-        break;
     }
 
     return user;
