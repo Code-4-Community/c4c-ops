@@ -30,7 +30,7 @@ export class ApplicationsService {
     }
 
     //the user with the given userId has not applied in the current recruitment cycle
-    if (application.cycleSemester !== currentCycle) {
+    if (application.semester !== currentCycle) {
       throw new BadRequestException('Application not found');
     }
 

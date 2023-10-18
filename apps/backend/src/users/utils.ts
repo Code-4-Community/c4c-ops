@@ -12,4 +12,5 @@ export const getCurrentUser = (): User => ({
   github: null,
   team: null,
   role: null,
+  applications: [],
 });

@@ -4,9 +4,6 @@ import { Response, Note, Semester, ApplicationStatus } from './types';
 
 @Entity()
 export class Application {
-  @ObjectIdColumn() //change to be like how it is in users
-  userId: ObjectId;
-
   @Column()
   createdAt: Date;
 
@@ -14,19 +11,18 @@ export class Application {
   lastUpdatedAt: Date;
 
   @Column()
-  cycleSemester: Semester;
+  semester: Semester;
 
   @Column()
-  cycleYear: number;
+  year: number;
 
   @Column()
   @IsEnum(ApplicationStatus)
   status: ApplicationStatus;
 
   @Column()
-  @IsEnum(Response)
-  application: Response;
+  application: Response[];
 
   @Column()
-  notes: Note;
+  notes: Note[];
 }

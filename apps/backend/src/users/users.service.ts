@@ -47,25 +47,30 @@ export class UsersService {
 
     const currentStatus = currentUser.status;
     const targetStatus = user.status;
+
     switch (currentStatus) {
+      //admin & recruiter can access all
+      case Status.ADMIN:
       case Status.RECRUITER:
-        if (targetStatus === Status.ADMIN) {
+        break;
+      //alumni and member can access all except for applicants
+      case Status.ALUMNI:
+      case Status.MEMBER:
+        if (targetStatus == Status.APPLICANT) {
           throw new BadRequestException('User not found');
         }
         break;
+      //applicants can only access themselves
       case Status.APPLICANT:
         if (currentUser.userId !== user.userId) {
           throw new BadRequestException('User not found');
         }
         break;
-      case Status.MEMBER:
-      case Status.ALUMNI:
-        if (currentUser.status === Status.APPLICANT) {
-          throw new BadRequestException('User not found');
-        }
-        break;
     }
 
+    if (targetStatus !== Status.APPLICANT) {
+      user.applications = [];
+    }
     return user;
   }
 }

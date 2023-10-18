@@ -1,5 +1,6 @@
 import { IsEmail, IsUrl } from 'class-validator';
 import { Entity, Column } from 'typeorm';
+import { Application } from '../applications/application.entity';
 import { Status } from './types';
 
 @Entity()
@@ -35,4 +36,7 @@ export class User {
 
   @Column()
   role: string | null;
+
+  @Column()
+  applications: Application[] | null;
 }
