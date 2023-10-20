@@ -1,6 +1,4 @@
 import {
-  DefaultValuePipe,
-  ParseBoolPipe,
   Query,
   Body,
   Controller,
@@ -8,21 +6,23 @@ import {
   Param,
   Patch,
   ParseIntPipe,
+  ParseEnumPipe,
 } from '@nestjs/common';
 import { UpdateUserDTO } from './update-user.dto';
 import { UsersService } from './users.service';
 import { User } from './user.entity';
+import { Status } from './types';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  getAllMembers(
-    @Query('getAllMembers', new DefaultValuePipe(false), ParseBoolPipe)
-    getAllMembers: boolean,
+  getUsers(
+    @Query('status', new ParseEnumPipe(Status))
+    targetStatus: Status,
   ) {
-    return this.usersService.findAll(getAllMembers);
+    return this.usersService.findAll(targetStatus);
   }
 
   @Patch(':userId')

@@ -3,7 +3,7 @@ import { User } from './user.entity';
 
 export const getCurrentUser = (): User => ({
   userId: 999,
-  status: Status.ADMIN,
+  status: Status.MEMBER,
   firstName: 'jimmy',
   lastName: 'jimmy2',
   email: 'jimmy.jimmy2@mail.com',

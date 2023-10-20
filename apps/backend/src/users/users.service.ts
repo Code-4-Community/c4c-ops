@@ -17,20 +17,35 @@ export class UsersService {
     private usersRepository: MongoRepository<User>,
   ) {}
 
-  async findAll(getAllMembers: boolean): Promise<User[]> {
-    if (!getAllMembers) return [];
-
+  async findAll(targetStatus: Status): Promise<User[]> {
     const currentUser = getCurrentUser();
 
-    if (currentUser.status === Status.APPLICANT) {
+    if (
+      (!currentUser.status || currentUser.status === Status.APPLICANT) &&
+      (targetStatus === Status.ALUMNI || targetStatus === Status.APPLICANT)
+    ) {
       throw new UnauthorizedException();
     }
 
-    const users: User[] = await this.usersRepository.find({
-      where: {
-        status: { $not: { $eq: Status.APPLICANT } },
-      },
-    });
+    let users: User[];
+
+    if (targetStatus !== Status.MEMBER) {
+      users = await this.usersRepository.find({
+        where: {
+          status: { $eq: targetStatus },
+        },
+      });
+    } else {
+      users = await this.usersRepository.find({
+        where: {
+          $or: [
+            { status: { $eq: Status.MEMBER } },
+            { status: { $eq: Status.ADMIN } },
+            { status: { $eq: Status.RECRUITER } },
+          ],
+        },
+      });
+    }
 
     return users;
   }
