@@ -27,6 +27,14 @@ export class UsersService {
       throw new UnauthorizedException();
     }
 
+    if (
+      (currentUser.status === Status.MEMBER ||
+        currentUser.status === Status.ALUMNI) &&
+      targetStatus === Status.APPLICANT
+    ) {
+      throw new UnauthorizedException();
+    }
+
     let users: User[];
 
     if (targetStatus !== Status.MEMBER) {
