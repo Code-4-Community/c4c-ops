@@ -8,7 +8,6 @@ export type Note = {
   note: string;
 };
 
-//make these uppercase
 export enum Semester {
   FALL = 'FALL',
   SPRING = 'SPRING',

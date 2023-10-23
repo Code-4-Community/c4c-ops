@@ -6,8 +6,8 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { MongoRepository } from 'typeorm';
 import { User } from './user.entity';
-import { UpdateUserDTO } from './update-user.dto';
-import { Status } from './types';
+import { UpdateUserDTO } from './dto/update-user.dto';
+import { UserStatus } from './types';
 import { getCurrentUser } from './utils';
 
 @Injectable()
@@ -22,13 +22,13 @@ export class UsersService {
 
     const currentUser = getCurrentUser();
 
-    if (currentUser.status === Status.APPLICANT) {
+    if (currentUser.status === UserStatus.APPLICANT) {
       throw new UnauthorizedException();
     }
 
     const users: User[] = await this.usersRepository.find({
       where: {
-        status: { $not: { $eq: Status.APPLICANT } },
+        status: { $not: { $eq: UserStatus.APPLICANT } },
       },
     });
 
@@ -49,27 +49,24 @@ export class UsersService {
 
     switch (currentStatus) {
       //admin & recruiter can access all
-      case Status.ADMIN:
-      case Status.RECRUITER:
+      case UserStatus.ADMIN:
+      case UserStatus.RECRUITER:
         break;
       //alumni and member can access all except for applicants
-      case Status.ALUMNI:
-      case Status.MEMBER:
-        if (targetStatus == Status.APPLICANT) {
-          throw new BadRequestException('User not found');
+      case UserStatus.ALUMNI:
+      case UserStatus.MEMBER:
+        if (targetStatus == UserStatus.APPLICANT) {
+          throw new UnauthorizedException('User not found');
         }
         break;
       //applicants can only access themselves
-      case Status.APPLICANT:
+      case UserStatus.APPLICANT:
         if (currentUser.userId !== user.userId) {
-          throw new BadRequestException('User not found');
+          throw new UnauthorizedException('User not found');
         }
         break;
     }
 
-    if (targetStatus !== Status.APPLICANT) {
-      user.applications = [];
-    }
     return user;
   }
 
@@ -89,7 +86,10 @@ export class UsersService {
 
     const currentUser = getCurrentUser();
 
-    if (currentUser.status !== Status.ADMIN && userId !== currentUser.userId) {
+    if (
+      currentUser.status !== UserStatus.ADMIN &&
+      userId !== currentUser.userId
+    ) {
       throw new UnauthorizedException();
     }
 

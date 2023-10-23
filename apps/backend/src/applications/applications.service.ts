@@ -1,13 +1,17 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-
 import { MongoRepository } from 'typeorm';
-import { Status } from '../users/types';
+import { UserStatus } from '../users/types';
 import { UsersService } from '../users/users.service';
 import { getCurrentUser } from '../users/utils';
-
 import { Application } from './application.entity';
 import { getCurrentCycle } from './utils';
+import { Cycle } from './dto/cycle.dto';
+import { plainToClass } from 'class-transformer';
 
 @Injectable()
 export class ApplicationsService {
@@ -17,35 +21,33 @@ export class ApplicationsService {
     private readonly usersService: UsersService,
   ) {}
 
-  async findOne(userId: number) {
+  async findOne(userId: number): Promise<Application> {
     const currentUser = getCurrentUser();
-    const currentCycle = getCurrentCycle();
-
-    const application = await this.applicationsRepository.findOneBy({ userId });
-
-    //the given userId is not associated with a user
-    //(double check if this works- seems like this may check if this user has an application instead)
-    if (!application) {
-      throw new BadRequestException('Application not found');
-    }
-
-    //the user with the given userId has not applied in the current recruitment cycle
-    if (application.semester !== currentCycle) {
-      throw new BadRequestException('Application not found');
+    const currentStatus = currentUser.status;
+    switch (currentStatus) {
+      case UserStatus.ADMIN:
+      case UserStatus.RECRUITER:
+        break;
+      default:
+        if (currentUser.userId !== userId) {
+          throw new UnauthorizedException('User not found');
+        }
+        break;
     }
 
     const applicant = await this.usersService.findOne(userId);
+    const application = applicant.applications[0];
+    if (application == null) {
+      throw new BadRequestException('Application not found');
+    }
 
-    const currentStatus = currentUser.status;
-    switch (currentStatus) {
-      case Status.ADMIN:
-      case Status.RECRUITER:
-        break;
-      default:
-        if (currentUser.userId !== applicant.userId) {
-          throw new BadRequestException('User not found');
-        }
-        break;
+    const cycle = plainToClass(Cycle, application.cycle);
+
+    //the user with the given userId has not applied in the current recruitment cycle
+    if (!cycle.isCurrentCycle(getCurrentCycle())) {
+      throw new BadRequestException(
+        "Applicant hasn't applied in the current cycle",
+      );
     }
 
     return application;

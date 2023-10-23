@@ -1,4 +1,4 @@
+import { Cycle } from './dto/cycle.dto';
 import { Semester } from './types';
 
-//dummy function for now
-export const getCurrentCycle = () => Semester.FALL;
+export const getCurrentCycle = () => new Cycle(2023, Semester.FALL);

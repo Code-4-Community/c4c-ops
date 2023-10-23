@@ -1,9 +1,9 @@
-import { Status } from './types';
+import { UserStatus } from './types';
 import { User } from './user.entity';
 
 export const getCurrentUser = (): User => ({
   userId: 1,
-  status: Status.ADMIN,
+  status: UserStatus.ADMIN,
   firstName: 'jimmy',
   lastName: 'jimmy2',
   email: 'jimmy.jimmy2@mail.com',

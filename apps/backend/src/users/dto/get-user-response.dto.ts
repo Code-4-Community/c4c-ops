@@ -2,45 +2,35 @@ import {
   IsArray,
   IsEmail,
   IsEnum,
-  IsObject,
-  IsPositive,
+  IsNumber,
   IsString,
   IsUrl,
 } from 'class-validator';
-import { Entity, Column } from 'typeorm';
-import { Application } from '../applications/application.entity';
-import { Role, Team, UserStatus } from './types';
+import { Role, Team, UserStatus } from '../types';
 
-@Entity()
-export class User {
-  @Column({ primary: true })
-  @IsPositive()
+export class GetUserResponseDto {
+  @IsNumber()
   userId: number;
 
-  @Column()
   @IsEnum(UserStatus)
   status: UserStatus;
 
-  @Column()
   @IsString()
   firstName: string;
 
-  @Column()
   @IsString()
   lastName: string;
 
-  @Column()
   @IsEmail()
   email: string;
 
-  @Column()
+  // TODO make custom decorator for @IsUrl()s
   @IsUrl({
     protocols: ['https'],
     require_protocol: true,
   })
   profilePicture: string | null;
 
-  @Column()
   @IsUrl({
     protocols: ['https'],
     require_protocol: true,
@@ -48,7 +38,6 @@ export class User {
   })
   linkedin: string | null;
 
-  @Column()
   @IsUrl({
     protocols: ['https'],
     require_protocol: true,
@@ -56,17 +45,10 @@ export class User {
   })
   github: string | null;
 
-  @Column()
   @IsEnum(Team)
   team: Team | null;
 
-  @Column()
   @IsArray()
   @IsEnum(Role, { each: true })
   role: Role[] | null;
-
-  @Column()
-  @IsArray()
-  @IsObject({ each: true })
-  applications: Application[];
 }

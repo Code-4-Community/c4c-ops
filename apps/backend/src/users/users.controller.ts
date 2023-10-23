@@ -9,7 +9,7 @@ import {
   Param,
   Patch,
 } from '@nestjs/common';
-import { UpdateUserDTO } from './update-user.dto';
+import { UpdateUserDTO } from './dto/update-user.dto';
 import { UsersService } from './users.service';
 import { User } from './user.entity';
 
