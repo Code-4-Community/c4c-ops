@@ -1,13 +1,12 @@
 import {
   BadRequestException,
-  UnauthorizedException,
   Injectable,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ObjectId } from 'mongodb';
 import { MongoRepository } from 'typeorm';
-
 import { User } from './user.entity';
+import { UpdateUserDTO } from './update-user.dto';
 import { Status } from './types';
 import { getCurrentUser } from './utils';
 
@@ -21,9 +20,9 @@ export class UsersService {
   async findAll(getAllMembers: boolean): Promise<User[]> {
     if (!getAllMembers) return [];
 
-    const exampleUser = getCurrentUser();
+    const currentUser = getCurrentUser();
 
-    if (exampleUser.status == Status.APPLICANT) {
+    if (currentUser.status === Status.APPLICANT) {
       throw new UnauthorizedException();
     }
 
@@ -67,5 +66,33 @@ export class UsersService {
     }
 
     return user;
+  }
+
+  async updateUser(
+    updateUserDTO: UpdateUserDTO,
+    userId: number,
+  ): Promise<User> {
+    const user: User = await this.usersRepository.findOne({
+      where: {
+        userId: { $eq: userId },
+      },
+    });
+
+    if (!user) {
+      throw new BadRequestException(`User ${userId} not found.`);
+    }
+
+    const currentUser = getCurrentUser();
+
+    if (currentUser.status !== Status.ADMIN && userId !== currentUser.userId) {
+      throw new UnauthorizedException();
+    }
+
+    await this.usersRepository.update({ userId }, updateUserDTO);
+    return await this.usersRepository.findOne({
+      where: {
+        userId: { $eq: userId },
+      },
+    });
   }
 }
