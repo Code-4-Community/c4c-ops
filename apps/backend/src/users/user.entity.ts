@@ -1,7 +1,7 @@
 import { IsEmail, IsUrl } from 'class-validator';
 import { Entity, Column } from 'typeorm';
 import { Application } from '../applications/application.entity';
-import { Status } from './types';
+import { Role, Status, Team } from './types';
 
 @Entity()
 export class User {
@@ -32,10 +32,10 @@ export class User {
   github: string | null;
 
   @Column()
-  team: string | null;
+  team: Team | null;
 
   @Column()
-  role: string | null;
+  role: Role[] | null;
 
   @Column()
   applications: Application[] | null;
