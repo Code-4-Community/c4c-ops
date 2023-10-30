@@ -1,8 +1,9 @@
-import { IsEnum, IsPositive } from 'class-validator';
+import { IsEnum, IsPositive, Min } from 'class-validator';
 import { Semester } from '../types';
 
 export class Cycle {
   @IsPositive()
+  @Min(2023)
   year: number;
 
   @IsEnum(Semester)

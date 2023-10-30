@@ -9,7 +9,7 @@ import { UserStatus } from '../users/types';
 import { UsersService } from '../users/users.service';
 import { getCurrentUser } from '../users/utils';
 import { Application } from './application.entity';
-import { getCurrentCycle } from './utils';
+import { getAppForCurrentCycle, getCurrentCycle } from './utils';
 import { Cycle } from './dto/cycle.dto';
 import { plainToClass } from 'class-transformer';
 
@@ -36,12 +36,12 @@ export class ApplicationsService {
     }
 
     const applicant = await this.usersService.findOne(userId);
-    const application = applicant.applications[0];
-    if (application == null) {
+    const currentApp = getAppForCurrentCycle(applicant.applications);
+    if (currentApp == null) {
       throw new BadRequestException('Application not found');
     }
 
-    const cycle = plainToClass(Cycle, application.cycle);
+    const cycle = plainToClass(Cycle, currentApp.cycle);
 
     //the user with the given userId has not applied in the current recruitment cycle
     if (!cycle.isCurrentCycle(getCurrentCycle())) {
@@ -50,6 +50,6 @@ export class ApplicationsService {
       );
     }
 
-    return application;
+    return currentApp;
   }
 }
