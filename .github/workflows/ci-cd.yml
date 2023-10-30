@@ -77,7 +77,7 @@ jobs:
 
   deploy-frontend:
     needs: pre-deploy
-    if: (contains(github.event.inputs.manual-deploy, 'c4c-ops-frontend') || contains(needs.pre-deploy.outputs.affected, 'scaffolding-frontend')) && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
+    if: (contains(github.event.inputs.manual-deploy, 'c4c-ops-frontend') || contains(needs.pre-deploy.outputs.affected, 'c4c-ops-frontend')) && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     # For "simplicity", deployment settings are configured in the AWS Amplify Console
     # This just posts to a webhook telling Amplify to redeploy the main branch
@@ -89,7 +89,7 @@ jobs:
 
   deploy-backend:
     needs: pre-deploy
-    if: (contains(github.event.inputs.manual-deploy, 'c4c-ops-backend') || contains(needs.pre-deploy.outputs.affected, 'scaffolding-backend')) && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
+    if: (contains(github.event.inputs.manual-deploy, 'c4c-ops-backend') || contains(needs.pre-deploy.outputs.affected, 'c4c-ops-backend')) && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
