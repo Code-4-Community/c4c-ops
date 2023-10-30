@@ -1,3 +1,4 @@
+import { plainToClass } from 'class-transformer';
 import { Application } from './application.entity';
 import { Cycle } from './dto/cycle.dto';
 import { Semester } from './types';
@@ -14,7 +15,8 @@ export const getAppForCurrentCycle = (
 
   const currentCycle = getCurrentCycle();
   for (const application of applications) {
-    if (application.cycle.isCurrentCycle(currentCycle)) {
+    const cycle = plainToClass(Cycle, application.cycle);
+    if (cycle.isCurrentCycle(currentCycle)) {
       return application;
     }
   }
