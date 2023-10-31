@@ -19,13 +19,13 @@ nx serve frontend
 To run just the backend (port 3000):
 
 ```
-nx serve apps/backend
+nx serve backend
 ```
 
 To run both the frontend and backend with one command:
 
 ```
-nx run-many -t serve -p apps/frontend apps/backend
+nx run-many -t serve -p frontend backend
 ```
 
 ## Other commands

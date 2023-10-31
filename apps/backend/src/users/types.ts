@@ -1,5 +1,6 @@
 // TODO: Probably want these types to be available to both the frontend and backend in a "common" folder
-export enum Status {
+
+export enum UserStatus {
   MEMBER = 'Member',
   RECRUITER = 'Recruiter',
   ADMIN = 'Admin',

@@ -1,4 +1,4 @@
-import { Status, Role, Team } from './types';
+import { UserStatus, Role, Team } from '../types';
 import {
   IsEmail,
   IsOptional,
@@ -11,14 +11,15 @@ import {
 
 export class UpdateUserDTO {
   @IsOptional()
-  @IsEnum(Status)
-  status?: Status;
+  @IsEnum(UserStatus)
+  status?: UserStatus;
 
   @IsOptional()
   @IsEmail()
   email?: string;
 
   @IsOptional()
+  @IsUrl()
   profilePicture?: string;
 
   @IsOptional()
