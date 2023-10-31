@@ -7,11 +7,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { MongoRepository } from 'typeorm';
 import { UserStatus } from '../users/types';
 import { UsersService } from '../users/users.service';
-import { getCurrentUser } from '../users/utils';
 import { Application } from './application.entity';
 import { getAppForCurrentCycle, getCurrentCycle } from './utils';
 import { Cycle } from './dto/cycle.dto';
 import { plainToClass } from 'class-transformer';
+import { User } from '../users/user.entity';
 
 @Injectable()
 export class ApplicationsService {
@@ -21,8 +21,7 @@ export class ApplicationsService {
     private readonly usersService: UsersService,
   ) {}
 
-  async findOne(userId: number): Promise<Application> {
-    const currentUser = getCurrentUser();
+  async findOne(currentUser: User, userId: number): Promise<Application> {
     const currentStatus = currentUser.status;
     switch (currentStatus) {
       case UserStatus.ADMIN:
@@ -35,8 +34,9 @@ export class ApplicationsService {
         break;
     }
 
-    const applicant = await this.usersService.findOne(userId);
-    const currentApp = getAppForCurrentCycle(applicant.applications);
+    const applicant = await this.usersService.findOne(currentUser, userId);
+    console.log(applicant);
+    const currentApp = getAppForCurrentCycle(applicant.applications ?? []);
     if (currentApp == null) {
       throw new BadRequestException('Application not found');
     }

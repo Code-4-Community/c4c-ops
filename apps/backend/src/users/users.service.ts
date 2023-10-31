@@ -2,13 +2,13 @@ import {
   BadRequestException,
   Injectable,
   UnauthorizedException,
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MongoRepository } from 'typeorm';
 import { User } from './user.entity';
 import { UpdateUserDTO } from './dto/update-user.dto';
 import { UserStatus } from './types';
-import { getCurrentUser } from './utils';
 
 @Injectable()
 export class UsersService {
@@ -17,10 +17,21 @@ export class UsersService {
     private usersRepository: MongoRepository<User>,
   ) {}
 
-  async findAll(getAllMembers: boolean): Promise<User[]> {
-    if (!getAllMembers) return [];
+  async create(email: string, firstName: string, lastName: string) {
+    const userId = (await this.usersRepository.count()) + 1;
+    const user = this.usersRepository.create({
+      userId,
+      status: UserStatus.MEMBER,
+      firstName,
+      lastName,
+      email,
+    });
 
-    const currentUser = getCurrentUser();
+    return this.usersRepository.save(user);
+  }
+
+  async findAll(currentUser: User, getAllMembers: boolean): Promise<User[]> {
+    if (!getAllMembers) return [];
 
     if (currentUser.status === UserStatus.APPLICANT) {
       throw new UnauthorizedException();
@@ -35,14 +46,12 @@ export class UsersService {
     return users;
   }
 
-  async findOne(userId: number) {
+  async findOne(currentUser: User, userId: number): Promise<User> {
     const user = await this.usersRepository.findOneBy({ userId });
 
     if (!user) {
       throw new BadRequestException('User not found');
     }
-
-    const currentUser = getCurrentUser();
 
     const currentStatus = currentUser.status;
     const targetStatus = user.status;
@@ -71,6 +80,7 @@ export class UsersService {
   }
 
   async updateUser(
+    currentUser: User,
     updateUserDTO: UpdateUserDTO,
     userId: number,
   ): Promise<User> {
@@ -83,8 +93,6 @@ export class UsersService {
     if (!user) {
       throw new BadRequestException(`User ${userId} not found.`);
     }
-
-    const currentUser = getCurrentUser();
 
     if (
       currentUser.status !== UserStatus.ADMIN &&
@@ -100,4 +108,32 @@ export class UsersService {
       },
     });
   }
+
+  /* TODO merge these methods with the above methods */
+  find(email: string) {
+    return this.usersRepository.find({ where: { email } });
+  }
+
+  async update(currentUser: User, userId: number, attrs: Partial<User>) {
+    const user = await this.findOne(currentUser, userId);
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    Object.assign(user, attrs);
+
+    return this.usersRepository.save(user);
+  }
+
+  async remove(currentUser: User, userId: number) {
+    const user = await this.findOne(currentUser, userId);
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return this.usersRepository.remove(user);
+  }
+  /* TODO merge these methods with the above methods */
 }

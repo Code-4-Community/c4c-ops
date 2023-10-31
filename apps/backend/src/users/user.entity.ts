@@ -7,12 +7,15 @@ import {
   IsString,
   IsUrl,
 } from 'class-validator';
-import { Entity, Column } from 'typeorm';
+import { Entity, Column, ObjectIdColumn, ObjectId } from 'typeorm';
 import { Application } from '../applications/application.entity';
 import { Role, Team, UserStatus } from './types';
 
 @Entity()
 export class User {
+  @ObjectIdColumn()
+  _id: ObjectId;
+
   @Column({ primary: true })
   @IsPositive()
   userId: number;

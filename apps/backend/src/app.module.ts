@@ -3,10 +3,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { UsersModule } from '../users/users.module';
-import { PluralNamingStrategy } from '../strategies/plural-naming.strategy';
-import { ApplicationsModule } from '../applications/applications.module';
-
+import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
+import { PluralNamingStrategy } from './strategies/plural-naming.strategy';
+import { ApplicationsModule } from './applications/applications.module';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -22,6 +22,7 @@ import { ApplicationsModule } from '../applications/applications.module';
       synchronize: true,
       namingStrategy: new PluralNamingStrategy(),
     }),
+    AuthModule,
     UsersModule,
     ApplicationsModule,
   ],
