@@ -1,30 +1,40 @@
 import {
+  DefaultValuePipe,
+  ParseBoolPipe,
+  ParseIntPipe,
+  Query,
+  Body,
   Controller,
-  Delete,
   Get,
   Param,
-  ParseIntPipe,
-  UseGuards,
-  UseInterceptors,
+  Patch,
 } from '@nestjs/common';
+import { UpdateUserDTO } from './update-user.dto';
 import { UsersService } from './users.service';
-import { AuthGuard } from '@nestjs/passport';
 import { User } from './user.entity';
-import { CurrentUserInterceptor } from '../interceptors/current-user.interceptor';
 
 @Controller('users')
-@UseInterceptors(CurrentUserInterceptor)
 export class UsersController {
-  constructor(private usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) {}
 
-  @UseGuards(AuthGuard('jwt'))
+  @Get()
+  getAllMembers(
+    @Query('getAllMembers', new DefaultValuePipe(false), ParseBoolPipe)
+    getAllMembers: boolean,
+  ) {
+    return this.usersService.findAll(getAllMembers);
+  }
+
   @Get('/:userId')
-  async getUser(@Param('userId', ParseIntPipe) userId: number): Promise<User> {
+  getUser(@Param('userId', ParseIntPipe) userId: number) {
     return this.usersService.findOne(userId);
   }
 
-  @Delete('/:id')
-  removeUser(@Param('id') id: string) {
-    return this.usersService.remove(parseInt(id));
+  @Patch(':userId')
+  async updateUser(
+    @Body() updateUserDTO: UpdateUserDTO,
+    @Param('userId', ParseIntPipe) userId: number,
+  ): Promise<User> {
+    return this.usersService.updateUser(updateUserDTO, userId);
   }
 }
