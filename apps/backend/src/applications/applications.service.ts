@@ -12,6 +12,9 @@ import { Application } from './application.entity';
 import { getCurrentCycle } from './utils';
 import { Cycle } from './dto/cycle.dto';
 import { plainToClass } from 'class-transformer';
+import { User } from '../users/user.entity';
+import { ReviewApplicationDTO } from './dto/review-application.dto';
+import { Review } from './types';
 
 @Injectable()
 export class ApplicationsService {
@@ -51,5 +54,34 @@ export class ApplicationsService {
     }
 
     return application;
+  }
+
+  async reviewApplication(
+    reviewApplicationDTO: ReviewApplicationDTO,
+    userId: number,
+  ): Promise<void> {
+    const app = await this.findOne(userId);
+    const review: Review = {
+      reviewerId: reviewApplicationDTO.reviewerId,
+      rating: reviewApplicationDTO.rating,
+      summary: reviewApplicationDTO.summary,
+    };
+
+    app.reviews.push(review);
+
+    //if this doesnt work- try update and update with just the review
+    await this.applicationsRepository.save(app);
+
+    //error handling
+    //no user associated, throw exception
+    //applicant tries to review, etc
+    const currentUser = getCurrentUser();
+    const currentStatus = currentUser.status;
+    if (currentUser === null) {
+      throw new UnauthorizedException('User not found');
+    }
+    if (currentStatus === UserStatus.APPLICANT) {
+      throw new UnauthorizedException('User not found');
+    }
   }
 }

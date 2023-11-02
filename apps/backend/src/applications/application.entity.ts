@@ -6,7 +6,7 @@ import {
   IsPositive,
 } from 'class-validator';
 import { Entity, Column } from 'typeorm';
-import { Response, Note, ApplicationStatus } from './types';
+import { Response, ApplicationStatus, Review } from './types';
 import { Cycle } from './dto/cycle.dto';
 
 @Entity()
@@ -35,5 +35,5 @@ export class Application {
   @Column()
   @IsArray()
   @IsObject({ each: true })
-  notes: Note[];
+  reviews: Review[];
 }
