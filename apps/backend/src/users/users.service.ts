@@ -18,9 +18,7 @@ export class UsersService {
   ) {}
 
   async create(email: string, firstName: string, lastName: string) {
-    const userId = (await this.usersRepository.count()) + 1;
     const user = this.usersRepository.create({
-      userId,
       status: UserStatus.MEMBER,
       firstName,
       lastName,

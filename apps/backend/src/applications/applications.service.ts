@@ -10,7 +10,6 @@ import { UsersService } from '../users/users.service';
 import { Application } from './application.entity';
 import { getAppForCurrentCycle, getCurrentCycle } from './utils';
 import { Cycle } from './dto/cycle.dto';
-import { plainToClass } from 'class-transformer';
 import { User } from '../users/user.entity';
 
 @Injectable()
@@ -41,7 +40,7 @@ export class ApplicationsService {
       throw new BadRequestException('Application not found');
     }
 
-    const cycle = plainToClass(Cycle, currentApp.cycle);
+    const cycle = new Cycle(currentApp.year, currentApp.semester);
 
     //the user with the given userId has not applied in the current recruitment cycle
     if (!cycle.isCurrentCycle(getCurrentCycle())) {
