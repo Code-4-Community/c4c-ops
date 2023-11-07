@@ -19,8 +19,8 @@ import { Review } from './types';
 @Injectable()
 export class ApplicationsService {
   constructor(
-    @InjectRepository(Application)
-    private applicationsRepository: MongoRepository<Application>,
+    @InjectRepository(User)
+    private usersRepository: MongoRepository<User>,
     private readonly usersService: UsersService,
   ) {}
 
@@ -60,28 +60,29 @@ export class ApplicationsService {
     reviewApplicationDTO: ReviewApplicationDTO,
     userId: number,
   ): Promise<void> {
-    const app = await this.findOne(userId);
     const review: Review = {
       reviewerId: reviewApplicationDTO.reviewerId,
       rating: reviewApplicationDTO.rating,
       summary: reviewApplicationDTO.summary,
     };
 
+    const applicant = await this.usersService.findOne(userId);
+    //TODO: use getApp for current cycle when merging with main
+    const app = applicant.applications[0];
     app.reviews.push(review);
 
-    //if this doesnt work- try update and update with just the review
-    await this.applicationsRepository.save(app);
+    await this.usersRepository.save(applicant);
 
     //error handling
     //no user associated, throw exception
     //applicant tries to review, etc
-    const currentUser = getCurrentUser();
-    const currentStatus = currentUser.status;
-    if (currentUser === null) {
-      throw new UnauthorizedException('User not found');
-    }
-    if (currentStatus === UserStatus.APPLICANT) {
-      throw new UnauthorizedException('User not found');
-    }
+    // const currentUser = getCurrentUser();
+    // const currentStatus = currentUser.status;
+    // if (currentUser === null) {
+    //   throw new UnauthorizedException('User not found');
+    // }
+    // if (currentStatus === UserStatus.APPLICANT) {
+    //   throw new UnauthorizedException('User not found');
+    // }
   }
 }
