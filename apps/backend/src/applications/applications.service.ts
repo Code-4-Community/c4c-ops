@@ -5,13 +5,16 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MongoRepository } from 'typeorm';
-import { UserStatus } from '../users/types';
+import { Role, Team, UserStatus } from '../users/types';
 import { UsersService } from '../users/users.service';
 import { Application } from './application.entity';
 import { getAppForCurrentCycle, getCurrentCycle } from './utils';
 import { Cycle } from './dto/cycle.dto';
 import { plainToClass } from 'class-transformer';
 import { User } from '../users/user.entity';
+import { SubmitApplicationDto } from './dto/submit-app.dto';
+import { ObjectId } from 'mongodb';
+import { ApplicationStatus } from './types';
 
 @Injectable()
 export class ApplicationsService {
@@ -20,6 +23,77 @@ export class ApplicationsService {
     private applicationsRepository: MongoRepository<Application>,
     private readonly usersService: UsersService,
   ) {}
+
+  /**
+   * Supmits the applicant users' responses
+   *
+   * @param application holds the applicant's ID as well as their application responses
+   *
+   *
+   * @throws {BadRequestException} if calling user does not exist
+   * @throws {UnauthorizedException} if calling user does not have proper permissions
+   */
+
+  async submitApp(application: SubmitApplicationDto) {
+    //TODO add callingUser as a parameter
+
+    const { applicantId, application: responses } = application;
+
+    const callingUser: User = {
+      _id: new ObjectId(),
+      userId: 99,
+      status: UserStatus.ADMIN,
+      firstName: 'SomeUser',
+      lastName: 'UserSome',
+      email: 'someEmail@google.com',
+      applications: [],
+      linkedin: null,
+      profilePicture: null,
+      github: null,
+      team: null,
+      role: null,
+    };
+
+    //throws 400 bad request exception if applicantId does not exist
+    const applicantUser = await this.usersService.findOne(
+      callingUser,
+      applicantId,
+    );
+
+    const {
+      applications: existingApplications,
+    }: { applications: Application[] } = applicantUser;
+
+    if (getAppForCurrentCycle(existingApplications)) {
+      throw new UnauthorizedException(
+        `Applicant ${applicantId} has already submitted an application for the current cycle`,
+      );
+    }
+
+    //create a new application given the new responses then add it to existing applications
+    const newApplication: Application = {
+      // TODO how should IDs be generated?
+      id: 999,
+      createdAt: new Date(),
+      cycle: getCurrentCycle(),
+      status: ApplicationStatus.SUBMITTED,
+      application: responses,
+
+      //TODO should notes always be null when submitted?
+      notes: null,
+    };
+
+    existingApplications.push(newApplication);
+
+    await this.usersService.updateUser(
+      callingUser,
+      { applications: existingApplications },
+      applicantId,
+    );
+
+    //should we return the updated user from usersService.updateUser()?
+    //TODO update google forms appscript
+  }
 
   async findOne(currentUser: User, userId: number): Promise<Application> {
     const currentStatus = currentUser.status;
