@@ -11,7 +11,7 @@ import { ApplicationsService } from './applications.service';
 import { CurrentUserInterceptor } from '../interceptors/current-user.interceptor';
 import { AuthGuard } from '@nestjs/passport';
 import { ApplicationDTO } from './dto/application.dto';
-import { classToPlain, instanceToPlain, plainToClass } from 'class-transformer';
+import { instanceToPlain, plainToClass } from 'class-transformer';
 import { UsersService } from '../users/users.service';
 import { getAppForCurrentCycle } from './utils';
 
