@@ -8,21 +8,33 @@ import {
   UseGuards,
   Post,
   Body,
+  ParseArrayPipe,
+  BadGatewayException,
 } from '@nestjs/common';
 import { ApplicationsService } from './applications.service';
 import { CurrentUserInterceptor } from '../interceptors/current-user.interceptor';
 import { AuthGuard } from '@nestjs/passport';
 import { SubmitApplicationDto } from './dto/submit-app.dto';
+import { Response } from './types';
 
 @Controller('apps')
 @UseInterceptors(CurrentUserInterceptor)
-@UseGuards(AuthGuard('jwt'))
+// @UseGuards(AuthGuard('jwt'))
 export class ApplicationsController {
   constructor(private readonly applicationsService: ApplicationsService) {}
 
   @Post()
-  submitApplication(@Body() application: SubmitApplicationDto) {
-    this.applicationsService.submitApp(application);
+  async submitApplication(
+    @Body('applicantId', ParseIntPipe) applicantId: number,
+    @Body('application') application: string,
+  ) {
+    console.log(JSON.parse(application));
+    console.log(application, applicantId);
+    const submitApplicationDto: SubmitApplicationDto = {
+      applicantId,
+      application: JSON.parse(application),
+    };
+    await this.applicationsService.submitApp(submitApplicationDto);
   }
 
   @Get('/:userId')

@@ -1,7 +1,8 @@
 import { Response } from '../types';
-import { IsPositive } from 'class-validator';
+import { IsNumber, IsPositive } from 'class-validator';
 
 export class SubmitApplicationDto {
+  @IsNumber()
   @IsPositive()
   applicantId: number;
 

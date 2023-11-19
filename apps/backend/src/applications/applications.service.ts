@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MongoRepository } from 'typeorm';
-import { Role, Team, UserStatus } from '../users/types';
+import { UserStatus } from '../users/types';
 import { UsersService } from '../users/users.service';
 import { Application } from './application.entity';
 import { getAppForCurrentCycle, getCurrentCycle } from './utils';
@@ -64,6 +64,7 @@ export class ApplicationsService {
       applications: existingApplications,
     }: { applications: Application[] } = applicantUser;
 
+    //TODO Maybe allow for more applications?
     if (getAppForCurrentCycle(existingApplications)) {
       throw new UnauthorizedException(
         `Applicant ${applicantId} has already submitted an application for the current cycle`,
@@ -72,8 +73,7 @@ export class ApplicationsService {
 
     //create a new application given the new responses then add it to existing applications
     const newApplication: Application = {
-      // TODO how should IDs be generated?
-      id: 999,
+      id: applicantId,
       createdAt: new Date(),
       cycle: getCurrentCycle(),
       status: ApplicationStatus.SUBMITTED,
