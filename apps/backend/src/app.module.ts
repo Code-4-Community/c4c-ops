@@ -14,7 +14,6 @@ import { ApplicationsModule } from './applications/applications.module';
       type: 'postgres',
       host: process.env.NX_DB_HOST,
       port: 5432,
-      database: 'c4cops',
       username: process.env.NX_DB_USERNAME,
       password: process.env.NX_DB_PASSWORD,
       autoLoadEntities: true,
