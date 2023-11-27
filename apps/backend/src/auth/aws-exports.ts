@@ -1,6 +1,6 @@
 const CognitoAuthConfig = {
-  userPoolId: 'us-east-2_hTtZ5N5ZV',
-  clientId: '4c5b8m6tno9fvljmseqgmk82fv',
+  userPoolId: process.env.NX_COGNITO_USER_POOL_ID,
+  clientId: process.env.NX_COGNITO_CLIENT_ID,
   region: 'us-east-2',
 };
 

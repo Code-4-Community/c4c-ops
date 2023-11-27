@@ -13,7 +13,7 @@ import { Role, Team, UserStatus } from './types';
 
 @Entity()
 export class User {
-  @Column({ primary: true })
+  @Column({ primary: true, generated: true })
   @IsPositive()
   userId: number;
 
