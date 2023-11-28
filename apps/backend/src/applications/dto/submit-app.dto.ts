@@ -1,10 +1,10 @@
+import { IsEmail } from 'class-validator';
 import { Response } from '../types';
-import { IsNumber, IsPositive } from 'class-validator';
 
 export class SubmitApplicationDto {
-  @IsNumber()
-  @IsPositive()
-  applicantId: number;
+  @IsEmail()
+  email: string;
+  signature: string;
 
   application: Response[];
 }

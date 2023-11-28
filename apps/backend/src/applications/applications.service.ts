@@ -14,7 +14,8 @@ import { plainToClass } from 'class-transformer';
 import { User } from '../users/user.entity';
 import { SubmitApplicationDto } from './dto/submit-app.dto';
 import { ObjectId } from 'mongodb';
-import { ApplicationStatus } from './types';
+import { ApplicationStatus, Response } from './types';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class ApplicationsService {
@@ -34,50 +35,29 @@ export class ApplicationsService {
    * @throws {UnauthorizedException} if calling user does not have proper permissions
    */
 
-  async submitApp(application: SubmitApplicationDto) {
+  async submitApp(application: Response[], user: User) {
     //TODO add callingUser as a parameter
 
-    const { applicantId, application: responses } = application;
-
-    const callingUser: User = {
-      _id: new ObjectId(),
-      userId: 99,
-      status: UserStatus.ADMIN,
-      firstName: 'SomeUser',
-      lastName: 'UserSome',
-      email: 'someEmail@google.com',
-      applications: [],
-      linkedin: null,
-      profilePicture: null,
-      github: null,
-      team: null,
-      role: null,
-    };
-
-    //throws 400 bad request exception if applicantId does not exist
-    const applicantUser = await this.usersService.findOne(
-      callingUser,
-      applicantId,
-    );
+    user.status = UserStatus.ADMIN;
 
     const {
       applications: existingApplications,
-    }: { applications: Application[] } = applicantUser;
+    }: { applications: Application[] } = user;
 
     //TODO Maybe allow for more applications?
     if (getAppForCurrentCycle(existingApplications)) {
       throw new UnauthorizedException(
-        `Applicant ${applicantId} has already submitted an application for the current cycle`,
+        `Applicant ${user.userId} has already submitted an application for the current cycle`,
       );
     }
 
     //create a new application given the new responses then add it to existing applications
     const newApplication: Application = {
-      id: applicantId,
+      id: user.userId,
       createdAt: new Date(),
       cycle: getCurrentCycle(),
       status: ApplicationStatus.SUBMITTED,
-      application: responses,
+      application,
 
       //TODO should notes always be null when submitted?
       notes: null,
@@ -86,13 +66,40 @@ export class ApplicationsService {
     existingApplications.push(newApplication);
 
     await this.usersService.updateUser(
-      callingUser,
+      user,
       { applications: existingApplications },
-      applicantId,
+      user.userId,
     );
 
     //should we return the updated user from usersService.updateUser()?
     //TODO update google forms appscript
+  }
+
+  async verifySignature(email: string, signature: string): Promise<User> {
+    //temporary secret
+    const SECRET =
+      'e637efc085ab91eb6b5740fa56a4d366c9a6e63db369319ef414e7c200fd6bca';
+    const expectedSignature = crypto
+      .createHmac('sha256', SECRET)
+      .update(email)
+      .digest('base64');
+
+    if (signature === expectedSignature) {
+      const users = await this.usersService.find(email);
+      const user = users[0];
+      console.log(users, user);
+
+      // occurs if someone doesn't sign up to our portal before submitting form
+      // throws exception if email does not exist
+      if (!user) {
+        console.log(user);
+        throw new UnauthorizedException('verifySignature 1');
+      }
+      console.log(user);
+      return user;
+    }
+
+    throw new UnauthorizedException('verifysignature 2');
   }
 
   async findOne(currentUser: User, userId: number): Promise<Application> {

@@ -79,6 +79,7 @@ export class UsersService {
     return user;
   }
 
+  // TODO change update user to allow applicants to update their own applications
   async updateUser(
     currentUser: User,
     updateUserDTO: UpdateUserDTO,
@@ -110,8 +111,8 @@ export class UsersService {
   }
 
   /* TODO merge these methods with the above methods */
-  find(email: string) {
-    return this.usersRepository.find({ where: { email } });
+  async find(email: string) {
+    return await this.usersRepository.find({ where: { email } });
   }
 
   async update(currentUser: User, userId: number, attrs: Partial<User>) {

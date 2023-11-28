@@ -25,16 +25,15 @@ export class ApplicationsController {
 
   @Post()
   async submitApplication(
-    @Body('applicantId', ParseIntPipe) applicantId: number,
     @Body('application') application: string,
+    @Body('signature') signature: string,
+    @Body('email') email: string,
   ) {
-    console.log(JSON.parse(application));
-    console.log(application, applicantId);
-    const submitApplicationDto: SubmitApplicationDto = {
-      applicantId,
-      application: JSON.parse(application),
-    };
-    await this.applicationsService.submitApp(submitApplicationDto);
+    const user = await this.applicationsService.verifySignature(
+      email,
+      signature,
+    );
+    await this.applicationsService.submitApp(JSON.parse(application), user);
   }
 
   @Get('/:userId')
