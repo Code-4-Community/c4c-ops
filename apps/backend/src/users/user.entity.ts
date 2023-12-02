@@ -7,20 +7,17 @@ import {
   IsString,
   IsUrl,
 } from 'class-validator';
-import { Entity, Column, ObjectIdColumn, ObjectId } from 'typeorm';
+import { Entity, Column } from 'typeorm';
 import { Application } from '../applications/application.entity';
 import { Role, Team, UserStatus } from './types';
 
 @Entity()
 export class User {
-  @ObjectIdColumn()
-  _id: ObjectId;
-
-  @Column({ primary: true })
+  @Column({ primary: true, generated: true })
   @IsPositive()
   userId: number;
 
-  @Column()
+  @Column('varchar')
   @IsEnum(UserStatus)
   status: UserStatus;
 
@@ -36,14 +33,14 @@ export class User {
   @IsEmail()
   email: string;
 
-  @Column()
+  @Column({ nullable: true })
   @IsUrl({
     protocols: ['https'],
     require_protocol: true,
   })
   profilePicture: string | null;
 
-  @Column()
+  @Column({ nullable: true })
   @IsUrl({
     protocols: ['https'],
     require_protocol: true,
@@ -51,7 +48,7 @@ export class User {
   })
   linkedin: string | null;
 
-  @Column()
+  @Column({ nullable: true })
   @IsUrl({
     protocols: ['https'],
     require_protocol: true,
@@ -59,16 +56,17 @@ export class User {
   })
   github: string | null;
 
-  @Column()
+  @Column('varchar', { nullable: true })
   @IsEnum(Team)
   team: Team | null;
 
-  @Column()
+  @Column('varchar', { array: true, nullable: true })
   @IsArray()
   @IsEnum(Role, { each: true })
   role: Role[] | null;
 
-  @Column()
+  // TODO remove { nullable: true }
+  @Column('varchar', { array: true, default: [], nullable: true })
   @IsArray()
   @IsObject({ each: true })
   applications: Application[];

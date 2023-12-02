@@ -4,10 +4,10 @@ import {
   IsEnum,
   IsObject,
   IsPositive,
+  Min,
 } from 'class-validator';
 import { Entity, Column } from 'typeorm';
-import { Response, Note, ApplicationStatus } from './types';
-import { Cycle } from './dto/cycle.dto';
+import { Response, Note, ApplicationStatus, Semester } from './types';
 
 @Entity()
 export class Application {
@@ -16,23 +16,32 @@ export class Application {
   id: number;
 
   @Column()
+  @IsPositive()
+  applicantId: number;
+
+  @Column()
   @IsDateString()
   createdAt: Date;
 
   @Column()
-  @IsObject()
-  cycle: Cycle;
+  @IsPositive()
+  @Min(2023)
+  year: number;
 
-  @Column()
+  @Column('varchar')
+  @IsEnum(Semester)
+  semester: Semester;
+
+  @Column('varchar')
   @IsEnum(ApplicationStatus)
   status: ApplicationStatus;
 
-  @Column()
+  @Column('varchar', { array: true })
   @IsArray()
   @IsObject({ each: true })
   application: Response[];
 
-  @Column()
+  @Column('varchar', { array: true })
   @IsArray()
   @IsObject({ each: true })
   notes: Note[];
