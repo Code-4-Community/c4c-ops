@@ -51,16 +51,29 @@ export class ApplicationsService {
     }
 
     //create a new application given the new responses then add it to existing applications
-    const newApplication: Application = {
-      id: user.userId,
-      createdAt: new Date(),
-      cycle: getCurrentCycle(),
-      status: ApplicationStatus.SUBMITTED,
-      application,
 
-      //TODO should notes always be null when submitted?
-      notes: null,
-    };
+    const newApplication: Application =
+      await this.applicationsRepository.create({
+        applicantId: user.userId,
+        createdAt: new Date(),
+        year: getCurrentCycle().year,
+        semester: getCurrentCycle().semester,
+        status: ApplicationStatus.SUBMITTED,
+        application,
+        notes: null,
+      });
+
+    // const newApplication: Application = {
+    //   applicantId: user.userId,
+    //   createdAt: new Date(),
+    //   year: getCurrentCycle().year,
+    //   semester: getCurrentCycle().semester,
+    //   status: ApplicationStatus.SUBMITTED,
+    //   application,
+
+    //   //TODO should notes always be null when submitted?
+    //   notes: null,
+    // };
 
     existingApplications.push(newApplication);
 

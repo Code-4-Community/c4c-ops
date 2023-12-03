@@ -54,25 +54,25 @@ export class UsersService {
     const currentStatus = currentUser.status;
     const targetStatus = user.status;
 
-    switch (currentStatus) {
-      //admin & recruiter can access all
-      case UserStatus.ADMIN:
-      case UserStatus.RECRUITER:
-        break;
-      //alumni and member can access all except for applicants
-      case UserStatus.ALUMNI:
-      case UserStatus.MEMBER:
-        if (targetStatus == UserStatus.APPLICANT) {
-          throw new UnauthorizedException('User not found');
-        }
-        break;
-      //applicants can only access themselves
-      case UserStatus.APPLICANT:
-        if (currentUser.userId !== user.userId) {
-          throw new UnauthorizedException('User not found');
-        }
-        break;
-    }
+    // switch (currentStatus) {
+    //   //admin & recruiter can access all
+    //   case UserStatus.ADMIN:
+    //   case UserStatus.RECRUITER:
+    //     break;
+    //   //alumni and member can access all except for applicants
+    //   case UserStatus.ALUMNI:
+    //   case UserStatus.MEMBER:
+    //     if (targetStatus == UserStatus.APPLICANT) {
+    //       throw new UnauthorizedException('User not found');
+    //     }
+    //     break;
+    //   //applicants can only access themselves
+    //   case UserStatus.APPLICANT:
+    //     if (currentUser.userId !== user.userId) {
+    //       throw new UnauthorizedException('User not found');
+    //     }
+    //     break;
+    // }
 
     return user;
   }
@@ -83,11 +83,12 @@ export class UsersService {
     updateUserDTO: UpdateUserDTO,
     userId: number,
   ): Promise<User> {
-    const user: User = await this.usersRepository.findOne({
-      where: {
-        userId: { $eq: userId },
-      },
-    });
+    const user: User = await this.usersRepository.findOneBy({ userId });
+    // ({
+    //   where: {
+    //     userId: { $eq: userId },
+    //   },
+    // });
 
     if (!user) {
       throw new BadRequestException(`User ${userId} not found.`);
@@ -101,11 +102,12 @@ export class UsersService {
     }
 
     await this.usersRepository.update({ userId }, updateUserDTO);
-    return await this.usersRepository.findOne({
-      where: {
-        userId: { $eq: userId },
-      },
-    });
+    return await this.usersRepository.findOneBy({ userId });
+    // ({
+    //   where: {
+    //     userId: { $eq: userId },
+    //   },
+    // });
   }
 
   /* TODO merge these methods with the above methods */

@@ -17,10 +17,16 @@ import { User } from './user.entity';
 import { CurrentUserInterceptor } from '../interceptors/current-user.interceptor';
 
 @Controller('users')
-@UseInterceptors(CurrentUserInterceptor)
-@UseGuards(AuthGuard('jwt'))
+// @UseInterceptors(CurrentUserInterceptor)
+// @UseGuards(AuthGuard('jwt'))
 export class UsersController {
   constructor(private usersService: UsersService) {}
+
+  @Get('test')
+  tester(@Request() req) {
+    const [type, token] = req.headers.authorization?.split(' ') ?? [];
+    console.log(type, token);
+  }
 
   @Get('/:userId')
   getUser(@Param('userId', ParseIntPipe) userId: number, @Request() req) {
