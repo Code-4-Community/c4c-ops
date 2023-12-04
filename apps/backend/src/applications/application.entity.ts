@@ -16,10 +16,6 @@ export class Application {
   @IsPositive()
   id: number;
 
-  // @Column()
-  // @IsPositive()
-  // applicantId: number;
-
   @ManyToOne(() => User, (user) => user.applications)
   @JoinColumn()
   user: User;

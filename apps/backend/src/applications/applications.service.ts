@@ -34,8 +34,6 @@ export class ApplicationsService {
     }
 
     const applicant = await this.usersService.findOne(currentUser, userId);
-
-    console.log(applicant);
     const currentApp = getAppForCurrentCycle(applicant.applications ?? []);
     if (currentApp == null) {
       throw new BadRequestException('Application not found');

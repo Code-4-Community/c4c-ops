@@ -8,10 +8,9 @@ import {
   UseGuards,
   BadRequestException,
 } from '@nestjs/common';
-import { ApplicationsService } from './applications.service';
 import { CurrentUserInterceptor } from '../interceptors/current-user.interceptor';
 import { AuthGuard } from '@nestjs/passport';
-import { ApplicationDTO } from './dto/application.dto';
+import { ApplicationDTO as GetApplicationDTO } from './dto/get-application.dto';
 import { instanceToPlain, plainToClass } from 'class-transformer';
 import { UsersService } from '../users/users.service';
 import { getAppForCurrentCycle } from './utils';
@@ -27,7 +26,7 @@ export class ApplicationsController {
     @Param('userId', ParseIntPipe) userId: number,
     //TODO: make req.user.applications unaccessible
     @Request() req,
-  ): Promise<ApplicationDTO> {
+  ): Promise<GetApplicationDTO> {
     const user = await this.usersService.findOne(req.user, userId);
     const app = getAppForCurrentCycle(user.applications);
     const appObject = instanceToPlain(app);
@@ -35,6 +34,6 @@ export class ApplicationsController {
       throw new BadRequestException('There are no applications');
     }
     appObject['numApps'] = user.applications.length;
-    return plainToClass(ApplicationDTO, appObject);
+    return plainToClass(GetApplicationDTO, appObject);
   }
 }

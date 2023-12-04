@@ -2,7 +2,6 @@ import {
   IsArray,
   IsEmail,
   IsEnum,
-  IsObject,
   IsPositive,
   IsString,
   IsUrl,
