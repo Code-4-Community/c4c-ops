@@ -6,6 +6,7 @@ import {
   Request,
   UseInterceptors,
   UseGuards,
+  BadRequestException,
 } from '@nestjs/common';
 import { ApplicationsService } from './applications.service';
 import { CurrentUserInterceptor } from '../interceptors/current-user.interceptor';
@@ -19,10 +20,7 @@ import { getAppForCurrentCycle } from './utils';
 @UseInterceptors(CurrentUserInterceptor)
 @UseGuards(AuthGuard('jwt'))
 export class ApplicationsController {
-  constructor(
-    private readonly applicationsService: ApplicationsService,
-    private readonly usersService: UsersService,
-  ) {}
+  constructor(private readonly usersService: UsersService) {}
 
   @Get('/:userId')
   async getApplication(
@@ -33,6 +31,9 @@ export class ApplicationsController {
     const user = await this.usersService.findOne(req.user, userId);
     const app = getAppForCurrentCycle(user.applications);
     const appObject = instanceToPlain(app);
+    if (appObject === null) {
+      throw new BadRequestException('There are no applications');
+    }
     appObject['numApps'] = user.applications.length;
     return plainToClass(ApplicationDTO, appObject);
   }

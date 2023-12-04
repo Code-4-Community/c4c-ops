@@ -6,7 +6,8 @@ import {
   IsPositive,
   Min,
 } from 'class-validator';
-import { Entity, Column } from 'typeorm';
+import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { User } from '../users/user.entity';
 import { Response, Note, ApplicationStatus, Semester } from './types';
 
 @Entity()
@@ -15,9 +16,13 @@ export class Application {
   @IsPositive()
   id: number;
 
-  @Column()
-  @IsPositive()
-  applicantId: number;
+  // @Column()
+  // @IsPositive()
+  // applicantId: number;
+
+  @ManyToOne(() => User, (user) => user.applications)
+  @JoinColumn()
+  user: User;
 
   @Column()
   @IsDateString()

@@ -7,7 +7,7 @@ import {
   IsString,
   IsUrl,
 } from 'class-validator';
-import { Entity, Column } from 'typeorm';
+import { Entity, Column, OneToMany } from 'typeorm';
 import { Application } from '../applications/application.entity';
 import { Role, Team, UserStatus } from './types';
 
@@ -65,9 +65,6 @@ export class User {
   @IsEnum(Role, { each: true })
   role: Role[] | null;
 
-  // TODO remove { nullable: true }
-  @Column('varchar', { array: true, default: [], nullable: true })
-  @IsArray()
-  @IsObject({ each: true })
+  @OneToMany(() => Application, (application) => application.user)
   applications: Application[];
 }

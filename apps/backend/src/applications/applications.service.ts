@@ -34,7 +34,8 @@ export class ApplicationsService {
     }
 
     const applicant = await this.usersService.findOne(currentUser, userId);
-    //console.log(applicant);
+
+    console.log(applicant);
     const currentApp = getAppForCurrentCycle(applicant.applications ?? []);
     if (currentApp == null) {
       throw new BadRequestException('Application not found');
@@ -50,15 +51,5 @@ export class ApplicationsService {
     }
 
     return currentApp;
-  }
-
-  async getNumApps(currentUser: User, userId: number): Promise<number> {
-    const applicant = await this.usersService.findOne(currentUser, userId);
-    //console.log(applicant);
-    const currentApp = getAppForCurrentCycle(applicant.applications ?? []);
-    if (currentApp == null) {
-      throw new BadRequestException('Application not found');
-    }
-    return currentApp.application.length;
   }
 }
