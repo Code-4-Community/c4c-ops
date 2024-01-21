@@ -51,7 +51,7 @@ export class UsersService {
     });
 
     if (!user) {
-      throw new BadRequestException('User not found');
+      throw new BadRequestException(`User with ID ${userId} not found`);
     }
 
     const currentStatus = currentUser.status;

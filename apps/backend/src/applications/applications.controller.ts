@@ -24,14 +24,16 @@ export class ApplicationsController {
   @Get('/:userId')
   async getApplication(
     @Param('userId', ParseIntPipe) userId: number,
-    //TODO: make req.user.applications unaccessible
+    // TODO: make req.user.applications unaccessible
     @Request() req,
   ): Promise<GetApplicationDTO> {
     const user = await this.usersService.findOne(req.user, userId);
     const app = getAppForCurrentCycle(user.applications);
     const appObject = instanceToPlain(app);
     if (appObject === null) {
-      throw new BadRequestException('There are no applications');
+      throw new BadRequestException(
+        `There are no apps for the current cycle for the user with ID ${userId}`,
+      );
     }
     appObject['numApps'] = user.applications.length;
     return plainToClass(GetApplicationDTO, appObject);
