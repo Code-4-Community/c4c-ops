@@ -6,8 +6,7 @@ import {
   IsPositive,
 } from 'class-validator';
 import { Column } from 'typeorm';
-import { ApplicationStatus, Note } from '../types';
-import { Cycle } from './cycle.dto';
+import { ApplicationStatus, Note, Semester } from '../types';
 
 export class ApplicationDTO {
   @Column({ primary: true })
@@ -19,8 +18,11 @@ export class ApplicationDTO {
   createdAt: Date;
 
   @Column()
-  @IsObject()
-  cycle: Cycle;
+  @IsPositive()
+  year: number;
+
+  @Column('varchar')
+  semester: Semester;
 
   @Column()
   @IsEnum(ApplicationStatus)
