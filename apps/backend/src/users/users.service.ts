@@ -58,18 +58,18 @@ export class UsersService {
     const targetStatus = user.status;
 
     switch (currentStatus) {
-      //admin & recruiter can access all
+      // Admins and recruiters can access all users
       case UserStatus.ADMIN:
       case UserStatus.RECRUITER:
         break;
-      //alumni and member can access all except for applicants
+      // Alumni and members can access all users except for applicants
       case UserStatus.ALUMNI:
       case UserStatus.MEMBER:
-        if (targetStatus == UserStatus.APPLICANT) {
+        if (targetStatus === UserStatus.APPLICANT) {
           throw new UnauthorizedException('User not found');
         }
         break;
-      //applicants can only access themselves
+      // Applicants can only access themselves
       case UserStatus.APPLICANT:
         if (currentUser.userId !== user.userId) {
           throw new UnauthorizedException('User not found');
@@ -92,14 +92,14 @@ export class UsersService {
     });
 
     if (!user) {
-      throw new BadRequestException(`User ${userId} not found.`);
+      throw new BadRequestException(`User with ID ${userId} not found`);
     }
 
     if (
       currentUser.status !== UserStatus.ADMIN &&
       userId !== currentUser.userId
     ) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Non-admins can only update themselves');
     }
 
     await this.usersRepository.update({ userId }, updateUserDTO);

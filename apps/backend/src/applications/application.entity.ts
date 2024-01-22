@@ -8,7 +8,7 @@ import {
 } from 'class-validator';
 import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { User } from '../users/user.entity';
-import { Response, Note, ApplicationStatus, Semester } from './types';
+import { Response, ApplicationStatus, Semester, Review } from './types';
 
 @Entity()
 export class Application {
@@ -45,5 +45,5 @@ export class Application {
   @Column('varchar', { array: true, default: {} })
   @IsArray()
   @IsObject({ each: true })
-  notes: Note[];
+  reviews: Review[];
 }

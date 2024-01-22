@@ -6,7 +6,7 @@ import {
   IsPositive,
 } from 'class-validator';
 import { Column } from 'typeorm';
-import { ApplicationStatus, Note, Semester } from '../types';
+import { ApplicationStatus, Review, Semester } from '../types';
 
 export class ApplicationDTO {
   @Column({ primary: true })
@@ -36,7 +36,7 @@ export class ApplicationDTO {
   @Column()
   @IsArray()
   @IsObject({ each: true })
-  notes: Note[];
+  reviews: Review[];
 
   @Column()
   @IsPositive()

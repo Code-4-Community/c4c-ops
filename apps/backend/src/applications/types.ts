@@ -3,9 +3,10 @@ export type Response = {
   answer: string;
 };
 
-export type Note = {
-  userId: number;
-  note: string;
+export type Review = {
+  reviewerId: number;
+  rating: Rating;
+  summary: string;
 };
 
 export enum Semester {
@@ -18,4 +19,12 @@ export enum ApplicationStatus {
   REVIEWED = 'REVIEWED',
   ACCEPTED = 'ACCEPTED',
   REJECTED = 'REJECTED',
+}
+
+export enum Rating {
+  STRONG_YES = 'STRONG_YES',
+  YES = 'YES',
+  NEUTRAL = 'NEUTRAL',
+  NO = 'NO',
+  STRONG = 'STRONG',
 }
