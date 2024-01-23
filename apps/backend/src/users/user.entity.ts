@@ -9,12 +9,13 @@ import {
 import { Entity, Column, OneToMany } from 'typeorm';
 import { Application } from '../applications/application.entity';
 import { Role, Team, UserStatus } from './types';
+import { GetUserResponseDto } from './dto/get-user.response.dto';
 
 @Entity()
 export class User {
   @Column({ primary: true, generated: true })
   @IsPositive()
-  userId: number;
+  id: number;
 
   @Column('varchar')
   @IsEnum(UserStatus)
@@ -66,4 +67,19 @@ export class User {
 
   @OneToMany(() => Application, (application) => application.user)
   applications: Application[];
+
+  toGetUserResponseDto(): GetUserResponseDto {
+    return {
+      id: this.id,
+      status: this.status,
+      firstName: this.firstName,
+      lastName: this.lastName,
+      email: this.email,
+      profilePicture: this.profilePicture,
+      linkedin: this.linkedin,
+      github: this.github,
+      team: this.team,
+      role: this.role,
+    };
+  }
 }

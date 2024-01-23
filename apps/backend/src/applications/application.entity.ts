@@ -9,6 +9,7 @@ import {
 import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { User } from '../users/user.entity';
 import { Response, ApplicationStatus, Semester, Review } from './types';
+import { GetApplicationResponseDTO } from './dto/get-application.response.dto';
 
 @Entity()
 export class Application {
@@ -40,10 +41,23 @@ export class Application {
   @Column('varchar', { array: true, default: {} })
   @IsArray()
   @IsObject({ each: true })
-  application: Response[];
+  response: Response[];
 
   @Column('varchar', { array: true, default: {} })
   @IsArray()
   @IsObject({ each: true })
   reviews: Review[];
+
+  toGetApplicationResponseDTO(numApps: number): GetApplicationResponseDTO {
+    return {
+      id: this.id,
+      createdAt: this.createdAt,
+      year: this.year,
+      semester: this.semester,
+      status: this.status,
+      response: this.response,
+      reviews: this.reviews,
+      numApps,
+    };
+  }
 }

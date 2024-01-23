@@ -1,5 +1,5 @@
 import { Application } from './application.entity';
-import { Cycle } from './dto/cycle.dto';
+import { Cycle } from './dto/cycle';
 import { Semester } from './types';
 
 // TODO get the current cycle's year and semester from env variables

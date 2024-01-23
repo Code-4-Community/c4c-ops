@@ -7,14 +7,16 @@ import {
   ParseIntPipe,
   Patch,
   Request,
+  UnauthorizedException,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { UpdateUserDTO } from './dto/update-user.dto';
+import { UpdateUserRequestDTO } from './dto/update-user.request.dto';
 import { UsersService } from './users.service';
 import { AuthGuard } from '@nestjs/passport';
-import { User } from './user.entity';
 import { CurrentUserInterceptor } from '../interceptors/current-user.interceptor';
+import { GetUserResponseDto } from './dto/get-user.response.dto';
+import { UserStatus } from './types';
 
 @Controller('users')
 @UseInterceptors(CurrentUserInterceptor)
@@ -23,22 +25,41 @@ export class UsersController {
   constructor(private usersService: UsersService) {}
 
   @Get('/:userId')
-  getUser(@Param('userId', ParseIntPipe) userId: number, @Request() req) {
-    return this.usersService.findOne(req.user, userId);
-  }
-
-  @Patch(':userId')
-  async updateUser(
-    @Body() updateUserDTO: UpdateUserDTO,
+  async getUser(
     @Param('userId', ParseIntPipe) userId: number,
     @Request() req,
-  ): Promise<User> {
-    return this.usersService.updateUser(req.user, updateUserDTO, userId);
+  ): Promise<GetUserResponseDto> {
+    const user = await this.usersService.findOne(req.user, userId);
+
+    return user.toGetUserResponseDto();
   }
 
+  @Patch('/:userId')
+  async updateUser(
+    @Body() updateUserDTO: UpdateUserRequestDTO,
+    @Param('userId', ParseIntPipe) userId: number,
+    @Request() req,
+  ): Promise<GetUserResponseDto> {
+    if (req.user.status !== UserStatus.ADMIN && userId !== req.user.id) {
+      throw new UnauthorizedException('Non-admins can only update themselves');
+    }
+
+    const newUser = await this.usersService.updateUser(
+      req.user,
+      userId,
+      updateUserDTO,
+    );
+
+    return newUser.toGetUserResponseDto();
+  }
+
+  // TODO test this endpoint
   @Delete('/:userId')
   removeUser(@Param('userId', ParseIntPipe) userId: number, @Request() req) {
-    // TODO add authentication
+    if (req.user.status !== UserStatus.ADMIN && userId !== req.user.id) {
+      throw new UnauthorizedException('Non-admins can only delete themselves');
+    }
+
     return this.usersService.remove(req.user, userId);
   }
 }

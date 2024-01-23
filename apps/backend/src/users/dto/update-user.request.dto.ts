@@ -9,7 +9,7 @@ import {
   IsUrl,
 } from 'class-validator';
 
-export class UpdateUserDTO {
+export class UpdateUserRequestDTO {
   @IsOptional()
   @IsEnum(UserStatus)
   status?: UserStatus;
