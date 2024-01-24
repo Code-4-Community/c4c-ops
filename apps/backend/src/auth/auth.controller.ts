@@ -2,20 +2,21 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Param,
+  ParseIntPipe,
   Post,
   Request,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 
-import { SignInDto } from './dtos/sign-in.dto';
-import { SignUpDto } from './dtos/sign-up.dto';
+import { SignInRequestDto } from './dtos/sign-in.request.dto';
+import { SignUpRequestDTO } from './dtos/sign-up.request.dto';
 import { AuthService } from './auth.service';
 import { UsersService } from '../users/users.service';
-import { VerifyUserDto } from './dtos/verify-user.dto';
-import { DeleteUserDto } from './dtos/delete-user.dto';
+import { VerifyUserRequestDTO } from './dtos/verify-user.request.dto';
 import { User } from '../users/user.entity';
-import { SignInResponseDto } from './dtos/sign-in-response.dto';
+import { SignInResponseDto } from './dtos/sign-in.response.dto';
 import { CurrentUserInterceptor } from '../interceptors/current-user.interceptor';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -28,7 +29,7 @@ export class AuthController {
   ) {}
 
   @Post('/signup')
-  async createUser(@Body() signUpDto: SignUpDto): Promise<User> {
+  async createUser(@Body() signUpDto: SignUpRequestDTO): Promise<User> {
     try {
       await this.authService.signup(signUpDto);
     } catch (e) {
@@ -44,9 +45,9 @@ export class AuthController {
     return user;
   }
 
-  // TODO deprecated if verification code is replaced by link
+  // TODO will be deprecated if we use Google OAuth
   @Post('/verify')
-  verifyUser(@Body() body: VerifyUserDto): void {
+  verifyUser(@Body() body: VerifyUserRequestDTO): void {
     try {
       this.authService.verifyUser(body.email, String(body.verificationCode));
     } catch (e) {
@@ -55,17 +56,21 @@ export class AuthController {
   }
 
   @Post('/signin')
-  signin(@Body() signInDto: SignInDto): Promise<SignInResponseDto> {
+  signin(@Body() signInDto: SignInRequestDto): Promise<SignInResponseDto> {
     return this.authService.signin(signInDto);
   }
 
-  // TODO implement change/forgotPassword endpoint
+  // TODO implement change/forgotPassword endpoint (service methods are already implemented)
+  // But this won't be necessary if we use Google OAuth
   // https://dev.to/fstbraz/authentication-with-aws-cognito-passport-and-nestjs-part-iii-2da5
 
-  @Post('/delete')
+  @Post('/delete/:userId')
   @UseGuards(AuthGuard('jwt'))
-  async delete(@Body() body: DeleteUserDto, @Request() req): Promise<void> {
-    const user = await this.usersService.findOne(req.user, body.userId);
+  async delete(
+    @Param('userId', ParseIntPipe) userId: number,
+    @Request() req,
+  ): Promise<void> {
+    const user = await this.usersService.findOne(req.user, userId);
 
     try {
       await this.authService.deleteUser(user.email);
@@ -73,6 +78,6 @@ export class AuthController {
       throw new BadRequestException(e.message);
     }
 
-    this.usersService.remove(req.user, user.userId);
+    this.usersService.remove(req.user, user.id);
   }
 }

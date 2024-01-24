@@ -14,9 +14,9 @@ import {
 } from '@aws-sdk/client-cognito-identity-provider';
 
 import CognitoAuthConfig from './aws-exports';
-import { SignUpDto } from './dtos/sign-up.dto';
-import { SignInDto } from './dtos/sign-in.dto';
-import { SignInResponseDto } from './dtos/sign-in-response.dto';
+import { SignUpRequestDTO } from './dtos/sign-up.request.dto';
+import { SignInRequestDto } from './dtos/sign-in.request.dto';
+import { SignInResponseDto } from './dtos/sign-in.response.dto';
 
 @Injectable()
 export class AuthService {
@@ -57,7 +57,7 @@ export class AuthService {
     lastName,
     email,
     password,
-  }: SignUpDto): Promise<ISignUpResult> {
+  }: SignUpRequestDTO): Promise<ISignUpResult> {
     return new Promise((resolve, reject) => {
       return this.userPool.signUp(
         email,
@@ -95,7 +95,7 @@ export class AuthService {
     });
   }
 
-  signin({ email, password }: SignInDto): Promise<SignInResponseDto> {
+  signin({ email, password }: SignInRequestDto): Promise<SignInResponseDto> {
     const authenticationDetails = new AuthenticationDetails({
       Username: email,
       Password: password,

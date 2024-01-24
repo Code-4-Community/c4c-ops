@@ -49,6 +49,7 @@ export class UsersService {
     return users;
   }
 
+  // TODO refactor method to not take in currentUser
   async findOne(currentUser: User, userId: number): Promise<User> {
     const user = await this.usersRepository.findOne({
       where: { id: userId },

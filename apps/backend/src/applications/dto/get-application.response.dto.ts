@@ -1,4 +1,11 @@
-import { ApplicationStatus, Response, Review, Semester } from '../types';
+import { Review } from '../../reviews/review.entity';
+import {
+  ApplicationStage,
+  ApplicationStep,
+  Position,
+  Response,
+  Semester,
+} from '../types';
 
 export class GetApplicationResponseDTO {
   id: number;
@@ -9,7 +16,11 @@ export class GetApplicationResponseDTO {
 
   semester: Semester;
 
-  status: ApplicationStatus;
+  position: Position;
+
+  stage: ApplicationStage;
+
+  step: ApplicationStep;
 
   response: Response[];
 

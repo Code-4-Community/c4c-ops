@@ -8,8 +8,15 @@ import {
 } from 'class-validator';
 import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { User } from '../users/user.entity';
-import { Response, ApplicationStatus, Semester, Review } from './types';
+import {
+  Response,
+  Semester,
+  Position,
+  ApplicationStage,
+  ApplicationStep,
+} from './types';
 import { GetApplicationResponseDTO } from './dto/get-application.response.dto';
+import { Review } from '../reviews/review.entity';
 
 @Entity()
 export class Application {
@@ -34,9 +41,16 @@ export class Application {
   @IsEnum(Semester)
   semester: Semester;
 
-  @Column('varchar', { default: ApplicationStatus.SUBMITTED })
-  @IsEnum(ApplicationStatus)
-  status: ApplicationStatus;
+  @Column('varchar', { nullable: false })
+  @IsEnum(Position)
+  position: Position;
+
+  @Column('varchar', { default: ApplicationStage.RESUME, nullable: false })
+  @IsEnum(ApplicationStage)
+  stage: ApplicationStage;
+
+  @Column('varchar', { default: ApplicationStep.SUBMITTED, nullable: false })
+  step: ApplicationStep;
 
   @Column('varchar', { array: true, default: {} })
   @IsArray()
@@ -54,7 +68,9 @@ export class Application {
       createdAt: this.createdAt,
       year: this.year,
       semester: this.semester,
-      status: this.status,
+      position: this.position,
+      stage: this.stage,
+      step: this.step,
       response: this.response,
       reviews: this.reviews,
       numApps,
