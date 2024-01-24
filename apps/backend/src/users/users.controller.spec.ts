@@ -1,8 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { omit } from 'lodash';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { User } from './user.entity';
-import { getRepositoryToken } from '@nestjs/typeorm';
 import { AuthService } from '../auth/auth.service';
 import { defaultUser } from '../testing/factories/user.factory';
 
@@ -40,12 +41,14 @@ describe('UsersController', () => {
   });
 
   describe('getUser', () => {
-    it('should return the user', async () => {
+    it('should return the user without their applications', async () => {
       jest
         .spyOn(mockUsersService, 'findOne')
         .mockReturnValue(Promise.resolve(defaultUser));
 
-      expect(await controller.getUser(1, defaultUser)).toBe(defaultUser);
+      expect(await controller.getUser(1, defaultUser)).toEqual(
+        omit(defaultUser, 'applications'),
+      );
     });
 
     it("should throw an error if the user can't be found", async () => {

@@ -4,7 +4,7 @@ import { UserStatus } from '../../users/types';
 import { User } from '../../users/user.entity';
 
 export const defaultUser: User = {
-  userId: 1,
+  id: 1,
   status: UserStatus.MEMBER,
   firstName: 'First',
   lastName: 'Last',
