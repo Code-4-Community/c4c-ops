@@ -42,9 +42,7 @@ describe('UsersController', () => {
 
   describe('getUser', () => {
     it('should return the user without their applications', async () => {
-      jest
-        .spyOn(mockUsersService, 'findOne')
-        .mockReturnValue(Promise.resolve(defaultUser));
+      jest.spyOn(mockUsersService, 'findOne').mockResolvedValue(defaultUser);
 
       expect(await controller.getUser(1, defaultUser)).toEqual(
         omit(defaultUser, 'applications'),
@@ -63,10 +61,15 @@ describe('UsersController', () => {
   });
 
   describe('updateUser', () => {
-    //
+    // endpoint updates user
+    // catch invalid user id param
+    // catch auth check fail
+    // catch invalid request body
   });
 
   describe('removeUser', () => {
-    //
+    // endpoint removes user
+    // catch invalid user id param
+    // catch auth check fail
   });
 });

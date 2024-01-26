@@ -17,5 +17,5 @@ export const defaultUser: User = {
   applications: [],
 };
 
-export const createUser = (user: Partial<User> = {}): User =>
-  merge(defaultUser, user);
+export const factoryUser = (user: Partial<User> = {}): User =>
+  merge({}, defaultUser, user);
