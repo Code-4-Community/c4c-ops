@@ -5,15 +5,15 @@ import { MongoRepository } from 'typeorm';
 
 import { UsersService } from './users.service';
 import { User } from './user.entity';
-import { factoryUser } from '../testing/factories/user.factory';
+import { userFactory } from '../testing/factories/user.factory';
 import { UserStatus } from './types';
 
 const mockUsersRepository: Partial<MongoRepository<User>> = {
   findOne: jest.fn(),
 };
 
-const member: User = factoryUser({ id: 1, status: UserStatus.MEMBER });
-const applicant: User = factoryUser({ id: 2, status: UserStatus.APPLICANT });
+const member: User = userFactory({ id: 1, status: UserStatus.MEMBER });
+const applicant: User = userFactory({ id: 2, status: UserStatus.APPLICANT });
 
 describe('UsersService', () => {
   let service: UsersService;
