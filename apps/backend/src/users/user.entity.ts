@@ -66,7 +66,8 @@ export class User {
   role: Role[] | null;
 
   // TODO remove { nullable: true }
-  @Column('varchar', { array: true, default: [], nullable: true })
+  // @Column('varchar', { array: true, default: [], nullable: true })
+  @Column('jsonb', { nullable: true, default: [] })
   @IsArray()
   @IsObject({ each: true })
   applications: Application[];

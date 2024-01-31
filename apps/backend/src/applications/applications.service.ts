@@ -5,14 +5,11 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MongoRepository } from 'typeorm';
-import { UserStatus } from '../users/types';
 import { UsersService } from '../users/users.service';
 import { Application } from './application.entity';
 import { getAppForCurrentCycle, getCurrentCycle } from './utils';
 import { Cycle } from './dto/cycle.dto';
 import { User } from '../users/user.entity';
-import { SubmitApplicationDto } from './dto/submit-app.dto';
-import { ObjectId } from 'mongodb';
 import { ApplicationStatus, Response } from './types';
 import * as crypto from 'crypto';
 
@@ -25,72 +22,61 @@ export class ApplicationsService {
   ) {}
 
   /**
-   * Supmits the applicant users' responses
+   * Submits the application for the given user. Stores the new application in the
+   * Application table and updates the user's applications field.
    *
-   * @param application holds the applicant's ID as well as their application responses
-   *
-   *
-   * @throws {BadRequestException} if calling user does not exist
-   * @throws {UnauthorizedException} if calling user does not have proper permissions
+   * @param application holds the user's ID as well as their application responses
+   * @param user the user who is submitting the application
+   * @throws { BadRequestException } if the user does not exist in our database (i.e., they have not signed up).
+   * @returns { User } the updated user
    */
 
-  async submitApp(application: Response[], user: User) {
-    //TODO add callingUser as a parameter
-
-    user.status = UserStatus.ADMIN;
-
+  async submitApp(application: Response[], user: User): Promise<User> {
     const {
       applications: existingApplications,
     }: { applications: Application[] } = user;
 
-    //TODO Maybe allow for more applications?
+    const { year, semester } = getCurrentCycle();
+
+    // TODO Maybe allow for more applications?
     if (getAppForCurrentCycle(existingApplications)) {
       throw new UnauthorizedException(
         `Applicant ${user.userId} has already submitted an application for the current cycle`,
       );
     }
 
-    //create a new application given the new responses then add it to existing applications
+    const newApplication: Application = this.applicationsRepository.create({
+      applicantId: user.userId,
+      createdAt: new Date(),
+      status: ApplicationStatus.SUBMITTED,
+      year,
+      semester,
+      application,
+      notes: [],
+    });
 
-    const newApplication: Application =
-      await this.applicationsRepository.create({
-        applicantId: user.userId,
-        createdAt: new Date(),
-        year: getCurrentCycle().year,
-        semester: getCurrentCycle().semester,
-        status: ApplicationStatus.SUBMITTED,
-        application,
-        notes: null,
-      });
-
-    // const newApplication: Application = {
-    //   applicantId: user.userId,
-    //   createdAt: new Date(),
-    //   year: getCurrentCycle().year,
-    //   semester: getCurrentCycle().semester,
-    //   status: ApplicationStatus.SUBMITTED,
-    //   application,
-
-    //   //TODO should notes always be null when submitted?
-    //   notes: null,
-    // };
-
+    await this.applicationsRepository.save(newApplication);
     existingApplications.push(newApplication);
 
-    await this.usersService.updateUser(
+    return await this.usersService.updateUser(
       user,
       { applications: existingApplications },
       user.userId,
     );
-
-    //should we return the updated user from usersService.updateUser()?
-    //TODO update google forms appscript
   }
 
+  /**
+   * Verifies that this endpoint is being called from our Google Forms.
+   * Checks that the email was hashed with the correct private key.
+   *
+   * @param email the email used for submission on Google Forms
+   * @param signature the signature corresponding to the hashed email
+   * @throws { UnauthorizedException } if the signature does not match the expected signature or the calling user
+   * has not created an account with Code4Community
+   * @returns { User } the one who submitted the form
+   */
   async verifySignature(email: string, signature: string): Promise<User> {
-    //temporary secret
-    const SECRET =
-      'e637efc085ab91eb6b5740fa56a4d366c9a6e63db369319ef414e7c200fd6bca';
+    const SECRET = process.env.NX_GOOGLE_FORM_SECRET_KEY;
     const expectedSignature = crypto
       .createHmac('sha256', SECRET)
       .update(email)
@@ -99,36 +85,32 @@ export class ApplicationsService {
     if (signature === expectedSignature) {
       const users = await this.usersService.find(email);
       const user = users[0];
-      console.log(users, user);
 
       // occurs if someone doesn't sign up to our portal before submitting form
       // throws exception if email does not exist
       if (!user) {
-        console.log(user);
-        throw new UnauthorizedException('verifySignature 1');
+        throw new UnauthorizedException();
       }
-      console.log(user);
       return user;
     }
-
-    throw new UnauthorizedException('verifysignature 2');
+    // If the caller of this endpoint submits from anywhere other than our google forms
+    throw new UnauthorizedException();
   }
 
   async findOne(currentUser: User, userId: number): Promise<Application> {
-    const currentStatus = currentUser.status;
-    switch (currentStatus) {
-      case UserStatus.ADMIN:
-      case UserStatus.RECRUITER:
-        break;
-      default:
-        if (currentUser.userId !== userId) {
-          throw new UnauthorizedException('User not found');
-        }
-        break;
-    }
+    // const currentStatus = currentUser.status;
+    // switch (currentStatus) {
+    //   case UserStatus.ADMIN:
+    //   case UserStatus.RECRUITER:
+    //     break;
+    //   default:
+    //     if (currentUser.userId !== userId) {
+    //       throw new UnauthorizedException('User not found');
+    //     }
+    //     break;
+    // }
 
     const applicant = await this.usersService.findOne(currentUser, userId);
-    console.log(applicant);
     const currentApp = getAppForCurrentCycle(applicant.applications ?? []);
     if (currentApp == null) {
       throw new BadRequestException('Application not found');

@@ -11,7 +11,7 @@ import { Response, Note, ApplicationStatus, Semester } from './types';
 
 @Entity()
 export class Application {
-  @Column({ primary: true })
+  @Column({ primary: true, generated: true })
   @IsPositive()
   id: number;
 
@@ -36,7 +36,8 @@ export class Application {
   @IsEnum(ApplicationStatus)
   status: ApplicationStatus;
 
-  @Column('varchar', { array: true })
+  // @Column('varchar', { array: true, default: {} })
+  @Column('jsonb')
   @IsArray()
   @IsObject({ each: true })
   application: Response[];
