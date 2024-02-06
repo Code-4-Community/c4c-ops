@@ -6,6 +6,7 @@ import {
   ParseIntPipe,
   Post,
   Request,
+  UnauthorizedException,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -19,6 +20,7 @@ import { User } from '../users/user.entity';
 import { SignInResponseDto } from './dtos/sign-in.response.dto';
 import { CurrentUserInterceptor } from '../interceptors/current-user.interceptor';
 import { AuthGuard } from '@nestjs/passport';
+import { UserStatus } from '../users/types';
 
 @Controller('auth')
 @UseInterceptors(CurrentUserInterceptor)
@@ -71,6 +73,10 @@ export class AuthController {
     @Request() req,
   ): Promise<void> {
     const user = await this.usersService.findOne(req.user, userId);
+
+    if (user.id !== userId && user.status !== UserStatus.ADMIN) {
+      throw new UnauthorizedException();
+    }
 
     try {
       await this.authService.deleteUser(user.email);
