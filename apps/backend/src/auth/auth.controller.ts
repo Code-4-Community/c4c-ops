@@ -30,6 +30,16 @@ export class AuthController {
 
   @Post('/signup')
   async createUser(@Body() signUpDto: SignUpRequestDTO): Promise<User> {
+    //Regular expression to validate the email domain
+    const domainRegex = /@(northeastern\.edu|husky\.neu\.edu)$/;
+
+    //Check if the email domain is valid
+    if (!domainRegex.test(signUpDto.email)) {
+      throw new BadRequestException(
+        'Invalid email domain. Only northeastern.edu and husky.neu.edu domains are allowed.',
+      );
+    }
+
     try {
       await this.authService.signup(signUpDto);
     } catch (e) {

@@ -13,8 +13,9 @@ import { ApplicationsModule } from './applications/applications.module';
   imports: [
     TypeOrmModule.forRoot({
       type: 'postgres',
+      database: 'c4c-ops',
       host: process.env.NX_DB_HOST,
-      port: 5432,
+      port: 5433,
       username: process.env.NX_DB_USERNAME,
       password: process.env.NX_DB_PASSWORD,
       autoLoadEntities: true,
