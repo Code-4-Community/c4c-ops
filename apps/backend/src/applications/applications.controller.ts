@@ -8,6 +8,7 @@ import {
   UseGuards,
   BadRequestException,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { CurrentUserInterceptor } from '../interceptors/current-user.interceptor';
 import { AuthGuard } from '@nestjs/passport';
@@ -21,6 +22,22 @@ import { UserStatus } from '../users/types';
 @UseGuards(AuthGuard('jwt'))
 export class ApplicationsController {
   constructor(private readonly applicationsService: ApplicationsService) {}
+
+  @Get('/')
+  async getApplications(@Request() req): Promise<GetApplicationResponseDTO[]> {
+    if (
+      !(
+        req.user.status === UserStatus.RECRUITER ||
+        req.user.status === UserStatus.ADMIN
+      )
+    ) {
+      throw new UnauthorizedException(
+        'calling user is not a recruiter or admin',
+      );
+    }
+
+    return this.applicationsService.findAllCurrentApplications();
+  }
 
   @Get('/:userId')
   async getApplication(
