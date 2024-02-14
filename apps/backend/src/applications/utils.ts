@@ -1,9 +1,9 @@
 import { Application } from './application.entity';
-import { Cycle } from './dto/cycle.dto';
+import { Cycle } from './dto/cycle';
 import { Semester } from './types';
 
 // TODO get the current cycle's year and semester from env variables
-export const getCurrentCycle = () => new Cycle(2023, Semester.FALL);
+export const getCurrentCycle = () => new Cycle(2024, Semester.SPRING);
 
 export const getAppForCurrentCycle = (
   applications: Application[],

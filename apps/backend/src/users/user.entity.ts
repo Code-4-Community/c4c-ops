@@ -2,20 +2,21 @@ import {
   IsArray,
   IsEmail,
   IsEnum,
-  IsObject,
   IsPositive,
   IsString,
   IsUrl,
+  IsObject,
 } from 'class-validator';
-import { Entity, Column } from 'typeorm';
+import { Entity, Column, OneToMany } from 'typeorm';
 import { Application } from '../applications/application.entity';
 import { Role, Team, UserStatus } from './types';
+import { GetUserResponseDto } from './dto/get-user.response.dto';
 
 @Entity()
 export class User {
   @Column({ primary: true, generated: true })
   @IsPositive()
-  userId: number;
+  id: number;
 
   @Column('varchar')
   @IsEnum(UserStatus)
@@ -66,9 +67,24 @@ export class User {
   role: Role[] | null;
 
   // TODO remove { nullable: true }
-  // @Column('varchar', { array: true, default: [], nullable: true })
   @Column('jsonb', { nullable: true, default: [] })
   @IsArray()
   @IsObject({ each: true })
+  @OneToMany(() => Application, (application) => application.user)
   applications: Application[];
+
+  toGetUserResponseDto(): GetUserResponseDto {
+    return {
+      id: this.id,
+      status: this.status,
+      firstName: this.firstName,
+      lastName: this.lastName,
+      email: this.email,
+      profilePicture: this.profilePicture,
+      linkedin: this.linkedin,
+      github: this.github,
+      team: this.team,
+      role: this.role,
+    };
+  }
 }

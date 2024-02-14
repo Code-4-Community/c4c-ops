@@ -5,6 +5,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
+import { ReviewsModule } from './reviews/reviews.module';
 import { PluralNamingStrategy } from './strategies/plural-naming.strategy';
 import { ApplicationsModule } from './applications/applications.module';
 
@@ -25,6 +26,7 @@ import { ApplicationsModule } from './applications/applications.module';
     AuthModule,
     UsersModule,
     ApplicationsModule,
+    ReviewsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

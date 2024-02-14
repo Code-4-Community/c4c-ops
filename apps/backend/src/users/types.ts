@@ -1,4 +1,4 @@
-// TODO: Probably want these types to be available to both the frontend and backend in a "common" folder
+// TODO Probably want these types to be available to both the frontend and backend in a "common" folder
 
 export enum UserStatus {
   MEMBER = 'Member',
@@ -9,7 +9,7 @@ export enum UserStatus {
 }
 
 export enum Team {
-  SFTT = 'Speak For The Trees',
+  SFTT = 'Speak for the Trees',
   CONSTELLATION = 'Constellation',
   JPAL = 'J-PAL',
   BREAKTIME = 'Breaktime',
