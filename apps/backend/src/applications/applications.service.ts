@@ -30,12 +30,8 @@ export class ApplicationsService {
    * @throws { BadRequestException } if the user does not exist in our database (i.e., they have not signed up).
    * @returns { User } the updated user
    */
-
-  async submitApp(application: Response[], user: User): Promise<User> {
-    const {
-      applications: existingApplications,
-    }: { applications: Application[] } = user;
-
+  async submitApp(application: Response[], user: User): Promise<Application> {
+    const { applications: existingApplications } = user;
     const { year, semester } = getCurrentCycle();
 
     // TODO Maybe allow for more applications?
@@ -57,12 +53,7 @@ export class ApplicationsService {
       reviews: [],
     });
 
-    await this.applicationsRepository.save(newApplication);
-    existingApplications.push(newApplication);
-
-    return await this.usersService.updateUser(user, user.id, {
-      applications: existingApplications,
-    });
+    return await this.applicationsRepository.save(newApplication);
   }
 
   /**

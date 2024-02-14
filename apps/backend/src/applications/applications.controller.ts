@@ -15,10 +15,10 @@ import { Response } from './types';
 import { ApplicationsService } from './applications.service';
 import { CurrentUserInterceptor } from '../interceptors/current-user.interceptor';
 import { AuthGuard } from '@nestjs/passport';
-import { User } from '../users/user.entity';
 import { GetApplicationResponseDTO } from './dto/get-application.response.dto';
 import { getAppForCurrentCycle } from './utils';
 import { UserStatus } from '../users/types';
+import { Application } from './application.entity';
 
 @Controller('apps')
 @UseInterceptors(CurrentUserInterceptor)
@@ -30,7 +30,7 @@ export class ApplicationsController {
     @Body('application') application: Response[],
     @Body('signature') signature: string,
     @Body('email') email: string,
-  ): Promise<User> {
+  ): Promise<Application> {
     const user = await this.applicationsService.verifySignature(
       email,
       signature,
