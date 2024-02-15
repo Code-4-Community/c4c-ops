@@ -90,7 +90,10 @@ export class UsersService {
   }
 
   findByEmail(email: string): Promise<User[]> {
-    return this.usersRepository.find({ where: { email } });
+    return this.usersRepository.find({
+      where: { email },
+      relations: ['applications'],
+    });
   }
 
   async updateUser(
