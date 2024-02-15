@@ -2,6 +2,7 @@ import {
   Injectable,
   UnauthorizedException,
   NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MongoRepository } from 'typeorm';
@@ -109,7 +110,7 @@ export class UsersService {
     try {
       await this.usersRepository.update({ id: userId }, updateUserDTO);
     } catch (e) {
-      throw new Error('Unable to update user.');
+      throw new BadRequestException('Cannot update user');
     }
 
     return await this.findOne(currentUser, userId);

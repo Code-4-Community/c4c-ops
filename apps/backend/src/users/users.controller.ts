@@ -17,6 +17,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { CurrentUserInterceptor } from '../interceptors/current-user.interceptor';
 import { GetUserResponseDto } from './dto/get-user.response.dto';
 import { UserStatus } from './types';
+import { toGetUserResponseDto } from './users.utils';
 
 @Controller('users')
 @UseInterceptors(CurrentUserInterceptor)
@@ -31,7 +32,7 @@ export class UsersController {
   ): Promise<GetUserResponseDto> {
     const user = await this.usersService.findOne(req.user, userId);
 
-    return user.toGetUserResponseDto();
+    return toGetUserResponseDto(user);
   }
 
   @Patch('/:userId')
@@ -50,7 +51,7 @@ export class UsersController {
       updateUserDTO,
     );
 
-    return newUser.toGetUserResponseDto();
+    return toGetUserResponseDto(newUser);
   }
 
   // TODO test this endpoint
