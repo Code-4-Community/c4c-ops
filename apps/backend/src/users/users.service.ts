@@ -2,7 +2,6 @@ import {
   Injectable,
   UnauthorizedException,
   NotFoundException,
-  BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MongoRepository } from 'typeorm';
@@ -106,10 +105,6 @@ export class UsersService {
     if (!user) {
       throw new NotFoundException(`User with ID ${userId} not found`);
     }
-
-    console.log(currentUser);
-    console.log(userId);
-    console.log(updateUserDTO);
 
     try {
       await this.usersRepository.update({ id: userId }, updateUserDTO);
