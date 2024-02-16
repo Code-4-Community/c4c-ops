@@ -117,6 +117,7 @@ export class AuthService {
           });
         },
         onFailure: (err) => {
+          console.log(err);
           reject(err);
         },
       });

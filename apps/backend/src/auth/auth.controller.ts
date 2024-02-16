@@ -6,6 +6,7 @@ import {
   ParseIntPipe,
   Post,
   Request,
+  UnauthorizedException,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -57,7 +58,9 @@ export class AuthController {
 
   @Post('/signin')
   signin(@Body() signInDto: SignInRequestDto): Promise<SignInResponseDto> {
-    return this.authService.signin(signInDto);
+    return this.authService.signin(signInDto).catch((err) => {
+      throw new UnauthorizedException(err.message);
+    });
   }
 
   // TODO implement change/forgotPassword endpoint (service methods are already implemented)
