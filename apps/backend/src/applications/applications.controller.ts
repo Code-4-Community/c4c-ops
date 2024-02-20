@@ -12,7 +12,7 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { ApplicationStage, Response } from './types';
+import { Response } from './types';
 import { ApplicationsService } from './applications.service';
 import { CurrentUserInterceptor } from '../interceptors/current-user.interceptor';
 import { AuthGuard } from '@nestjs/passport';
@@ -20,8 +20,6 @@ import { GetApplicationResponseDTO } from './dto/get-application.response.dto';
 import { getAppForCurrentCycle } from './utils';
 import { UserStatus } from '../users/types';
 import { Application } from './application.entity';
-import { UpdateResult } from 'typeorm';
-import { ApplicationStatus } from './dto/application-status';
 
 @Controller('apps')
 @UseInterceptors(CurrentUserInterceptor)
