@@ -10,8 +10,9 @@ import {
   Body,
   BadRequestException,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
-import { Response } from './types';
+import { ApplicationStage, Response } from './types';
 import { ApplicationsService } from './applications.service';
 import { CurrentUserInterceptor } from '../interceptors/current-user.interceptor';
 import { AuthGuard } from '@nestjs/passport';
@@ -19,6 +20,8 @@ import { GetApplicationResponseDTO } from './dto/get-application.response.dto';
 import { getAppForCurrentCycle } from './utils';
 import { UserStatus } from '../users/types';
 import { Application } from './application.entity';
+import { UpdateResult } from 'typeorm';
+import { ApplicationStatus } from './dto/application-status';
 
 @Controller('apps')
 @UseInterceptors(CurrentUserInterceptor)
@@ -36,6 +39,30 @@ export class ApplicationsController {
       signature,
     );
     return await this.applicationsService.submitApp(application, user);
+  }
+
+  @Post('/decision')
+  @UseGuards(AuthGuard('jwt'))
+  async makeDecision(
+    @Body('applicantId', ParseIntPipe) applicantId: number,
+    @Body('decision') decision: 'ACCEPT' | 'REJECT',
+    @Request() req,
+  ): Promise<void> {
+    //Authorization check for admin and recruiters
+    if (![UserStatus.ADMIN, !UserStatus.RECRUITER].includes(req.user.status)) {
+      throw new UnauthorizedException();
+    }
+
+    //Check if the user exists and if the user has an application for the current cycle
+    const applicant = await this.applicationsService.findCurrent(applicantId);
+    if (!applicant) {
+      throw new NotFoundException(
+        `Application for user with ID ${applicantId} not found or not for the current cycle`,
+      );
+    }
+
+    //Delegate the decision making to the service.
+    await this.applicationsService.processDecision(applicantId, decision);
   }
 
   @Get('/:userId')

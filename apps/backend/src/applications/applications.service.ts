@@ -88,6 +88,51 @@ export class ApplicationsService {
     throw new UnauthorizedException();
   }
 
+  /**
+   * Updates the application stage of the applicant.
+   * Moves the stage to either the next stage or to rejected.
+   *
+   * @param applicantId the id of the applicant.
+   * @param decision enum that contains either the applicant was 'ACCEPT' or 'REJECT'
+   * @returns { void } only updates the stage of the applicant.
+   */
+  async processDecision(
+    applicantId: number,
+    decision: 'ACCEPT' | 'REJECT',
+  ): Promise<void> {
+    const applicant = await this.findCurrent(applicantId);
+
+    let newStage: ApplicationStage;
+    switch (applicant.stage) {
+      case ApplicationStage.RESUME:
+        newStage =
+          decision === 'ACCEPT'
+            ? ApplicationStage.TECHNICAL_CHALLENGE
+            : ApplicationStage.REJECTED;
+        break;
+      case ApplicationStage.TECHNICAL_CHALLENGE:
+        newStage =
+          decision === 'ACCEPT'
+            ? ApplicationStage.INTERVIEW
+            : ApplicationStage.REJECTED;
+        break;
+      case ApplicationStage.INTERVIEW:
+        newStage =
+          decision === 'ACCEPT'
+            ? ApplicationStage.ACCEPTED
+            : ApplicationStage.REJECTED;
+        break;
+      default:
+        throw new BadRequestException(
+          `Cannot make a decision on current stage ${applicant.stage}`,
+        );
+    }
+    applicant.stage = newStage;
+
+    //Save the updated stage
+    await this.applicationsRepository.save(applicant);
+  }
+
   async findAll(userId: number): Promise<Application[]> {
     const apps = await this.applicationsRepository.find({
       where: { user: { id: userId } },
