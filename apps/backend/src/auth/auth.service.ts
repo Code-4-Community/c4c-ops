@@ -24,10 +24,6 @@ export class AuthService {
   private readonly providerClient: CognitoIdentityProviderClient;
 
   constructor() {
-    console.log(CognitoAuthConfig.userPoolId);
-    console.log(CognitoAuthConfig.clientId);
-    console.log(process.env.NX_BASE);
-    console.log(process.env.NX_API_URL);
     this.userPool = new CognitoUserPool({
       UserPoolId: CognitoAuthConfig.userPoolId,
       ClientId: CognitoAuthConfig.clientId,
