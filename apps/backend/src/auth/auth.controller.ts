@@ -19,6 +19,8 @@ import { User } from '../users/user.entity';
 import { SignInResponseDto } from './dtos/sign-in.response.dto';
 import { CurrentUserInterceptor } from '../interceptors/current-user.interceptor';
 import { AuthGuard } from '@nestjs/passport';
+import { ForgotPasswordRequestDto } from './dtos/forgot-password.request.dto';
+import { ConfirmResetPasswordDto } from './dtos/confirm-reset-password.request.dto';
 
 @Controller('auth')
 @UseInterceptors(CurrentUserInterceptor)
@@ -79,5 +81,27 @@ export class AuthController {
     }
 
     this.usersService.remove(req.user, user.id);
+  }
+
+  @Post('/forgotPassword')
+  async forgotPassword(@Body() body: ForgotPasswordRequestDto) {
+    try {
+      await this.authService.forgotPassword(body.email);
+    } catch (e) {
+      throw new BadRequestException(e.message);
+    }
+  }
+
+  @Post('/confirmResetPassword')
+  async confirmResetPassword(@Body() body: ConfirmResetPasswordDto) {
+    try {
+      await this.authService.confirmPassword(
+        body.email,
+        body.verificationCode,
+        body.newPassword,
+      );
+    } catch (e) {
+      throw new BadRequestException(e.message);
+    }
   }
 }
