@@ -52,7 +52,7 @@ export class Application {
   @Column('varchar', { default: ApplicationStep.SUBMITTED, nullable: false })
   step: ApplicationStep;
 
-  @Column('varchar', { array: true, default: {} })
+  @Column('jsonb')
   @IsArray()
   @IsObject({ each: true })
   response: Response[];

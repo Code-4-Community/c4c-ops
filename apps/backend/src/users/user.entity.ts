@@ -5,11 +5,11 @@ import {
   IsPositive,
   IsString,
   IsUrl,
+  IsObject,
 } from 'class-validator';
 import { Entity, Column, OneToMany } from 'typeorm';
 import { Application } from '../applications/application.entity';
 import { Role, Team, UserStatus } from './types';
-import { GetUserResponseDto } from './dto/get-user.response.dto';
 
 @Entity()
 export class User {
@@ -65,6 +65,10 @@ export class User {
   @IsEnum(Role, { each: true })
   role: Role[] | null;
 
+  // TODO remove { nullable: true }
+  @Column('jsonb', { nullable: true, default: [] })
+  @IsArray()
+  @IsObject({ each: true })
   @OneToMany(() => Application, (application) => application.user)
   applications: Application[];
 }
