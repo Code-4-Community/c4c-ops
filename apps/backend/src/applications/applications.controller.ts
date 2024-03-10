@@ -32,7 +32,7 @@ export class ApplicationsController {
       )
     ) {
       throw new UnauthorizedException(
-        'calling user is not a recruiter or admin',
+        'Calling user is not a recruiter or admin.',
       );
     }
 

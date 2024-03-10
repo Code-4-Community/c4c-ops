@@ -25,20 +25,22 @@ export class ApplicationsService {
   }
 
   async findAllCurrentApplications(): Promise<GetApplicationResponseDTO[]> {
-    const currentCycle: Cycle = getCurrentCycle();
     const applications = await this.applicationsRepository.find({
       where: {
         //TODO q: I had to change Cycle definition to make year and semester public. Is there a reason it was private?
-        year: currentCycle.year,
-        semester: currentCycle.semester,
+        year: process.env.NX_CURRENT_YEAR,
+        semester: process.env.NX_CURRENT_SEMESTER,
       },
     });
 
     const dtos: GetApplicationResponseDTO[] = [];
 
-    applications.forEach((app) =>
+    applications.forEach(async (app) =>
       //TODO q: what is the numApps parameter? I just passed 0 in
-      dtos.push(app.toGetApplicationResponseDTO(0)),
+      {
+        const apps = await this.findAll(app.user.id);
+        dtos.push(app.toGetApplicationResponseDTO(apps.length));
+      },
     );
 
     return dtos;
