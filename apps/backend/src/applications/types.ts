@@ -30,3 +30,8 @@ export enum Position {
   PM = 'PRODUCT_MANAGER',
   DESIGNER = 'DESIGNER',
 }
+
+export enum Decision {
+  ACCEPT = 'ACCEPT',
+  REJECT = 'REJECT',
+}

@@ -12,7 +12,7 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { Response } from './types';
+import { Decision, Response } from './types';
 import { ApplicationsService } from './applications.service';
 import { CurrentUserInterceptor } from '../interceptors/current-user.interceptor';
 import { AuthGuard } from '@nestjs/passport';
@@ -51,6 +51,12 @@ export class ApplicationsController {
       throw new UnauthorizedException();
     }
 
+    //Check if the string decision matches with the Decision enum
+    const decisionEnum: Decision = Decision[decision as keyof typeof Decision];
+    if (!decisionEnum) {
+      throw new BadRequestException('Invalid decision value');
+    }
+
     //Check if the user exists and if the user has an application for the current cycle
     const applicant = await this.applicationsService.findCurrent(applicantId);
     if (!applicant) {
@@ -60,7 +66,7 @@ export class ApplicationsController {
     }
 
     //Delegate the decision making to the service.
-    await this.applicationsService.processDecision(applicantId, decision);
+    await this.applicationsService.processDecision(applicantId, decisionEnum);
   }
 
   @Get('/:userId')

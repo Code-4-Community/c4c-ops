@@ -8,7 +8,7 @@ import { MongoRepository } from 'typeorm';
 import { UsersService } from '../users/users.service';
 import { Application } from './application.entity';
 import { getAppForCurrentCycle, getCurrentCycle } from './utils';
-import { Response } from './types';
+import { Decision, Response } from './types';
 import * as crypto from 'crypto';
 import { User } from '../users/user.entity';
 import { Position, ApplicationStage, ApplicationStep } from './types';
@@ -98,7 +98,7 @@ export class ApplicationsService {
    */
   async processDecision(
     applicantId: number,
-    decision: 'ACCEPT' | 'REJECT',
+    decision: Decision,
   ): Promise<void> {
     const applicant = await this.findCurrent(applicantId);
 
@@ -106,19 +106,19 @@ export class ApplicationsService {
     switch (applicant.stage) {
       case ApplicationStage.RESUME:
         newStage =
-          decision === 'ACCEPT'
+          decision === Decision.ACCEPT
             ? ApplicationStage.TECHNICAL_CHALLENGE
             : ApplicationStage.REJECTED;
         break;
       case ApplicationStage.TECHNICAL_CHALLENGE:
         newStage =
-          decision === 'ACCEPT'
+          decision === Decision.ACCEPT
             ? ApplicationStage.INTERVIEW
             : ApplicationStage.REJECTED;
         break;
       case ApplicationStage.INTERVIEW:
         newStage =
-          decision === 'ACCEPT'
+          decision === Decision.ACCEPT
             ? ApplicationStage.ACCEPTED
             : ApplicationStage.REJECTED;
         break;
