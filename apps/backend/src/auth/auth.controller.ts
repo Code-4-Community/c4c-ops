@@ -74,10 +74,6 @@ export class AuthController {
     return this.authService.signin(signInDto);
   }
 
-  // TODO implement change/forgotPassword endpoint (service methods are already implemented)
-  // But this won't be necessary if we use Google OAuth
-  // https://dev.to/fstbraz/authentication-with-aws-cognito-passport-and-nestjs-part-iii-2da5
-
   @Post('/delete/:userId')
   @UseGuards(AuthGuard('jwt'))
   async delete(
