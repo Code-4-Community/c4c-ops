@@ -6,22 +6,38 @@ import {
   Request,
   UseInterceptors,
   UseGuards,
+  Post,
+  Body,
   BadRequestException,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { Response } from './types';
+import { ApplicationsService } from './applications.service';
 import { CurrentUserInterceptor } from '../interceptors/current-user.interceptor';
 import { AuthGuard } from '@nestjs/passport';
 import { GetApplicationResponseDTO } from './dto/get-application.response.dto';
 import { getAppForCurrentCycle } from './utils';
-import { ApplicationsService } from './applications.service';
 import { UserStatus } from '../users/types';
+import { Application } from './application.entity';
 
 @Controller('apps')
 @UseInterceptors(CurrentUserInterceptor)
-@UseGuards(AuthGuard('jwt'))
 export class ApplicationsController {
   constructor(private readonly applicationsService: ApplicationsService) {}
+
+  @Post()
+  async submitApplication(
+    @Body('application') application: Response[],
+    @Body('signature') signature: string,
+    @Body('email') email: string,
+  ): Promise<Application> {
+    const user = await this.applicationsService.verifySignature(
+      email,
+      signature,
+    );
+    return await this.applicationsService.submitApp(application, user);
+  }
 
   @Get('/')
   async getApplications(@Request() req): Promise<GetApplicationResponseDTO[]> {
@@ -40,6 +56,7 @@ export class ApplicationsController {
   }
 
   @Get('/:userId')
+  @UseGuards(AuthGuard('jwt'))
   async getApplication(
     @Param('userId', ParseIntPipe) userId: number,
     // TODO make req.user.applications unaccessible

@@ -1,3 +1,4 @@
+import { Application } from '../../applications/application.entity';
 import { UserStatus, Role, Team } from '../types';
 import {
   IsEmail,
@@ -7,6 +8,7 @@ import {
   ArrayMinSize,
   ArrayUnique,
   IsUrl,
+  IsObject,
 } from 'class-validator';
 
 export class UpdateUserRequestDTO {
@@ -48,4 +50,9 @@ export class UpdateUserRequestDTO {
   @ArrayUnique()
   @IsEnum(Role, { each: true })
   role?: Role[];
+
+  @IsOptional()
+  @IsArray()
+  @IsObject({ each: true })
+  applications?: Application[];
 }
