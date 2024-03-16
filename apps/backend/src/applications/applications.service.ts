@@ -12,6 +12,8 @@ import { Response } from './types';
 import * as crypto from 'crypto';
 import { User } from '../users/user.entity';
 import { Position, ApplicationStage, ApplicationStep } from './types';
+import { GetApplicationResponseDTO } from './dto/get-application.response.dto';
+import { Cycle } from './dto/cycle';
 
 @Injectable()
 export class ApplicationsService {
@@ -95,6 +97,51 @@ export class ApplicationsService {
     });
 
     return apps;
+  }
+
+  async findAllCurrentApplications(): Promise<GetApplicationResponseDTO[]> {
+    const currentCycle: Cycle = getCurrentCycle();
+    const applications = await this.applicationsRepository.find({
+      where: {
+        //TODO q: I had to change Cycle definition to make year and semester public. Is there a reason it was private?
+        year: currentCycle.year,
+        semester: currentCycle.semester,
+      },
+    });
+
+    const dtos: GetApplicationResponseDTO[] = [];
+
+    applications.forEach((app) =>
+      //TODO q: what is the numApps parameter? I just passed 0 in
+      dtos.push(app.toGetApplicationResponseDTO(0)),
+    );
+
+    return dtos;
+  }
+
+  async fake() {
+    const allApps = await this.applicationsRepository.find({
+      relations: {
+        user: true,
+      },
+    });
+    const fakeApps = [];
+    allApps.forEach((app) => {
+      const email = app.user.email;
+      const fullName = app.user.firstName + ' ' + app.user.lastName;
+      const createdAt = app.createdAt;
+      // const year = app.year
+      // const semester = app.semester
+      const position = app.position;
+      const stage = app.stage;
+      // const step = app.step
+      // const response = app.response
+      // const reviews = app.reviews
+      const numApps = 0;
+      fakeApps.push({ email, fullName, createdAt, position, stage, numApps });
+    });
+
+    return fakeApps;
   }
 
   async findCurrent(userId: number): Promise<Application> {

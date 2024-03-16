@@ -10,6 +10,7 @@ import {
   Body,
   BadRequestException,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { Response } from './types';
 import { ApplicationsService } from './applications.service';
@@ -36,6 +37,26 @@ export class ApplicationsController {
       signature,
     );
     return await this.applicationsService.submitApp(application, user);
+  }
+  @Get('/')
+  async getApplications(@Request() req): Promise<GetApplicationResponseDTO[]> {
+    if (
+      !(
+        req.user.status === UserStatus.RECRUITER ||
+        req.user.status === UserStatus.ADMIN
+      )
+    ) {
+      throw new UnauthorizedException(
+        'Calling user is not a recruiter or admin',
+      );
+    }
+
+    return this.applicationsService.findAllCurrentApplications();
+  }
+
+  @Get('/fake')
+  async fake() {
+    return this.applicationsService.fake();
   }
 
   @Get('/:userId')
