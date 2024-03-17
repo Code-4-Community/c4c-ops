@@ -64,8 +64,8 @@ export class Application {
   reviews: Review[];
 
   toGetAllApplicationResponseDTO(): GetAllApplicationResponseDTO {
-    const meanRatingAllStages = 0;
-    const meanRatingSingleStages = 0;
+    const meanRatingAllStages = 0; // TODO: calculate this
+    const meanRatingSingleStages = 0; // TODO: calculate this (should be an object)
 
     return {
       userId: this.user.id,
