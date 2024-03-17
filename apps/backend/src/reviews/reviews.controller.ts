@@ -34,6 +34,7 @@ export class ReviewsController {
     return this.reviewsService.createReview(
       req.user,
       createReviewDTO.applicantId,
+      createReviewDTO.stage,
       createReviewDTO.rating,
       createReviewDTO.content,
     );

@@ -1,6 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { Application } from '../applications/application.entity';
-import { Rating } from './types';
+import { Rating, Stage } from './types';
 
 @Entity()
 export class Review {
@@ -20,6 +20,9 @@ export class Review {
   // TODO should be a many-to-many on Users
   @Column({ nullable: false })
   reviewerId: number;
+
+  @Column({ type: 'varchar', nullable: false })
+  stage: Stage;
 
   @Column({ type: 'varchar', nullable: false })
   rating: Rating;

@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MongoRepository } from 'typeorm';
 import { Review } from './review.entity';
-import { Rating } from './types';
+import { Rating, Stage } from './types';
 import { ApplicationsService } from '../applications/applications.service';
 import { User } from '../users/user.entity';
 
@@ -20,6 +20,7 @@ export class ReviewsService {
   async createReview(
     currentUser: User,
     applicantId: number,
+    stage: Stage,
     rating: Rating,
     content: string,
   ): Promise<Review> {
@@ -30,6 +31,7 @@ export class ReviewsService {
       createdAt: new Date(),
       updatedAt: new Date(),
       application,
+      stage,
       rating,
       content,
     });
