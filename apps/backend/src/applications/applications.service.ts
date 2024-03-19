@@ -112,11 +112,9 @@ export class ApplicationsService {
       relations: ['user'],
     });
 
-    const dtos: GetAllApplicationResponseDTO[] = [];
-
-    applications.forEach((app) => {
-      dtos.push(app.toGetAllApplicationResponseDTO());
-    });
+    const dtos: GetAllApplicationResponseDTO[] = applications.map((app) =>
+      app.toGetAllApplicationResponseDTO(),
+    );
 
     return dtos;
   }

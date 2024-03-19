@@ -4,10 +4,10 @@ import { Semester } from './types';
 
 export const getCurrentSemester = (): Semester => {
   const month: number = new Date().getMonth();
-  if (month >= 0 && month <= 5) {
-    return Semester.FALL; // We will be recruiting for the fall semester during Jan - Jun
+  if (month >= 1 && month <= 7) {
+    return Semester.FALL; // We will be recruiting for the fall semester during Feb - Aug
   }
-  return Semester.SPRING; // We will be recruiting for the spring semester during Jul - Dec
+  return Semester.SPRING; // We will be recruiting for the spring semester during Sep - Jan
 };
 
 export const getCurrentYear = (): number => {
