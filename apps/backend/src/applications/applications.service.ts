@@ -7,12 +7,17 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { MongoRepository } from 'typeorm';
 import { UsersService } from '../users/users.service';
 import { Application } from './application.entity';
-import { getAppForCurrentCycle, getCurrentCycle } from './utils';
-import { GetApplicationResponseDTO } from './dto/get-application.response.dto';
+import {
+  getAppForCurrentCycle,
+  getCurrentCycle,
+  getCurrentSemester,
+  getCurrentYear,
+} from './utils';
 import { Response } from './types';
 import * as crypto from 'crypto';
 import { User } from '../users/user.entity';
 import { Position, ApplicationStage, ApplicationStep } from './types';
+import { GetAllApplicationResponseDTO } from './dto/get-all-application.response.dto';
 
 @Injectable()
 export class ApplicationsService {
@@ -100,7 +105,7 @@ export class ApplicationsService {
     return apps;
   }
 
-  async findAllCurrentApplications(): Promise<GetApplicationResponseDTO[]> {
+  async findAllCurrentApplications(): Promise<GetAllApplicationResponseDTO[]> {
     const applications = await this.applicationsRepository.find({
       where: {
         //TODO q: I had to change Cycle definition to make year and semester public. Is there a reason it was private?
@@ -185,14 +190,8 @@ export class ApplicationsService {
     // Since `calculateMeanRatings` is an array of operations, await its resolution if in an async context
     const meanRatingsResults = await Promise.all(calculateMeanRatings);
 
-    const dtos: GetApplicationResponseDTO[] = [];
-
-    applications.forEach(async (app) =>
-      //TODO q: what is the numApps parameter? I just passed 0 in
-      {
-        const apps = await this.findAll(app.user.id);
-        dtos.push(app.toGetApplicationResponseDTO(apps.length));
-      },
+    const dtos: GetAllApplicationResponseDTO[] = applications.map((app) =>
+      app.toGetAllApplicationResponseDTO(),
     );
 
     return dtos;
