@@ -31,11 +31,6 @@ export class ReviewsController {
       );
     }
 
-    return this.reviewsService.createReview(
-      req.user,
-      createReviewDTO.applicantId,
-      createReviewDTO.rating,
-      createReviewDTO.content,
-    );
+    return this.reviewsService.createReview(req.user, createReviewDTO);
   }
 }

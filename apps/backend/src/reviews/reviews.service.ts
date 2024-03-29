@@ -2,9 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MongoRepository } from 'typeorm';
 import { Review } from './review.entity';
-import { Rating } from './types';
 import { ApplicationsService } from '../applications/applications.service';
 import { User } from '../users/user.entity';
+import { SubmitReviewRequestDTO } from './dto/submit-review.request.dto';
 
 @Injectable()
 export class ReviewsService {
@@ -19,19 +19,20 @@ export class ReviewsService {
    */
   async createReview(
     currentUser: User,
-    applicantId: number,
-    rating: Rating,
-    content: string,
+    createReviewDTO: SubmitReviewRequestDTO,
   ): Promise<Review> {
-    const application = await this.applicationsService.findCurrent(applicantId);
+    const application = await this.applicationsService.findCurrent(
+      createReviewDTO.applicantId,
+    );
 
     const review = this.reviewsRepository.create({
       reviewerId: currentUser.id,
       createdAt: new Date(),
       updatedAt: new Date(),
       application,
-      rating,
-      content,
+      rating: createReviewDTO.rating,
+      content: createReviewDTO.content,
+      stage: createReviewDTO.stage,
     });
 
     return this.reviewsRepository.save(review);

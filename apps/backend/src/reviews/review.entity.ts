@@ -1,6 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { Application } from '../applications/application.entity';
-import { Rating } from './types';
+import { ApplicationStage } from '../applications/types';
 
 @Entity()
 export class Review {
@@ -21,8 +21,11 @@ export class Review {
   @Column({ nullable: false })
   reviewerId: number;
 
+  @Column({ nullable: false })
+  rating: number;
+
   @Column({ type: 'varchar', nullable: false })
-  rating: Rating;
+  stage: ApplicationStage;
 
   @Column({ nullable: false })
   content: string;

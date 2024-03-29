@@ -95,6 +95,8 @@ export class ApplicationsService {
       relations: ['user'],
     });
 
+    console.log(apps);
+    console.log(userId);
     return apps;
   }
 
@@ -105,7 +107,83 @@ export class ApplicationsService {
         year: process.env.NX_CURRENT_YEAR,
         semester: process.env.NX_CURRENT_SEMESTER,
       },
+      relations: ['reviews'],
     });
+
+    const calculateMeanRatings = applications.map((app) => {
+      // Initialize variables for storing mean ratings
+      let meanRatingAllReviews = 0;
+      let meanRatingResume = 0;
+      let meanRatingChallenge = null; // Default to null for DESIGNERS
+      let meanRatingTechnicalChallenge = 0;
+      let meanRatingInterview = 0;
+
+      // Calculate mean rating of all reviews
+      if (app.reviews.length > 0) {
+        meanRatingAllReviews =
+          app.reviews.reduce((acc, review) => acc + review.rating, 0) /
+          app.reviews.length;
+      }
+
+      // Filter reviews by stage and calculate mean ratings accordingly
+      const resumeReviews = app.reviews.filter(
+        (review) => review.stage === ApplicationStage.RESUME,
+      );
+      const challengeReviews = app.reviews.filter(
+        (review) =>
+          review.stage === ApplicationStage.TECHNICAL_CHALLENGE ||
+          review.stage === ApplicationStage.PM_CHALLENGE,
+      );
+      const technicalChallengeReviews = app.reviews.filter(
+        (review) => review.stage === ApplicationStage.TECHNICAL_CHALLENGE,
+      );
+      const interviewReviews = app.reviews.filter(
+        (review) => review.stage === ApplicationStage.INTERVIEW,
+      );
+
+      // Mean rating for RESUME stage
+      if (resumeReviews.length > 0) {
+        meanRatingResume =
+          resumeReviews.reduce((acc, review) => acc + review.rating, 0) /
+          resumeReviews.length;
+      }
+
+      // Mean rating for CHALLENGE stage (for DEVS and PMS)
+      if (app.position !== 'DESIGNER' && challengeReviews.length > 0) {
+        meanRatingChallenge =
+          challengeReviews.reduce((acc, review) => acc + review.rating, 0) /
+          challengeReviews.length;
+      }
+
+      // Mean rating for TECHNICAL_CHALLENGE stage (specifically for DEVS)
+      if (technicalChallengeReviews.length > 0) {
+        meanRatingTechnicalChallenge =
+          technicalChallengeReviews.reduce(
+            (acc, review) => acc + review.rating,
+            0,
+          ) / technicalChallengeReviews.length;
+      }
+
+      // Mean rating for INTERVIEW stage
+      if (interviewReviews.length > 0) {
+        meanRatingInterview =
+          interviewReviews.reduce((acc, review) => acc + review.rating, 0) /
+          interviewReviews.length;
+      }
+
+      // Construct an object with the calculated mean ratings
+      return {
+        applicationId: app.id, // Include application ID for reference
+        meanRatingAllReviews,
+        meanRatingResume,
+        meanRatingChallenge, // This will be null for DESIGNERS
+        meanRatingTechnicalChallenge,
+        meanRatingInterview,
+      };
+    });
+
+    // Since `calculateMeanRatings` is an array of operations, await its resolution if in an async context
+    const meanRatingsResults = await Promise.all(calculateMeanRatings);
 
     const dtos: GetApplicationResponseDTO[] = [];
 
