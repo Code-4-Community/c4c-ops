@@ -1,5 +1,5 @@
 import axios, { type AxiosInstance } from 'axios';
-
+import type { applicationRow } from '@components/ApplicationTables';
 const defaultBaseUrl =
   import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3000';
 
@@ -12,6 +12,10 @@ export class ApiClient {
 
   public async getHello(): Promise<string> {
     return this.get('/api') as Promise<string>;
+  }
+
+  public async getFake(): Promise<applicationRow[]> {
+    return (await this.get('/api/apps/fake')) as applicationRow[];
   }
 
   private async get(path: string): Promise<unknown> {

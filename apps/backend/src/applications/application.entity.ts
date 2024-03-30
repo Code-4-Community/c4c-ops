@@ -28,7 +28,7 @@ export class Application {
   @JoinColumn()
   user: User;
 
-  @Column({ nullable: false })
+  @Column({ nullable: false, default: () => 'CURRENT_TIMESTAMP' })
   @IsDateString()
   createdAt: Date;
 
