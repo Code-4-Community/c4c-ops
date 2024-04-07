@@ -39,30 +39,22 @@ export class ApplicationsController {
     return await this.applicationsService.submitApp(application, user);
   }
 
-  @Post('/decision')
+  @Post('/decision/:appId')
   @UseGuards(AuthGuard('jwt'))
   async makeDecision(
-    @Body('applicantId', ParseIntPipe) applicantId: number,
-    @Body('decision') decision: 'ACCEPT' | 'REJECT',
+    @Param('appId', ParseIntPipe) applicantId: number,
+    @Body('decision') decision: Decision,
     @Request() req,
   ): Promise<void> {
     //Authorization check for admin and recruiters
-    if (![UserStatus.ADMIN, !UserStatus.RECRUITER].includes(req.user.status)) {
+    if (![UserStatus.ADMIN, UserStatus.RECRUITER].includes(req.user.status)) {
       throw new UnauthorizedException();
     }
 
     //Check if the string decision matches with the Decision enum
-    const decisionEnum: Decision = Decision[decision as keyof typeof Decision];
+    const decisionEnum: Decision = Decision[decision];
     if (!decisionEnum) {
       throw new BadRequestException('Invalid decision value');
-    }
-
-    //Check if the user exists and if the user has an application for the current cycle
-    const applicant = await this.applicationsService.findCurrent(applicantId);
-    if (!applicant) {
-      throw new NotFoundException(
-        `Application for user with ID ${applicantId} not found or not for the current cycle`,
-      );
     }
 
     //Delegate the decision making to the service.

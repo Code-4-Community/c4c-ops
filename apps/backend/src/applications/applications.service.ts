@@ -12,6 +12,7 @@ import { Decision, Response } from './types';
 import * as crypto from 'crypto';
 import { User } from '../users/user.entity';
 import { Position, ApplicationStage, ApplicationStep } from './types';
+import { stagesMap } from './applications.constants';
 
 @Injectable()
 export class ApplicationsService {
@@ -100,37 +101,23 @@ export class ApplicationsService {
     applicantId: number,
     decision: Decision,
   ): Promise<void> {
-    const applicant = await this.findCurrent(applicantId);
+    const application = await this.findCurrent(applicantId);
 
     let newStage: ApplicationStage;
-    switch (applicant.stage) {
-      case ApplicationStage.RESUME:
-        newStage =
-          decision === Decision.ACCEPT
-            ? ApplicationStage.TECHNICAL_CHALLENGE
-            : ApplicationStage.REJECTED;
-        break;
-      case ApplicationStage.TECHNICAL_CHALLENGE:
-        newStage =
-          decision === Decision.ACCEPT
-            ? ApplicationStage.INTERVIEW
-            : ApplicationStage.REJECTED;
-        break;
-      case ApplicationStage.INTERVIEW:
-        newStage =
-          decision === Decision.ACCEPT
-            ? ApplicationStage.ACCEPTED
-            : ApplicationStage.REJECTED;
-        break;
-      default:
-        throw new BadRequestException(
-          `Cannot make a decision on current stage ${applicant.stage}`,
-        );
+    if (decision === Decision.REJECT) {
+      newStage = ApplicationStage.REJECTED;
+    } else {
+      const stagesArr = stagesMap[application.position];
+      const stageIndex = stagesArr.indexOf(application.stage);
+      if (stageIndex === -1) {
+        return;
+      }
+      newStage = stagesArr[stageIndex + 1];
     }
-    applicant.stage = newStage;
+    application.stage = newStage;
 
     //Save the updated stage
-    await this.applicationsRepository.save(applicant);
+    await this.applicationsRepository.save(application);
   }
 
   async findAll(userId: number): Promise<Application[]> {
