@@ -17,6 +17,7 @@ import {
 } from './types';
 import { GetApplicationResponseDTO } from './dto/get-application.response.dto';
 import { Review } from '../reviews/review.entity';
+import { GetAllApplicationResponseDTO } from './dto/get-all-application.response.dto';
 
 @Entity()
 export class Application {
@@ -61,6 +62,23 @@ export class Application {
   @IsArray()
   @IsObject({ each: true })
   reviews: Review[];
+
+  toGetAllApplicationResponseDTO(): GetAllApplicationResponseDTO {
+    const meanRatingAllStages = 0; // TODO: calculate this
+    const meanRatingSingleStages = 0; // TODO: calculate this (should be an object)
+
+    return {
+      userId: this.user.id,
+      firstName: this.user.firstName,
+      lastName: this.user.lastName,
+      stage: this.stage,
+      step: this.step,
+      position: this.position,
+      createdAt: this.createdAt,
+      meanRatingAllStages: meanRatingAllStages,
+      meanRatingSingleStages: meanRatingSingleStages,
+    };
+  }
 
   toGetApplicationResponseDTO(numApps: number): GetApplicationResponseDTO {
     return {

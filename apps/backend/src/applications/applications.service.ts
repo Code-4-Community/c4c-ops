@@ -7,11 +7,17 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { MongoRepository } from 'typeorm';
 import { UsersService } from '../users/users.service';
 import { Application } from './application.entity';
-import { getAppForCurrentCycle, getCurrentCycle } from './utils';
+import {
+  getAppForCurrentCycle,
+  getCurrentCycle,
+  getCurrentSemester,
+  getCurrentYear,
+} from './utils';
 import { Decision, Response } from './types';
 import * as crypto from 'crypto';
 import { User } from '../users/user.entity';
 import { Position, ApplicationStage, ApplicationStep } from './types';
+import { GetAllApplicationResponseDTO } from './dto/get-all-application.response.dto';
 import { stagesMap } from './applications.constants';
 
 @Injectable()
@@ -127,6 +133,22 @@ export class ApplicationsService {
     });
 
     return apps;
+  }
+
+  async findAllCurrentApplications(): Promise<GetAllApplicationResponseDTO[]> {
+    const applications = await this.applicationsRepository.find({
+      where: {
+        year: getCurrentYear(),
+        semester: getCurrentSemester(),
+      },
+      relations: ['user'],
+    });
+
+    const dtos: GetAllApplicationResponseDTO[] = applications.map((app) =>
+      app.toGetAllApplicationResponseDTO(),
+    );
+
+    return dtos;
   }
 
   async findCurrent(userId: number): Promise<Application> {
