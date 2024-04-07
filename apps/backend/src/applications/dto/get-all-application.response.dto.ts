@@ -24,9 +24,17 @@ export class GetAllApplicationResponseDTO {
   createdAt: Date;
 
   @IsPositive()
-  meanRatingAllStages: number;
+  meanRatingAllReviews: number;
 
-  // TODO: Should be a JSON or similar that defines scores for each stage
   @IsPositive()
-  meanRatingSingleStages: number;
+  meanRatingResume: number;
+
+  @IsPositive()
+  meanRatingChallenge: number;
+
+  @IsPositive()
+  meanRatingTechnicalChallenge: number;
+
+  @IsPositive()
+  meanRatingInterview: number;
 }

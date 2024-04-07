@@ -115,7 +115,7 @@ export class ApplicationsService {
       relations: ['reviews'],
     });
 
-    const calculateMeanRatings = applications.map((app) => {
+    const allApplicationsDto = applications.map((app) => {
       // Initialize variables for storing mean ratings
       let meanRatingAllReviews = 0;
       let meanRatingResume = 0;
@@ -176,25 +176,16 @@ export class ApplicationsService {
           interviewReviews.length;
       }
 
-      // Construct an object with the calculated mean ratings
-      return {
-        applicationId: app.id, // Include application ID for reference
+      return app.toGetAllApplicationResponseDTO(
         meanRatingAllReviews,
         meanRatingResume,
-        meanRatingChallenge, // This will be null for DESIGNERS
+        meanRatingChallenge,
         meanRatingTechnicalChallenge,
         meanRatingInterview,
-      };
+      );
     });
 
-    // Since `calculateMeanRatings` is an array of operations, await its resolution if in an async context
-    const meanRatingsResults = await Promise.all(calculateMeanRatings);
-
-    const dtos: GetAllApplicationResponseDTO[] = applications.map((app) =>
-      app.toGetAllApplicationResponseDTO(),
-    );
-
-    return dtos;
+    return allApplicationsDto;
   }
 
   async findCurrent(userId: number): Promise<Application> {

@@ -63,10 +63,13 @@ export class Application {
   @IsObject({ each: true })
   reviews: Review[];
 
-  toGetAllApplicationResponseDTO(): GetAllApplicationResponseDTO {
-    const meanRatingAllStages = 0; // TODO: calculate this
-    const meanRatingSingleStages = 0; // TODO: calculate this (should be an object)
-
+  toGetAllApplicationResponseDTO(
+    meanRatingAllReviews,
+    meanRatingResume,
+    meanRatingChallenge,
+    meanRatingTechnicalChallenge,
+    meanRatingInterview,
+  ): GetAllApplicationResponseDTO {
     return {
       userId: this.user.id,
       firstName: this.user.firstName,
@@ -75,8 +78,11 @@ export class Application {
       step: this.step,
       position: this.position,
       createdAt: this.createdAt,
-      meanRatingAllStages: meanRatingAllStages,
-      meanRatingSingleStages: meanRatingSingleStages,
+      meanRatingAllReviews: meanRatingAllReviews,
+      meanRatingResume: meanRatingResume,
+      meanRatingChallenge: meanRatingChallenge,
+      meanRatingTechnicalChallenge: meanRatingTechnicalChallenge,
+      meanRatingInterview: meanRatingInterview,
     };
   }
 
