@@ -108,7 +108,6 @@ export class ApplicationsService {
   async findAllCurrentApplications(): Promise<GetAllApplicationResponseDTO[]> {
     const applications = await this.applicationsRepository.find({
       where: {
-        //TODO q: I had to change Cycle definition to make year and semester public. Is there a reason it was private?
         year: process.env.NX_CURRENT_YEAR,
         semester: process.env.NX_CURRENT_SEMESTER,
       },
