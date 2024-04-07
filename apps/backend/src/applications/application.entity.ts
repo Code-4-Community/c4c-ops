@@ -78,11 +78,11 @@ export class Application {
       step: this.step,
       position: this.position,
       createdAt: this.createdAt,
-      meanRatingAllReviews: meanRatingAllReviews,
-      meanRatingResume: meanRatingResume,
-      meanRatingChallenge: meanRatingChallenge,
-      meanRatingTechnicalChallenge: meanRatingTechnicalChallenge,
-      meanRatingInterview: meanRatingInterview,
+      meanRatingAllReviews,
+      meanRatingResume,
+      meanRatingChallenge,
+      meanRatingTechnicalChallenge,
+      meanRatingInterview,
     };
   }
 

@@ -99,28 +99,25 @@ export class ApplicationsService {
       where: { user: { id: userId } },
       relations: ['user'],
     });
-
-    console.log(apps);
-    console.log(userId);
     return apps;
   }
 
   async findAllCurrentApplications(): Promise<GetAllApplicationResponseDTO[]> {
     const applications = await this.applicationsRepository.find({
       where: {
-        year: process.env.NX_CURRENT_YEAR,
-        semester: process.env.NX_CURRENT_SEMESTER,
+        year: getCurrentYear(),
+        semester: getCurrentSemester(),
       },
       relations: ['reviews'],
     });
 
     const allApplicationsDto = applications.map((app) => {
       // Initialize variables for storing mean ratings
-      let meanRatingAllReviews = 0;
-      let meanRatingResume = 0;
+      let meanRatingAllReviews = null;
+      let meanRatingResume = null;
       let meanRatingChallenge = null; // Default to null for DESIGNERS
-      let meanRatingTechnicalChallenge = 0;
-      let meanRatingInterview = 0;
+      let meanRatingTechnicalChallenge = null;
+      let meanRatingInterview = null;
 
       // Calculate mean rating of all reviews
       if (app.reviews.length > 0) {
@@ -153,7 +150,7 @@ export class ApplicationsService {
       }
 
       // Mean rating for CHALLENGE stage (for DEVS and PMS)
-      if (app.position !== 'DESIGNER' && challengeReviews.length > 0) {
+      if (challengeReviews.length > 0) {
         meanRatingChallenge =
           challengeReviews.reduce((acc, review) => acc + review.rating, 0) /
           challengeReviews.length;
