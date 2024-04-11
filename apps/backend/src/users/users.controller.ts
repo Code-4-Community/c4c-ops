@@ -10,6 +10,7 @@ import {
   UnauthorizedException,
   UseGuards,
   UseInterceptors,
+  Post,
 } from '@nestjs/common';
 import { UpdateUserRequestDTO } from './dto/update-user.request.dto';
 import { UsersService } from './users.service';
@@ -62,5 +63,14 @@ export class UsersController {
     }
 
     return this.usersService.remove(req.user, userId);
+  }
+
+  @Post('email') // TODO: should not be a POST request, but AppScript is bugging out for GET requests
+  findUserByEmail(@Body('email') email: string, @Request() req) {
+    // TODO: email should be encoded and decoded here with a secret key
+    if (req.user.status !== UserStatus.ADMIN) {
+      throw new UnauthorizedException();
+    }
+    return this.usersService.findByEmail(email);
   }
 }
