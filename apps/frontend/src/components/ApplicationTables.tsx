@@ -1,6 +1,6 @@
-import { DataGrid } from '@mui/x-data-grid';
-import { Container, Typography } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { DataGrid, GridRowSelectionModel } from '@mui/x-data-grid';
+import { Container, Typography, Stack, Button } from '@mui/material';
+import { useEffect, useState, useRef } from 'react';
 import apiClient from '@api/apiClient';
 
 enum ApplicationStage {
@@ -37,9 +37,15 @@ export type applicationRow = {
 };
 
 export function ApplicationTable() {
-  const [data, setData] = useState<applicationRow[]>([]);
+  const isPageRendered = useRef<boolean>(false);
 
-  const fetchData = async (accessToken: string) => {
+  const [data, setData] = useState<applicationRow[]>([]);
+  const [fullName, setFullName] = useState<string>('');
+  const [accessToken, setAccessToken] = useState<string>('');
+  const [rowSelection, setRowSelection] = useState<GridRowSelectionModel>([]);
+  const [selectedUser, setSelectedUser] = useState<applicationRow | null>(null);
+
+  const fetchData = async () => {
     const data = await apiClient.getAllApplications(accessToken);
     // Each application needs an id for the DataGrid to work
     if (data) {
@@ -50,19 +56,39 @@ export function ApplicationTable() {
     }
   };
 
+  const getFullName = async () => {
+    setFullName(await apiClient.getFullName(accessToken));
+  };
+
   useEffect(() => {
     // Access token comes from OAuth redirect uri https://frontend.com/#access_token=access_token
     const hash = window.location.hash;
-    const accessToken = hash.match(/access_token=([^&]*)/);
-    if (accessToken) {
-      fetchData(accessToken[1]);
+    const accessTokenMatch = hash.match(/access_token=([^&]*)/);
+    if (accessTokenMatch) {
+      setAccessToken(accessTokenMatch[1]);
     }
+    isPageRendered.current = false;
   }, []);
+
+  useEffect(() => {
+    if (isPageRendered.current) {
+      fetchData();
+      getFullName();
+    }
+    isPageRendered.current = true;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [accessToken]);
+
+  useEffect(() => {
+    if (rowSelection.length > 0) {
+      setSelectedUser(data[rowSelection[0] as number]);
+    }
+  }, [rowSelection, data]);
 
   return (
     <Container maxWidth="xl">
       <Typography variant="h4" mb={3}>
-        Welcome back, User
+        Welcome back, {fullName}
       </Typography>
       <DataGrid
         rows={data}
@@ -114,8 +140,30 @@ export function ApplicationTable() {
           },
         }}
         pageSizeOptions={[5, 10]}
-        checkboxSelection
+        onRowSelectionModelChange={(newRowSelectionModel) => {
+          setRowSelection(newRowSelectionModel);
+        }}
+        rowSelectionModel={rowSelection}
       />
+      <Stack
+        direction="row"
+        spacing={2}
+        sx={{
+          alignItems: 'center',
+          marginTop: 3,
+        }}
+      >
+        <Typography variant="h6">
+          {selectedUser
+            ? `Selected User: ${selectedUser.firstName} ${selectedUser.lastName}`
+            : 'No User Selected'}
+        </Typography>
+        {selectedUser && (
+          <Button variant="contained" size="small">
+            View Application
+          </Button>
+        )}
+      </Stack>
     </Container>
   );
 }

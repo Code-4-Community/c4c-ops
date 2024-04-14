@@ -28,8 +28,21 @@ export class UsersController {
   constructor(private usersService: UsersService) {}
 
   @Post('email')
-  async getUserByEmail(@Body('email') email: string): Promise<User[]> {
+  async getUserByEmail(
+    @Body('email') email: string,
+    @Request() req,
+  ): Promise<User[]> {
+    // This endpoint is used by our Google Form AppScript to check whether a user already exists in our
+    // database. If not, then the AppScript creates a new user. This is how the AppScript knows when to create a new user.
+    if (req.user.status !== UserStatus.ADMIN) {
+      throw new UnauthorizedException();
+    }
     return await this.usersService.findByEmail(email);
+  }
+
+  @Get('/fullname')
+  async getFullName(@Request() req): Promise<string> {
+    return `${req.user.firstName} ${req.user.lastName}`;
   }
 
   @Get('/:userId')

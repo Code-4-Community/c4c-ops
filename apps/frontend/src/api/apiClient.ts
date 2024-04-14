@@ -24,6 +24,14 @@ export class ApiClient {
     })) as Promise<applicationRow[]>;
   }
 
+  public async getFullName(accessToken: string): Promise<string> {
+    return (await this.get('/api/users/fullname', {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    })) as Promise<string>;
+  }
+
   private async get(
     path: string,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
