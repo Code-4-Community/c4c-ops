@@ -24,9 +24,9 @@ export class ApiClient {
     })) as Promise<applicationRow[]>;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private async get(
     path: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     headers: AxiosRequestConfig<any> | undefined = undefined,
   ): Promise<unknown> {
     return this.axiosInstance
