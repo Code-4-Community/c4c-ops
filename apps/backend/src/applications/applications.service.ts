@@ -7,13 +7,18 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { MongoRepository } from 'typeorm';
 import { UsersService } from '../users/users.service';
 import { Application } from './application.entity';
-import { getAppForCurrentCycle, getCurrentCycle } from './utils';
-import { Response } from './types';
+import {
+  getAppForCurrentCycle,
+  getCurrentCycle,
+  getCurrentSemester,
+  getCurrentYear,
+} from './utils';
+import { Decision, Response } from './types';
 import * as crypto from 'crypto';
 import { User } from '../users/user.entity';
 import { Position, ApplicationStage, ApplicationStep } from './types';
-import { GetApplicationResponseDTO } from './dto/get-application.response.dto';
-import { Cycle } from './dto/cycle';
+import { GetAllApplicationResponseDTO } from './dto/get-all-application.response.dto';
+import { stagesMap } from './applications.constants';
 
 @Injectable()
 export class ApplicationsService {
@@ -90,6 +95,37 @@ export class ApplicationsService {
     throw new UnauthorizedException();
   }
 
+  /**
+   * Updates the application stage of the applicant.
+   * Moves the stage to either the next stage or to rejected.
+   *
+   * @param applicantId the id of the applicant.
+   * @param decision enum that contains either the applicant was 'ACCEPT' or 'REJECT'
+   * @returns { void } only updates the stage of the applicant.
+   */
+  async processDecision(
+    applicantId: number,
+    decision: Decision,
+  ): Promise<void> {
+    const application = await this.findCurrent(applicantId);
+
+    let newStage: ApplicationStage;
+    if (decision === Decision.REJECT) {
+      newStage = ApplicationStage.REJECTED;
+    } else {
+      const stagesArr = stagesMap[application.position];
+      const stageIndex = stagesArr.indexOf(application.stage);
+      if (stageIndex === -1) {
+        return;
+      }
+      newStage = stagesArr[stageIndex + 1];
+    }
+    application.stage = newStage;
+
+    //Save the updated stage
+    await this.applicationsRepository.save(application);
+  }
+
   async findAll(userId: number): Promise<Application[]> {
     const apps = await this.applicationsRepository.find({
       where: { user: { id: userId } },
@@ -99,49 +135,20 @@ export class ApplicationsService {
     return apps;
   }
 
-  async findAllCurrentApplications(): Promise<GetApplicationResponseDTO[]> {
-    const currentCycle: Cycle = getCurrentCycle();
+  async findAllCurrentApplications(): Promise<GetAllApplicationResponseDTO[]> {
     const applications = await this.applicationsRepository.find({
       where: {
-        //TODO q: I had to change Cycle definition to make year and semester public. Is there a reason it was private?
-        year: currentCycle.year,
-        semester: currentCycle.semester,
+        year: getCurrentYear(),
+        semester: getCurrentSemester(),
       },
+      relations: ['user'],
     });
 
-    const dtos: GetApplicationResponseDTO[] = [];
-
-    applications.forEach((app) =>
-      //TODO q: what is the numApps parameter? I just passed 0 in
-      dtos.push(app.toGetApplicationResponseDTO(0)),
+    const dtos: GetAllApplicationResponseDTO[] = applications.map((app) =>
+      app.toGetAllApplicationResponseDTO(),
     );
 
     return dtos;
-  }
-
-  async fake() {
-    const allApps = await this.applicationsRepository.find({
-      relations: {
-        user: true,
-      },
-    });
-    const fakeApps = [];
-    allApps.forEach((app) => {
-      const email = app.user.email;
-      const fullName = app.user.firstName + ' ' + app.user.lastName;
-      const createdAt = app.createdAt;
-      // const year = app.year
-      // const semester = app.semester
-      const position = app.position;
-      const stage = app.stage;
-      // const step = app.step
-      // const response = app.response
-      // const reviews = app.reviews
-      const numApps = 0;
-      fakeApps.push({ email, fullName, createdAt, position, stage, numApps });
-    });
-
-    return fakeApps;
   }
 
   async findCurrent(userId: number): Promise<Application> {

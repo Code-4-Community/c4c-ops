@@ -1,4 +1,4 @@
-import axios, { type AxiosInstance } from 'axios';
+import axios, { type AxiosInstance, AxiosRequestConfig } from 'axios';
 import type { applicationRow } from '@components/ApplicationTables';
 const defaultBaseUrl =
   import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3000';
@@ -14,12 +14,24 @@ export class ApiClient {
     return this.get('/api') as Promise<string>;
   }
 
-  public async getFake(): Promise<applicationRow[]> {
-    return (await this.get('/api/apps/fake')) as applicationRow[];
+  public async getAllApplications(
+    accessToken: string,
+  ): Promise<applicationRow[]> {
+    return (await this.get('/api/apps', {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    })) as Promise<applicationRow[]>;
   }
 
-  private async get(path: string): Promise<unknown> {
-    return this.axiosInstance.get(path).then((response) => response.data);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private async get(
+    path: string,
+    headers: AxiosRequestConfig<any> | undefined = undefined,
+  ): Promise<unknown> {
+    return this.axiosInstance
+      .get(path, headers)
+      .then((response) => response.data);
   }
 
   private async post(path: string, body: unknown): Promise<unknown> {

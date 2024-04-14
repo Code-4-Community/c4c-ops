@@ -20,6 +20,8 @@ import { User } from '../users/user.entity';
 import { SignInResponseDto } from './dtos/sign-in.response.dto';
 import { CurrentUserInterceptor } from '../interceptors/current-user.interceptor';
 import { AuthGuard } from '@nestjs/passport';
+import { ForgotPasswordRequestDto } from './dtos/forgot-password.request.dto';
+import { ConfirmResetPasswordDto } from './dtos/confirm-reset-password.request.dto';
 import { UserStatus } from '../users/types';
 
 @Controller('auth')
@@ -72,10 +74,6 @@ export class AuthController {
     return this.authService.signin(signInDto);
   }
 
-  // TODO implement change/forgotPassword endpoint (service methods are already implemented)
-  // But this won't be necessary if we use Google OAuth
-  // https://dev.to/fstbraz/authentication-with-aws-cognito-passport-and-nestjs-part-iii-2da5
-
   @Post('/delete/:userId')
   @UseGuards(AuthGuard('jwt'))
   async delete(
@@ -95,5 +93,27 @@ export class AuthController {
     }
 
     this.usersService.remove(req.user, user.id);
+  }
+
+  @Post('/forgotPassword')
+  async forgotPassword(@Body() body: ForgotPasswordRequestDto) {
+    try {
+      await this.authService.forgotPassword(body.email);
+    } catch (e) {
+      throw new BadRequestException(e.message);
+    }
+  }
+
+  @Post('/confirmResetPassword')
+  async confirmResetPassword(@Body() body: ConfirmResetPasswordDto) {
+    try {
+      await this.authService.confirmPassword(
+        body.email,
+        body.verificationCode,
+        body.newPassword,
+      );
+    } catch (e) {
+      throw new BadRequestException(e.message);
+    }
   }
 }

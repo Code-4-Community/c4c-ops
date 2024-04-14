@@ -6,6 +6,7 @@ import {
   Param,
   ParseIntPipe,
   Patch,
+  Post,
   Request,
   UnauthorizedException,
   UseGuards,
@@ -18,12 +19,18 @@ import { CurrentUserInterceptor } from '../interceptors/current-user.interceptor
 import { GetUserResponseDto } from './dto/get-user.response.dto';
 import { UserStatus } from './types';
 import { toGetUserResponseDto } from './users.utils';
+import { User } from './user.entity';
 
 @Controller('users')
 @UseInterceptors(CurrentUserInterceptor)
 @UseGuards(AuthGuard('jwt'))
 export class UsersController {
   constructor(private usersService: UsersService) {}
+
+  @Post('email')
+  async getUserByEmail(@Body('email') email: string): Promise<User[]> {
+    return await this.usersService.findByEmail(email);
+  }
 
   @Get('/:userId')
   async getUser(

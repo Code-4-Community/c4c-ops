@@ -123,7 +123,6 @@ export class AuthService {
     });
   }
 
-  // TODO not currently used
   forgotPassword(email: string): Promise<unknown> {
     return new Promise((resolve, reject) => {
       return new CognitoUser({
@@ -140,7 +139,6 @@ export class AuthService {
     });
   }
 
-  // TODO not currently used
   confirmPassword(
     email: string,
     verificationCode: string,
