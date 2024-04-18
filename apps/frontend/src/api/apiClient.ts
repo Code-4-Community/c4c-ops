@@ -1,5 +1,8 @@
 import axios, { type AxiosInstance, AxiosRequestConfig } from 'axios';
-import type { applicationRow } from '@components/ApplicationTables';
+import type {
+  Application,
+  applicationRow,
+} from '@components/ApplicationTables';
 const defaultBaseUrl =
   import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3000';
 
@@ -22,6 +25,17 @@ export class ApiClient {
         Authorization: `Bearer ${accessToken}`,
       },
     })) as Promise<applicationRow[]>;
+  }
+
+  public async getApplication(
+    accessToken: string,
+    userId: number,
+  ): Promise<Application> {
+    return (await this.get(`/api/apps/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    })) as Promise<Application>;
   }
 
   public async getFullName(accessToken: string): Promise<string> {

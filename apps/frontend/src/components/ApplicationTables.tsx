@@ -1,7 +1,16 @@
 import { DataGrid, GridRowSelectionModel } from '@mui/x-data-grid';
-import { Container, Typography, Stack, Button } from '@mui/material';
+import {
+  Container,
+  Typography,
+  Stack,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemIcon,
+} from '@mui/material';
 import { useEffect, useState, useRef } from 'react';
 import apiClient from '@api/apiClient';
+import { DoneOutline } from '@mui/icons-material';
 
 enum ApplicationStage {
   RESUME = 'RESUME',
@@ -36,6 +45,23 @@ export type applicationRow = {
   meanRatingSingleStages: number;
 };
 
+type Response = {
+  question: string;
+  answer: string;
+};
+
+export type Application = {
+  id: number;
+  createdAt: Date;
+  year: number;
+  semester: 'FALL' | 'SPRING';
+  position: Position;
+  stage: ApplicationStage;
+  step: ApplicationStep;
+  response: Response[];
+  numApps: number;
+};
+
 export function ApplicationTable() {
   const isPageRendered = useRef<boolean>(false);
 
@@ -44,6 +70,8 @@ export function ApplicationTable() {
   const [accessToken, setAccessToken] = useState<string>('');
   const [rowSelection, setRowSelection] = useState<GridRowSelectionModel>([]);
   const [selectedUser, setSelectedUser] = useState<applicationRow | null>(null);
+  const [selectedApplication, setSelectedApplication] =
+    useState<Application | null>(null);
 
   const fetchData = async () => {
     const data = await apiClient.getAllApplications(accessToken);
@@ -54,6 +82,11 @@ export function ApplicationTable() {
       });
       setData(data);
     }
+  };
+
+  const getApplication = async (userId: number) => {
+    const application = await apiClient.getApplication(accessToken, userId);
+    setSelectedApplication(application);
   };
 
   const getFullName = async () => {
@@ -142,28 +175,56 @@ export function ApplicationTable() {
         pageSizeOptions={[5, 10]}
         onRowSelectionModelChange={(newRowSelectionModel) => {
           setRowSelection(newRowSelectionModel);
+          getApplication(data[newRowSelectionModel[0] as number].userId);
         }}
         rowSelectionModel={rowSelection}
       />
-      <Stack
-        direction="row"
-        spacing={2}
-        sx={{
-          alignItems: 'center',
-          marginTop: 3,
-        }}
-      >
-        <Typography variant="h6">
-          {selectedUser
-            ? `Selected User: ${selectedUser.firstName} ${selectedUser.lastName}`
-            : 'No User Selected'}
-        </Typography>
-        {selectedUser && (
-          <Button variant="contained" size="small">
-            View Application
-          </Button>
-        )}
-      </Stack>
+
+      <Typography variant="h6" mt={3}>
+        {selectedUser
+          ? `Selected User: ${selectedUser.firstName} ${selectedUser.lastName}`
+          : 'No User Selected'}
+      </Typography>
+      {selectedApplication ? (
+        <>
+          <Typography variant="h6" mt={2}>
+            Application Details
+          </Typography>
+          <Stack spacing={2} direction="row" mt={1}>
+            <Typography variant="body1">
+              Year: {selectedApplication.year}
+            </Typography>
+            <Typography variant="body1">
+              Semester: {selectedApplication.semester}
+            </Typography>
+            <Typography variant="body1">
+              Position: {selectedApplication.position}
+            </Typography>
+            <Typography variant="body1">
+              Stage: {selectedApplication.stage}
+            </Typography>
+            <Typography variant="body1">
+              Step: {selectedApplication.step}
+            </Typography>
+          </Stack>
+          <Typography variant="body1" mt={1}>
+            Application Responses
+          </Typography>
+          <List disablePadding dense>
+            {selectedApplication.response.map((response, index) => (
+              <ListItem key={index}>
+                <ListItemIcon>
+                  <DoneOutline />
+                </ListItemIcon>
+                <ListItemText
+                  primary={`Question: ${response.question}`}
+                  secondary={`Answer: ${response.answer}`}
+                />
+              </ListItem>
+            ))}
+          </List>
+        </>
+      ) : null}
     </Container>
   );
 }
