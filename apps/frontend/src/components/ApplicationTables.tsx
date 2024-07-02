@@ -7,6 +7,7 @@ import {
   ListItem,
   ListItemText,
   ListItemIcon,
+  Button,
 } from '@mui/material';
 import { useEffect, useState, useRef } from 'react';
 import apiClient from '@api/apiClient';
@@ -50,16 +51,33 @@ type Response = {
   answer: string;
 };
 
+enum Semester {
+  FALL = 'FALL',
+  SPRING = 'SPRING',
+}
+
 export type Application = {
   id: number;
   createdAt: Date;
   year: number;
-  semester: 'FALL' | 'SPRING';
+  semester: Semester;
   position: Position;
   stage: ApplicationStage;
   step: ApplicationStep;
   response: Response[];
   numApps: number;
+};
+
+const getCurrentSemester = (): Semester => {
+  const month: number = new Date().getMonth();
+  if (month >= 1 && month <= 7) {
+    return Semester.FALL; // We will be recruiting for the fall semester during Feb - Aug
+  }
+  return Semester.SPRING; // We will be recruiting for the spring semester during Sep - Jan
+};
+
+const getCurrentYear = (): number => {
+  return new Date().getFullYear();
 };
 
 export function ApplicationTable() {
@@ -120,8 +138,14 @@ export function ApplicationTable() {
 
   return (
     <Container maxWidth="xl">
-      <Typography variant="h4" mb={3}>
-        Welcome back, {fullName}
+      <Typography variant="h4" mb={1}>
+        Welcome back, {fullName ? fullName : 'User'}
+      </Typography>
+      <Typography variant="h6" mb={1}>
+        Current Recruitment Cycle: {getCurrentSemester()} {getCurrentYear()}
+      </Typography>
+      <Typography variant="body1" mb={3}>
+        Assigned For Review: Jane Smith, John Doe (Complete by 5/1/2024)
       </Typography>
       <DataGrid
         rows={data}
@@ -182,8 +206,8 @@ export function ApplicationTable() {
 
       <Typography variant="h6" mt={3}>
         {selectedUser
-          ? `Selected User: ${selectedUser.firstName} ${selectedUser.lastName}`
-          : 'No User Selected'}
+          ? `Selected Applicant: ${selectedUser.firstName} ${selectedUser.lastName}`
+          : 'No Applicant Selected'}
       </Typography>
       {selectedApplication ? (
         <>
@@ -204,7 +228,10 @@ export function ApplicationTable() {
               Stage: {selectedApplication.stage}
             </Typography>
             <Typography variant="body1">
-              Step: {selectedApplication.step}
+              Status: {selectedApplication.step}
+            </Typography>
+            <Typography variant="body1">
+              Applications: {selectedApplication.numApps}
             </Typography>
           </Stack>
           <Typography variant="body1" mt={1}>
@@ -223,6 +250,18 @@ export function ApplicationTable() {
               </ListItem>
             ))}
           </List>
+          <Stack
+            direction="row"
+            spacing={1}
+            sx={{
+              alignItems: 'center',
+            }}
+          >
+            <Typography variant="body1">Reviews: None</Typography>
+            <Button variant="contained" size="small">
+              Start Review
+            </Button>
+          </Stack>
         </>
       ) : null}
     </Container>
