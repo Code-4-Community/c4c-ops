@@ -49,7 +49,7 @@ export class AuthController {
   // TODO will be deprecated if we use Google OAuth
   @Post('/verify')
   async verifyUser(@Body() body: VerifyUserRequestDTO) {
-    return this.authService
+    return await this.authService
       .verifyUser(body.email, String(body.verificationCode))
       .catch((err) => {
         throw new BadRequestException(err.message);
@@ -60,7 +60,7 @@ export class AuthController {
   async signin(
     @Body() signInDto: SignInRequestDto,
   ): Promise<SignInResponseDto> {
-    return this.authService.signin(signInDto).catch((err) => {
+    return await this.authService.signin(signInDto).catch((err) => {
       throw new UnauthorizedException(err.message);
     });
   }
