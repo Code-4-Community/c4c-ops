@@ -140,7 +140,7 @@ export class ApplicationsService {
         year: getCurrentYear(),
         semester: getCurrentSemester(),
       },
-      relations: ['reviews'],
+      relations: ['user'],
     });
 
     const allApplicationsDto = applications.map((app) => {
