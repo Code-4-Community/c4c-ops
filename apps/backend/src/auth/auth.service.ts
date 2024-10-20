@@ -82,16 +82,22 @@ export class AuthService {
 
   verifyUser(email: string, verificationCode: string): Promise<unknown> {
     return new Promise((resolve, reject) => {
-      return new CognitoUser({
+      const cognitoUser = new CognitoUser({
         Username: email,
         Pool: this.userPool,
-      }).confirmRegistration(verificationCode, true, (err, result) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(result);
-        }
       });
+
+      return cognitoUser.confirmRegistration(
+        verificationCode,
+        true,
+        (err, result) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(result);
+          }
+        },
+      );
     });
   }
 
@@ -108,7 +114,7 @@ export class AuthService {
 
     const cognitoUser = new CognitoUser(userData);
 
-    return new Promise<SignInResponseDto>((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       return cognitoUser.authenticateUser(authenticationDetails, {
         onSuccess: (result) => {
           resolve({
