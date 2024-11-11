@@ -8,11 +8,16 @@ import {
   ListItemText,
   ListItemIcon,
   Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Rating,
 } from '@mui/material';
 import { useEffect, useState, useRef } from 'react';
 import apiClient from '@api/apiClient';
 import { DoneOutline } from '@mui/icons-material';
-
 enum ApplicationStage {
   RESUME = 'RESUME',
   INTERVIEW = 'INTERVIEW',
@@ -91,6 +96,23 @@ export function ApplicationTable() {
   const [selectedApplication, setSelectedApplication] =
     useState<Application | null>(null);
 
+  const [openReviewModal, setOpenReviewModal] = useState(false);
+  const [reviewComment, setReviewComment] = useState('');
+  const [reviewRating, setReviewRating] = useState<number>(0);
+
+  const handleOpenReviewModal = () => {
+    setOpenReviewModal(true);
+  };
+
+  const handleCloseReviewModal = () => {
+    setOpenReviewModal(false);
+    setReviewComment('');
+  };
+
+  const handleReviewSubmit = () => {
+    handleCloseReviewModal();
+  };
+
   const fetchData = async () => {
     const data = await apiClient.getAllApplications(accessToken);
     // Each application needs an id for the DataGrid to work
@@ -113,11 +135,13 @@ export function ApplicationTable() {
 
   useEffect(() => {
     // Access token comes from OAuth redirect uri https://frontend.com/#access_token=access_token
-    const hash = window.location.hash;
-    const accessTokenMatch = hash.match(/access_token=([^&]*)/);
-    if (accessTokenMatch) {
-      setAccessToken(accessTokenMatch[1]);
-    }
+    // const hash = window.location.hash;
+    // const accessTokenMatch = hash.match(/access_token=([^&]*)/);
+    // if (accessTokenMatch) {
+    setAccessToken(
+      'eyJraWQiOiJNR2hHMnNhS1RDb2hid2d1Y1F4aGZVcFBJYWJob3hZTGxIeVhGdlRYSjV3PSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiI1ZTQwZWYwYi02Yzc0LTRkM2MtYjUzOC0wOWYzNTUxYWJjMDgiLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAudXMtZWFzdC0yLmFtYXpvbmF3cy5jb21cL3VzLWVhc3QtMl9oVHRaNU41WlYiLCJjbGllbnRfaWQiOiI0YzViOG02dG5vOWZ2bGptc2VxZ21rODJmdiIsIm9yaWdpbl9qdGkiOiI4ZmQ0NzdiYy05NDY0LTQwYzMtOTZkMC1jZTlhNjQ2ZTllYzkiLCJldmVudF9pZCI6ImRhOTVjMDAyLTVmMjItNDI4Ni1hZjU2LWJkY2Y1NmViMzFhOSIsInRva2VuX3VzZSI6ImFjY2VzcyIsInNjb3BlIjoiYXdzLmNvZ25pdG8uc2lnbmluLnVzZXIuYWRtaW4iLCJhdXRoX3RpbWUiOjE3MzA4MTc1MTgsImV4cCI6MTczMDgyMTExOCwiaWF0IjoxNzMwODE3NTE4LCJqdGkiOiI1MDZlOTg3Ni1mMTI4LTQ3YTYtYWQ4MC0wMmRiY2MxOThhNzEiLCJ1c2VybmFtZSI6IjVlNDBlZjBiLTZjNzQtNGQzYy1iNTM4LTA5ZjM1NTFhYmMwOCJ9.Z4e7xWyiWCChNfryq2I_tyDZ-xk-Wd3_cY2ajkcBpkvbwQl_xwb9O7Ud9lr9091EOqTRVN5pJFRvrtVd8bBPU6_ea4dHhYHz1xYw7XY9PG3jgE-5yP8-GazKhcOLW7W5hlcbMsehyWxVFCjVfBj2lxGiE23xqUKMxBK8ij4VaXZ0ZT5kbdw8Q70ce8RtwIjcVGaMU7l9gna-pMUT5X_0p01Q1p58bP2wc1_X41aaUs8kNd3ByDVTkIV3bPTU3_45AEVQ0vFSdcLz4gRLmDVl_Ss5_VVvzhGTMUHiT8ujK05jSirA9Ce8V4VlgFgWo04K9jv1d7m84M9RbLo91drLVg',
+    );
+    // }
     isPageRendered.current = false;
   }, []);
 
@@ -258,10 +282,45 @@ export function ApplicationTable() {
             }}
           >
             <Typography variant="body1">Reviews: None</Typography>
-            <Button variant="contained" size="small">
+            <Button
+              variant="contained"
+              size="small"
+              onClick={handleOpenReviewModal}
+            >
               Start Review
             </Button>
           </Stack>
+          <Dialog open={openReviewModal} onClose={handleCloseReviewModal}>
+            <DialogTitle>Write Review</DialogTitle>
+            <DialogContent>
+              <Stack direction="row" alignItems="center" spacing={2} mb={2}>
+                <Typography variant="body1">Rating:</Typography>
+                <Rating
+                  name="review-rating"
+                  value={reviewRating}
+                  onChange={(_, value) => setReviewRating(value || 0)}
+                  precision={1}
+                />
+              </Stack>
+              <TextField
+                autoFocus
+                margin="dense"
+                id="review"
+                label="Review Comments"
+                type="text"
+                fullWidth
+                multiline
+                rows={4}
+                variant="outlined"
+                value={reviewComment}
+                onChange={(e) => setReviewComment(e.target.value)}
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleCloseReviewModal}>Cancel</Button>
+              <Button onClick={handleReviewSubmit}>Submit Review</Button>
+            </DialogActions>
+          </Dialog>
         </>
       ) : null}
     </Container>
