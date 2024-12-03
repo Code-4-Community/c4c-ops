@@ -18,7 +18,7 @@ import {
 import { useEffect, useState, useRef } from 'react';
 import apiClient from '@api/apiClient';
 import { DoneOutline } from '@mui/icons-material';
-enum ApplicationStage {
+export enum ApplicationStage {
   RESUME = 'RESUME',
   INTERVIEW = 'INTERVIEW',
   ACCEPTED = 'ACCEPTED',
@@ -108,9 +108,27 @@ export function ApplicationTable() {
     setOpenReviewModal(false);
     setReviewComment('');
   };
+  const stageToSubmit = selectedApplication?.stage || ApplicationStage.ACCEPTED;
 
-  const handleReviewSubmit = () => {
-    handleCloseReviewModal();
+  const handleReviewSubmit = async () => {
+    if (!selectedUser || reviewRating === 0 || !reviewComment) {
+      alert('Please select a user, provide a rating, and add a comment.');
+      return;
+    }
+
+    try {
+      await apiClient.submitReview(accessToken, {
+        applicantId: selectedUser.userId,
+        stage: stageToSubmit,
+        rating: reviewRating,
+        content: reviewComment,
+      });
+      alert('Review submitted successfully!');
+      handleCloseReviewModal();
+    } catch (error) {
+      console.error('Error submitting review:', error);
+      alert('Failed to submit review.');
+    }
   };
 
   const fetchData = async () => {
@@ -124,9 +142,19 @@ export function ApplicationTable() {
     }
   };
 
+  // const getApplication = async (userId: number) => {
+  //   const application = await apiClient.getApplication(accessToken, userId);
+  //   setSelectedApplication(application);
+  // };
+
   const getApplication = async (userId: number) => {
-    const application = await apiClient.getApplication(accessToken, userId);
-    setSelectedApplication(application);
+    try {
+      const application = await apiClient.getApplication(accessToken, userId);
+      setSelectedApplication(application);
+    } catch (error) {
+      console.error('Error fetching application:', error);
+      alert('Failed to fetch application details.');
+    }
   };
 
   const getFullName = async () => {

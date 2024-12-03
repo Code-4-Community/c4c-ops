@@ -2,9 +2,18 @@ import axios, { type AxiosInstance, AxiosRequestConfig } from 'axios';
 import type {
   Application,
   applicationRow,
+  ApplicationStage,
 } from '@components/ApplicationTables';
+
 const defaultBaseUrl =
   import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3000';
+
+type SubmitReviewRequest = {
+  applicantId: number;
+  stage: ApplicationStage;
+  rating: number;
+  content: string;
+};
 
 export class ApiClient {
   private axiosInstance: AxiosInstance;
@@ -46,6 +55,17 @@ export class ApiClient {
     })) as Promise<string>;
   }
 
+  public async submitReview(
+    accessToken: string,
+    reviewData: SubmitReviewRequest,
+  ): Promise<void> {
+    return this.post('/api/reviews', reviewData, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }) as Promise<void>;
+  }
+
   private async get(
     path: string,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -56,9 +76,14 @@ export class ApiClient {
       .then((response) => response.data);
   }
 
-  private async post(path: string, body: unknown): Promise<unknown> {
+  private async post(
+    path: string,
+    body: unknown,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    headers: AxiosRequestConfig<any> | undefined = undefined,
+  ): Promise<unknown> {
     return this.axiosInstance
-      .post(path, body)
+      .post(path, body, headers)
       .then((response) => response.data);
   }
 
