@@ -19,10 +19,6 @@ const router = createBrowserRouter([
 ]);
 
 export const App: React.FC = () => {
-  useEffect(() => {
-    apiClient.getHello().then((res) => console.log(res));
-  }, []);
-
   return <RouterProvider router={router} />;
 };
 

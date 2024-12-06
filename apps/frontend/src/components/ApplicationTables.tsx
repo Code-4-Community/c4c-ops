@@ -67,9 +67,10 @@ export type Application = {
   response: Response[];
   numApps: number;
 };
+const TODAY = new Date();
 
 const getCurrentSemester = (): Semester => {
-  const month: number = new Date().getMonth();
+  const month: number = TODAY.getMonth();
   if (month >= 1 && month <= 7) {
     return Semester.FALL; // We will be recruiting for the fall semester during Feb - Aug
   }
@@ -77,7 +78,7 @@ const getCurrentSemester = (): Semester => {
 };
 
 const getCurrentYear = (): number => {
-  return new Date().getFullYear();
+  return TODAY.getFullYear();
 };
 
 export function ApplicationTable() {
@@ -113,10 +114,10 @@ export function ApplicationTable() {
 
   useEffect(() => {
     // Access token comes from OAuth redirect uri https://frontend.com/#access_token=access_token
-    const hash = window.location.hash;
-    const accessTokenMatch = hash.match(/access_token=([^&]*)/);
+    const urlParams = new URLSearchParams(window.location.hash.substring(1));
+    const accessTokenMatch = urlParams.get('access_token');
     if (accessTokenMatch) {
-      setAccessToken(accessTokenMatch[1]);
+      setAccessToken(accessTokenMatch);
     }
     isPageRendered.current = false;
   }, []);
