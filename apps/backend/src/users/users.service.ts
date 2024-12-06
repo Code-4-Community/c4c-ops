@@ -89,11 +89,12 @@ export class UsersService {
     return user;
   }
 
-  findByEmail(email: string): Promise<User[]> {
-    return this.usersRepository.find({
+  async findByEmail(email: string): Promise<User[]> {
+    const users = await this.usersRepository.find({
       where: { email },
       relations: ['applications'],
     });
+    return users;
   }
 
   async updateUser(

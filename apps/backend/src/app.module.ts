@@ -18,6 +18,7 @@ import { ApplicationsModule } from './applications/applications.module';
       username: process.env.NX_DB_USERNAME,
       password: process.env.NX_DB_PASSWORD,
       autoLoadEntities: true,
+      database: process.env.NX_DB_DATABASE || 'c4c-ops',
       // entities: [join(__dirname, '**/**.entity.{ts,js}')],
       // Setting synchronize: true shouldn't be used in production - otherwise you can lose production data
       synchronize: true,

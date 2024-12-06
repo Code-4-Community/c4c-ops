@@ -24,13 +24,23 @@ export class CurrentUserInterceptor implements NestInterceptor {
       const userEmail = cognitoUserAttributes.find(
         (attribute) => attribute.Name === 'email',
       ).Value;
+      const name = cognitoUserAttributes
+        .find((attribute) => attribute.Name === 'name')
+        .Value.split(' ');
+
+      const [firstName, lastName] = [name[0], name.at(-1)];
+
+      // check if the cognito user has a corresponding user in the database
       const users = await this.usersService.findByEmail(userEmail);
-
+      let user = null;
       if (users.length > 0) {
-        const user = users[0];
-
-        request.user = user;
+        // if the user exists, use the user from the database
+        user = users[0];
+      } else {
+        // if the user does not exist, create a new user in the database
+        user = await this.usersService.create(userEmail, firstName, lastName);
       }
+      request.user = user;
     }
 
     return handler.handle();

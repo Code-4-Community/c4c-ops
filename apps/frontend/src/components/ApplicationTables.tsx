@@ -72,9 +72,10 @@ export type Application = {
   response: Response[];
   numApps: number;
 };
+const TODAY = new Date();
 
 const getCurrentSemester = (): Semester => {
-  const month: number = new Date().getMonth();
+  const month: number = TODAY.getMonth();
   if (month >= 1 && month <= 7) {
     return Semester.FALL; // We will be recruiting for the fall semester during Feb - Aug
   }
@@ -82,7 +83,7 @@ const getCurrentSemester = (): Semester => {
 };
 
 const getCurrentYear = (): number => {
-  return new Date().getFullYear();
+  return TODAY.getFullYear();
 };
 
 export function ApplicationTable() {
@@ -163,13 +164,11 @@ export function ApplicationTable() {
 
   useEffect(() => {
     // Access token comes from OAuth redirect uri https://frontend.com/#access_token=access_token
-    // const hash = window.location.hash;
-    // const accessTokenMatch = hash.match(/access_token=([^&]*)/);
-    // if (accessTokenMatch) {
-    setAccessToken(
-      'eyJraWQiOiJNR2hHMnNhS1RDb2hid2d1Y1F4aGZVcFBJYWJob3hZTGxIeVhGdlRYSjV3PSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiI1ZTQwZWYwYi02Yzc0LTRkM2MtYjUzOC0wOWYzNTUxYWJjMDgiLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAudXMtZWFzdC0yLmFtYXpvbmF3cy5jb21cL3VzLWVhc3QtMl9oVHRaNU41WlYiLCJjbGllbnRfaWQiOiI0YzViOG02dG5vOWZ2bGptc2VxZ21rODJmdiIsIm9yaWdpbl9qdGkiOiI4ZmQ0NzdiYy05NDY0LTQwYzMtOTZkMC1jZTlhNjQ2ZTllYzkiLCJldmVudF9pZCI6ImRhOTVjMDAyLTVmMjItNDI4Ni1hZjU2LWJkY2Y1NmViMzFhOSIsInRva2VuX3VzZSI6ImFjY2VzcyIsInNjb3BlIjoiYXdzLmNvZ25pdG8uc2lnbmluLnVzZXIuYWRtaW4iLCJhdXRoX3RpbWUiOjE3MzA4MTc1MTgsImV4cCI6MTczMDgyMTExOCwiaWF0IjoxNzMwODE3NTE4LCJqdGkiOiI1MDZlOTg3Ni1mMTI4LTQ3YTYtYWQ4MC0wMmRiY2MxOThhNzEiLCJ1c2VybmFtZSI6IjVlNDBlZjBiLTZjNzQtNGQzYy1iNTM4LTA5ZjM1NTFhYmMwOCJ9.Z4e7xWyiWCChNfryq2I_tyDZ-xk-Wd3_cY2ajkcBpkvbwQl_xwb9O7Ud9lr9091EOqTRVN5pJFRvrtVd8bBPU6_ea4dHhYHz1xYw7XY9PG3jgE-5yP8-GazKhcOLW7W5hlcbMsehyWxVFCjVfBj2lxGiE23xqUKMxBK8ij4VaXZ0ZT5kbdw8Q70ce8RtwIjcVGaMU7l9gna-pMUT5X_0p01Q1p58bP2wc1_X41aaUs8kNd3ByDVTkIV3bPTU3_45AEVQ0vFSdcLz4gRLmDVl_Ss5_VVvzhGTMUHiT8ujK05jSirA9Ce8V4VlgFgWo04K9jv1d7m84M9RbLo91drLVg',
-    );
-    // }
+    const urlParams = new URLSearchParams(window.location.hash.substring(1));
+    const accessTokenMatch = urlParams.get('access_token');
+    if (accessTokenMatch) {
+      setAccessToken(accessTokenMatch);
+    }
     isPageRendered.current = false;
   }, []);
 
