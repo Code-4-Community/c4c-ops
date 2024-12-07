@@ -8,12 +8,17 @@ import {
   ListItemText,
   ListItemIcon,
   Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Rating,
 } from '@mui/material';
 import { useEffect, useState, useRef } from 'react';
 import apiClient from '@api/apiClient';
 import { DoneOutline } from '@mui/icons-material';
-
-enum ApplicationStage {
+export enum ApplicationStage {
   RESUME = 'RESUME',
   INTERVIEW = 'INTERVIEW',
   ACCEPTED = 'ACCEPTED',
@@ -92,6 +97,41 @@ export function ApplicationTable() {
   const [selectedApplication, setSelectedApplication] =
     useState<Application | null>(null);
 
+  const [openReviewModal, setOpenReviewModal] = useState(false);
+  const [reviewComment, setReviewComment] = useState('');
+  const [reviewRating, setReviewRating] = useState<number>(0);
+
+  const handleOpenReviewModal = () => {
+    setOpenReviewModal(true);
+  };
+
+  const handleCloseReviewModal = () => {
+    setOpenReviewModal(false);
+    setReviewComment('');
+  };
+  const stageToSubmit = selectedApplication?.stage || ApplicationStage.ACCEPTED;
+
+  const handleReviewSubmit = async () => {
+    if (!selectedUser || reviewRating === 0 || !reviewComment) {
+      alert('Please select a user, provide a rating, and add a comment.');
+      return;
+    }
+
+    try {
+      await apiClient.submitReview(accessToken, {
+        applicantId: selectedUser.userId,
+        stage: stageToSubmit,
+        rating: reviewRating,
+        content: reviewComment,
+      });
+      alert('Review submitted successfully!');
+      handleCloseReviewModal();
+    } catch (error) {
+      console.error('Error submitting review:', error);
+      alert('Failed to submit review.');
+    }
+  };
+
   const fetchData = async () => {
     const data = await apiClient.getAllApplications(accessToken);
     // Each application needs an id for the DataGrid to work
@@ -103,9 +143,19 @@ export function ApplicationTable() {
     }
   };
 
+  // const getApplication = async (userId: number) => {
+  //   const application = await apiClient.getApplication(accessToken, userId);
+  //   setSelectedApplication(application);
+  // };
+
   const getApplication = async (userId: number) => {
-    const application = await apiClient.getApplication(accessToken, userId);
-    setSelectedApplication(application);
+    try {
+      const application = await apiClient.getApplication(accessToken, userId);
+      setSelectedApplication(application);
+    } catch (error) {
+      console.error('Error fetching application:', error);
+      alert('Failed to fetch application details.');
+    }
   };
 
   const getFullName = async () => {
@@ -259,10 +309,45 @@ export function ApplicationTable() {
             }}
           >
             <Typography variant="body1">Reviews: None</Typography>
-            <Button variant="contained" size="small">
+            <Button
+              variant="contained"
+              size="small"
+              onClick={handleOpenReviewModal}
+            >
               Start Review
             </Button>
           </Stack>
+          <Dialog open={openReviewModal} onClose={handleCloseReviewModal}>
+            <DialogTitle>Write Review</DialogTitle>
+            <DialogContent>
+              <Stack direction="row" alignItems="center" spacing={2} mb={2}>
+                <Typography variant="body1">Rating:</Typography>
+                <Rating
+                  name="review-rating"
+                  value={reviewRating}
+                  onChange={(_, value) => setReviewRating(value || 0)}
+                  precision={1}
+                />
+              </Stack>
+              <TextField
+                autoFocus
+                margin="dense"
+                id="review"
+                label="Review Comments"
+                type="text"
+                fullWidth
+                multiline
+                rows={4}
+                variant="outlined"
+                value={reviewComment}
+                onChange={(e) => setReviewComment(e.target.value)}
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleCloseReviewModal}>Cancel</Button>
+              <Button onClick={handleReviewSubmit}>Submit Review</Button>
+            </DialogActions>
+          </Dialog>
         </>
       ) : null}
     </Container>
