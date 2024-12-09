@@ -8,16 +8,13 @@ import {
   ListItemText,
   ListItemIcon,
   Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  Rating,
 } from '@mui/material';
 import { useEffect, useState, useRef } from 'react';
-import apiClient from '@api/apiClient';
 import { DoneOutline } from '@mui/icons-material';
+import apiClient from '@api/apiClient';
+import { applicationColumns } from './columns';
+import { ReviewModal } from './reviewModal';
+
 export enum ApplicationStage {
   RESUME = 'RESUME',
   INTERVIEW = 'INTERVIEW',
@@ -98,38 +95,9 @@ export function ApplicationTable() {
     useState<Application | null>(null);
 
   const [openReviewModal, setOpenReviewModal] = useState(false);
-  const [reviewComment, setReviewComment] = useState('');
-  const [reviewRating, setReviewRating] = useState<number>(0);
 
   const handleOpenReviewModal = () => {
     setOpenReviewModal(true);
-  };
-
-  const handleCloseReviewModal = () => {
-    setOpenReviewModal(false);
-    setReviewComment('');
-  };
-  const stageToSubmit = selectedApplication?.stage || ApplicationStage.ACCEPTED;
-
-  const handleReviewSubmit = async () => {
-    if (!selectedUser || reviewRating === 0 || !reviewComment) {
-      alert('Please select a user, provide a rating, and add a comment.');
-      return;
-    }
-
-    try {
-      await apiClient.submitReview(accessToken, {
-        applicantId: selectedUser.userId,
-        stage: stageToSubmit,
-        rating: reviewRating,
-        content: reviewComment,
-      });
-      alert('Review submitted successfully!');
-      handleCloseReviewModal();
-    } catch (error) {
-      console.error('Error submitting review:', error);
-      alert('Failed to submit review.');
-    }
   };
 
   const fetchData = async () => {
@@ -142,11 +110,6 @@ export function ApplicationTable() {
       setData(data);
     }
   };
-
-  // const getApplication = async (userId: number) => {
-  //   const application = await apiClient.getApplication(accessToken, userId);
-  //   setSelectedApplication(application);
-  // };
 
   const getApplication = async (userId: number) => {
     try {
@@ -200,48 +163,7 @@ export function ApplicationTable() {
       </Typography>
       <DataGrid
         rows={data}
-        columns={[
-          {
-            field: 'firstName',
-            headerName: 'First Name',
-            width: 150,
-          },
-          {
-            field: 'lastName',
-            headerName: 'Last Name',
-            width: 150,
-          },
-          {
-            field: 'stage',
-            headerName: 'Stage',
-            width: 125,
-          },
-          {
-            field: 'step',
-            headerName: 'Status',
-            width: 125,
-          },
-          {
-            field: 'position',
-            headerName: 'Position',
-            width: 150,
-          },
-          {
-            field: 'createdAt',
-            headerName: 'Date',
-            width: 150,
-          },
-          {
-            field: 'meanRatingAllStages',
-            headerName: 'Rating All Stages',
-            width: 150,
-          },
-          {
-            field: 'meanRatingSingleStages',
-            headerName: 'Rating Single Stage',
-            width: 150,
-          },
-        ]}
+        columns={applicationColumns}
         initialState={{
           pagination: {
             paginationModel: { page: 0, pageSize: 5 },
@@ -317,37 +239,13 @@ export function ApplicationTable() {
               Start Review
             </Button>
           </Stack>
-          <Dialog open={openReviewModal} onClose={handleCloseReviewModal}>
-            <DialogTitle>Write Review</DialogTitle>
-            <DialogContent>
-              <Stack direction="row" alignItems="center" spacing={2} mb={2}>
-                <Typography variant="body1">Rating:</Typography>
-                <Rating
-                  name="review-rating"
-                  value={reviewRating}
-                  onChange={(_, value) => setReviewRating(value || 0)}
-                  precision={1}
-                />
-              </Stack>
-              <TextField
-                autoFocus
-                margin="dense"
-                id="review"
-                label="Review Comments"
-                type="text"
-                fullWidth
-                multiline
-                rows={4}
-                variant="outlined"
-                value={reviewComment}
-                onChange={(e) => setReviewComment(e.target.value)}
-              />
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={handleCloseReviewModal}>Cancel</Button>
-              <Button onClick={handleReviewSubmit}>Submit Review</Button>
-            </DialogActions>
-          </Dialog>
+          <ReviewModal
+            open={openReviewModal}
+            setOpen={setOpenReviewModal}
+            selectedUser={selectedUser}
+            selectedApplication={selectedApplication}
+            accessToken={accessToken}
+          />
         </>
       ) : null}
     </Container>
