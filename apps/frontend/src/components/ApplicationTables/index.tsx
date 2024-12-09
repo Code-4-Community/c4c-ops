@@ -11,64 +11,12 @@ import {
 } from '@mui/material';
 import { useEffect, useState, useRef } from 'react';
 import { DoneOutline } from '@mui/icons-material';
+
+import { ApplicationRow, Application, Semester } from '../types';
 import apiClient from '@api/apiClient';
 import { applicationColumns } from './columns';
 import { ReviewModal } from './reviewModal';
 
-export enum ApplicationStage {
-  RESUME = 'RESUME',
-  INTERVIEW = 'INTERVIEW',
-  ACCEPTED = 'ACCEPTED',
-  REJECTED = 'REJECTED',
-  TECHNICAL_CHALLENGE = 'TECHNICAL_CHALLENGE',
-  PM_CHALLENGE = 'PM_CHALLENGE',
-}
-
-export enum ApplicationStep {
-  SUBMITTED = 'SUBMITTED',
-  REVIEWED = 'REVIEWED',
-}
-
-enum Position {
-  DEVELOPER = 'DEVELOPER',
-  PM = 'PRODUCT_MANAGER',
-  DESIGNER = 'DESIGNER',
-}
-
-export type applicationRow = {
-  id: number;
-  userId: number;
-  firstName: string;
-  lastName: string;
-  stage: ApplicationStage;
-  step: ApplicationStep;
-  position: Position;
-  createdAt: string;
-  meanRatingAllStages: number;
-  meanRatingSingleStages: number;
-};
-
-type Response = {
-  question: string;
-  answer: string;
-};
-
-enum Semester {
-  FALL = 'FALL',
-  SPRING = 'SPRING',
-}
-
-export type Application = {
-  id: number;
-  createdAt: Date;
-  year: number;
-  semester: Semester;
-  position: Position;
-  stage: ApplicationStage;
-  step: ApplicationStep;
-  response: Response[];
-  numApps: number;
-};
 const TODAY = new Date();
 
 const getCurrentSemester = (): Semester => {
@@ -86,11 +34,11 @@ const getCurrentYear = (): number => {
 export function ApplicationTable() {
   const isPageRendered = useRef<boolean>(false);
 
-  const [data, setData] = useState<applicationRow[]>([]);
+  const [data, setData] = useState<ApplicationRow[]>([]);
   const [fullName, setFullName] = useState<string>('');
   const [accessToken, setAccessToken] = useState<string>('');
   const [rowSelection, setRowSelection] = useState<GridRowSelectionModel>([]);
-  const [selectedUser, setSelectedUser] = useState<applicationRow | null>(null);
+  const [selectedUser, setSelectedUser] = useState<ApplicationRow | null>(null);
   const [selectedApplication, setSelectedApplication] =
     useState<Application | null>(null);
 

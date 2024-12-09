@@ -11,12 +11,12 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import apiClient from '@api/apiClient';
-import { Application, applicationRow, ApplicationStage } from '.';
+import { Application, ApplicationRow, ApplicationStage } from '../types';
 
 interface ReviewModalProps {
   open: boolean;
   setOpen: (open: boolean) => void;
-  selectedUser: applicationRow | null;
+  selectedUser: ApplicationRow | null;
   selectedApplication: Application;
   accessToken: string;
 }
