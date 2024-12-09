@@ -6,7 +6,7 @@ import {
   IsPositive,
   Min,
 } from 'class-validator';
-import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 import { User } from '../users/user.entity';
 import {
   Response,
@@ -61,6 +61,7 @@ export class Application {
   @Column('varchar', { array: true, default: {} })
   @IsArray()
   @IsObject({ each: true })
+  @OneToMany(() => Review, (review) => review.application)
   reviews: Review[];
 
   toGetAllApplicationResponseDTO(
