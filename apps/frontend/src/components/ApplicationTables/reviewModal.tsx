@@ -16,7 +16,7 @@ import { Application, ApplicationRow, ApplicationStage } from '../types';
 interface ReviewModalProps {
   open: boolean;
   setOpen: (open: boolean) => void;
-  selectedUser: ApplicationRow | null;
+  selectedUserRow: ApplicationRow | null;
   selectedApplication: Application;
   accessToken: string;
 }
@@ -24,7 +24,7 @@ interface ReviewModalProps {
 export const ReviewModal = ({
   open,
   setOpen,
-  selectedUser,
+  selectedUserRow,
   selectedApplication,
   accessToken,
 }: ReviewModalProps) => {
@@ -38,14 +38,14 @@ export const ReviewModal = ({
   const stageToSubmit = selectedApplication?.stage || ApplicationStage.ACCEPTED;
 
   const handleReviewSubmit = async () => {
-    if (!selectedUser || reviewRating === 0 || !reviewComment) {
+    if (!selectedUserRow || reviewRating === 0 || !reviewComment) {
       alert('Please select a user, provide a rating, and add a comment.');
       return;
     }
 
     try {
       await apiClient.submitReview(accessToken, {
-        applicantId: selectedUser.userId,
+        applicantId: selectedUserRow.userId,
         stage: stageToSubmit,
         rating: reviewRating,
         content: reviewComment,

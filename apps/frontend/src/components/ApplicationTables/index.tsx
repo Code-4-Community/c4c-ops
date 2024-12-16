@@ -1,3 +1,4 @@
+import { useEffect, useState, useRef } from 'react';
 import { DataGrid, GridRowSelectionModel } from '@mui/x-data-grid';
 import {
   Container,
@@ -9,7 +10,6 @@ import {
   ListItemIcon,
   Button,
 } from '@mui/material';
-import { useEffect, useState, useRef } from 'react';
 import { DoneOutline } from '@mui/icons-material';
 
 import { ApplicationRow, Application, Semester } from '../types';
@@ -34,11 +34,16 @@ const getCurrentYear = (): number => {
 export function ApplicationTable() {
   const isPageRendered = useRef<boolean>(false);
 
+  // TODO switch to use code grant flow
+  // TODO automatically redirect to login page if not logged in
+  // TODO implement auto token refresh
   const [data, setData] = useState<ApplicationRow[]>([]);
   const [fullName, setFullName] = useState<string>('');
   const [accessToken, setAccessToken] = useState<string>('');
   const [rowSelection, setRowSelection] = useState<GridRowSelectionModel>([]);
-  const [selectedUser, setSelectedUser] = useState<ApplicationRow | null>(null);
+  const [selectedUserRow, setSelectedUserRow] = useState<ApplicationRow | null>(
+    null,
+  );
   const [selectedApplication, setSelectedApplication] =
     useState<Application | null>(null);
 
@@ -94,7 +99,7 @@ export function ApplicationTable() {
 
   useEffect(() => {
     if (rowSelection.length > 0) {
-      setSelectedUser(data[rowSelection[0] as number]);
+      setSelectedUserRow(data[rowSelection[0] as number]);
     }
   }, [rowSelection, data]);
 
@@ -126,8 +131,8 @@ export function ApplicationTable() {
       />
 
       <Typography variant="h6" mt={3}>
-        {selectedUser
-          ? `Selected Applicant: ${selectedUser.firstName} ${selectedUser.lastName}`
+        {selectedUserRow
+          ? `Selected Applicant: ${selectedUserRow.firstName} ${selectedUserRow.lastName}`
           : 'No Applicant Selected'}
       </Typography>
       {selectedApplication ? (
@@ -171,14 +176,25 @@ export function ApplicationTable() {
               </ListItem>
             ))}
           </List>
-          <Stack
-            direction="row"
-            spacing={1}
-            sx={{
-              alignItems: 'center',
-            }}
-          >
-            <Typography variant="body1">Reviews: None</Typography>
+          <Stack>
+            <Typography variant="body1">
+              Reviews:
+              {selectedApplication.reviews.map((review, index) => {
+                return (
+                  <Stack key={index} direction="row" spacing={1}>
+                    <Typography variant="body1">
+                      stage: {review.stage}
+                    </Typography>
+                    <Typography variant="body1">
+                      rating: {review.rating}
+                    </Typography>
+                    <Typography variant="body1">
+                      comment: {review.content}
+                    </Typography>
+                  </Stack>
+                );
+              })}
+            </Typography>
             <Button
               variant="contained"
               size="small"
@@ -190,7 +206,7 @@ export function ApplicationTable() {
           <ReviewModal
             open={openReviewModal}
             setOpen={setOpenReviewModal}
-            selectedUser={selectedUser}
+            selectedUserRow={selectedUserRow}
             selectedApplication={selectedApplication}
             accessToken={accessToken}
           />
