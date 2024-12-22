@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Get,
   Param,
   ParseIntPipe,
   Post,
@@ -119,5 +120,11 @@ export class AuthController {
     } catch (e) {
       throw new BadRequestException(e.message);
     }
+  }
+
+  @Get('/token/:code')
+  async grantAccessToken(@Request() req) {
+    const { code } = req.params;
+    return await this.authService.tokenExchange(code);
   }
 }

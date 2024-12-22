@@ -16,6 +16,7 @@ import { ApplicationRow, Application, Semester } from '../types';
 import apiClient from '@api/apiClient';
 import { applicationColumns } from './columns';
 import { ReviewModal } from './reviewModal';
+import { useNavigate } from 'react-router-dom';
 
 const TODAY = new Date();
 
@@ -32,6 +33,7 @@ const getCurrentYear = (): number => {
 };
 
 export function ApplicationTable() {
+  const navigate = useNavigate();
   const isPageRendered = useRef<boolean>(false);
 
   // TODO switch to use code grant flow
@@ -79,14 +81,23 @@ export function ApplicationTable() {
   };
 
   useEffect(() => {
-    // Access token comes from OAuth redirect uri https://frontend.com/#access_token=access_token
-    const urlParams = new URLSearchParams(window.location.hash.substring(1));
-    const accessTokenMatch = urlParams.get('access_token');
-    if (accessTokenMatch) {
-      setAccessToken(accessTokenMatch);
+    const urlParams = new URLSearchParams(window.location.search);
+    const authCode = urlParams.get('code');
+    async function getToken() {
+      if (authCode && !accessToken) {
+        try {
+          const token = await apiClient.getToken(authCode);
+          setAccessToken(token);
+          navigate('/');
+          // FIXME this causes multiple calls to getToken for some reason
+        } catch (error) {
+          console.error('Error fetching token:', error);
+        }
+      }
     }
-    isPageRendered.current = false;
-  }, []);
+    getToken();
+    // isPageRendered.current = false;
+  }, [accessToken, navigate]);
 
   useEffect(() => {
     if (isPageRendered.current) {

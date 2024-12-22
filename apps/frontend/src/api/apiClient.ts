@@ -16,7 +16,7 @@ type SubmitReviewRequest = {
 };
 
 export class ApiClient {
-  private axiosInstance: AxiosInstance;
+  private readonly axiosInstance: AxiosInstance;
 
   constructor() {
     this.axiosInstance = axios.create({ baseURL: defaultBaseUrl });
@@ -24,6 +24,17 @@ export class ApiClient {
 
   public async getHello(): Promise<string> {
     return this.get('/api') as Promise<string>;
+  }
+
+  /**
+   * sends code to backend to get user's access token
+   *
+   * @param code - code from cognito oauth
+   * @returns access token
+   */
+  public async getToken(code: string): Promise<string> {
+    const token = await this.get(`/api/auth/token/${code}`);
+    return token as string;
   }
 
   public async getAllApplications(

@@ -12,11 +12,13 @@ import {
   CognitoIdentityProviderClient,
   ListUsersCommand,
 } from '@aws-sdk/client-cognito-identity-provider';
+import axios from 'axios';
 
 import CognitoAuthConfig from './aws-exports';
 import { SignUpRequestDTO } from './dtos/sign-up.request.dto';
 import { SignInRequestDto } from './dtos/sign-in.request.dto';
 import { SignInResponseDto } from './dtos/sign-in.response.dto';
+import { TokenExchangeResponseDTO } from './dtos/token-exchange.response.dto';
 
 @Injectable()
 export class AuthService {
@@ -173,4 +175,31 @@ export class AuthService {
 
     await this.providerClient.send(adminDeleteUserCommand);
   }
+
+  /**
+   * exhanges the authorization code for authorization tokens
+   * @see https://docs.aws.amazon.com/cognito/latest/developerguide/token-endpoint.html
+   *
+   * @param code - the authorization code granted by Cognito during the user's login
+   */
+  tokenExchange = async (code: string): Promise<string> => {
+    const body = {
+      grant_type: 'authorization_code',
+      code,
+      client_id: CognitoAuthConfig.clientId,
+      redirect_uri: process.env.NX_CLIENT_URL,
+    };
+
+    const tokenExchangeEndpoint = `https://${CognitoAuthConfig.clientName}.auth.${CognitoAuthConfig.region}.amazoncognito.com/oauth2/token`;
+
+    const urlEncodedBody = new URLSearchParams(body);
+
+    const res = await axios.post(tokenExchangeEndpoint, urlEncodedBody);
+    if (res.status !== 200) {
+      throw new Error('Error while fetching tokens from cognito');
+    }
+
+    const tokens = res.data as TokenExchangeResponseDTO;
+    return tokens.access_token;
+  };
 }

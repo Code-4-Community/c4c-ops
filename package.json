@@ -63,6 +63,7 @@
     "@types/jest": "^29.4.0",
     "@types/lodash": "^4.14.202",
     "@types/node": "^18.14.2",
+    "@types/passport-jwt": "^4.0.1",
     "@types/react": "^18.2.14",
     "@types/react-dom": "^18.2.6",
     "@typescript-eslint/eslint-plugin": "^6.7.0",
