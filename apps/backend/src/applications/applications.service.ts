@@ -4,7 +4,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { MongoRepository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { UsersService } from '../users/users.service';
 import { Application } from './application.entity';
 import {
@@ -24,7 +24,7 @@ import { stagesMap } from './applications.constants';
 export class ApplicationsService {
   constructor(
     @InjectRepository(Application)
-    private readonly applicationsRepository: MongoRepository<Application>,
+    private readonly applicationsRepository: Repository<Application>,
     private readonly usersService: UsersService,
   ) {}
 

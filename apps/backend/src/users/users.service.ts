@@ -5,7 +5,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { MongoRepository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 import { User } from './user.entity';
 import { UpdateUserRequestDTO } from './dto/update-user.request.dto';
 import { UserStatus } from './types';
@@ -14,7 +14,7 @@ import { UserStatus } from './types';
 export class UsersService {
   constructor(
     @InjectRepository(User)
-    private usersRepository: MongoRepository<User>,
+    private usersRepository: Repository<User>,
   ) {}
 
   async create(
@@ -42,7 +42,7 @@ export class UsersService {
 
     const users: User[] = await this.usersRepository.find({
       where: {
-        status: { $not: { $eq: UserStatus.APPLICANT } },
+        status: Not(UserStatus.APPLICANT),
       },
     });
 
