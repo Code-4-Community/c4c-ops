@@ -16,7 +16,7 @@ import { ApplicationRow, Application, Semester } from '../types';
 import apiClient from '@api/apiClient';
 import { applicationColumns } from './columns';
 import { ReviewModal } from './reviewModal';
-import { useNavigate } from 'react-router-dom';
+import useLoginContext from '@components/LoginPage/useLoginContext';
 
 const TODAY = new Date();
 
@@ -33,15 +33,12 @@ const getCurrentYear = (): number => {
 };
 
 export function ApplicationTable() {
-  const navigate = useNavigate();
   const isPageRendered = useRef<boolean>(false);
 
-  // TODO switch to use code grant flow
-  // TODO automatically redirect to login page if not logged in
+  const { token: accessToken } = useLoginContext();
   // TODO implement auto token refresh
   const [data, setData] = useState<ApplicationRow[]>([]);
   const [fullName, setFullName] = useState<string>('');
-  const [accessToken, setAccessToken] = useState<string>('');
   const [rowSelection, setRowSelection] = useState<GridRowSelectionModel>([]);
   const [selectedUserRow, setSelectedUserRow] = useState<ApplicationRow | null>(
     null,
@@ -79,25 +76,6 @@ export function ApplicationTable() {
   const getFullName = async () => {
     setFullName(await apiClient.getFullName(accessToken));
   };
-
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const authCode = urlParams.get('code');
-    async function getToken() {
-      if (authCode && !accessToken) {
-        try {
-          const token = await apiClient.getToken(authCode);
-          setAccessToken(token);
-          navigate('/');
-          // FIXME this causes multiple calls to getToken for some reason
-        } catch (error) {
-          console.error('Error fetching token:', error);
-        }
-      }
-    }
-    getToken();
-    // isPageRendered.current = false;
-  }, [accessToken, navigate]);
 
   useEffect(() => {
     if (isPageRendered.current) {
@@ -146,6 +124,8 @@ export function ApplicationTable() {
           ? `Selected Applicant: ${selectedUserRow.firstName} ${selectedUserRow.lastName}`
           : 'No Applicant Selected'}
       </Typography>
+
+      {/* TODO refactor application details into a separate component */}
       {selectedApplication ? (
         <>
           <Typography variant="h6" mt={2}>
@@ -187,8 +167,10 @@ export function ApplicationTable() {
               </ListItem>
             ))}
           </List>
+
+          {/* TODO refactor reviews into a separate component */}
           <Stack>
-            <Typography variant="body1">
+            <Stack>
               Reviews:
               {selectedApplication.reviews.map((review, index) => {
                 return (
@@ -205,7 +187,7 @@ export function ApplicationTable() {
                   </Stack>
                 );
               })}
-            </Typography>
+            </Stack>
             <Button
               variant="contained"
               size="small"

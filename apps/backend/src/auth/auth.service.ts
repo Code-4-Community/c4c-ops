@@ -187,18 +187,18 @@ export class AuthService {
       grant_type: 'authorization_code',
       code,
       client_id: CognitoAuthConfig.clientId,
-      redirect_uri: process.env.NX_CLIENT_URL,
+      redirect_uri: `${process.env.NX_CLIENT_URL}/login`,
     };
 
     const tokenExchangeEndpoint = `https://${CognitoAuthConfig.clientName}.auth.${CognitoAuthConfig.region}.amazoncognito.com/oauth2/token`;
 
     const urlEncodedBody = new URLSearchParams(body);
 
-    const res = await axios.post(tokenExchangeEndpoint, urlEncodedBody);
-    if (res.status !== 200) {
-      throw new Error('Error while fetching tokens from cognito');
-    }
-
+    const res = await axios
+      .post(tokenExchangeEndpoint, urlEncodedBody)
+      .catch((err) => {
+        throw new Error(`Error while fetching tokens from cognito: ${err}`);
+      });
     const tokens = res.data as TokenExchangeResponseDTO;
     return tokens.access_token;
   };
