@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import apiClient from '@api/apiClient';
 import useLoginContext from './useLoginContext';
 import { useNavigate } from 'react-router-dom';
+import { Button, Stack } from '@mui/material';
 
 /**
  * Login Page component first checks if the user has been redirected from the
@@ -29,10 +30,19 @@ export default function LoginPage() {
     getToken();
   }, [navigate, setToken]);
   return (
-    <div>
-      <a href="https://scaffolding.auth.us-east-2.amazoncognito.com/login?client_id=4c5b8m6tno9fvljmseqgmk82fv&response_type=code&scope=email+openid&redirect_uri=http%3A%2F%2Flocalhost%3A4200%2Flogin">
+    <Stack
+      width="100vw"
+      height="100vh"
+      justifyContent="center"
+      alignItems="center"
+    >
+      <Button
+        variant="contained"
+        color="primary"
+        href="https://scaffolding.auth.us-east-2.amazoncognito.com/login?client_id=4c5b8m6tno9fvljmseqgmk82fv&response_type=code&scope=email+openid&redirect_uri=http%3A%2F%2Flocalhost%3A4200%2Flogin"
+      >
         Login
-      </a>
-    </div>
+      </Button>
+    </Stack>
   );
 }
