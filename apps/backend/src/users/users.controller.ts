@@ -84,4 +84,13 @@ export class UsersController {
 
     return this.usersService.remove(req.user, userId);
   }
+
+  // To handle GET requests for all recruiters if the calling user is an admin
+  @Get('/recruiters')
+  async getRecruiters(@Request() req): Promise<GetAllRecruitersResponseDTO[]> {
+    if (req.user.status !== UserStatus.ADMIN) {
+      throw new UnauthorizedException('Calling user is not an admin');
+    }
+    return this.usersService.findAllRecruiters();
+  }
 }

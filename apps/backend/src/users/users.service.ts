@@ -9,6 +9,7 @@ import { Not, Repository } from 'typeorm';
 import { User } from './user.entity';
 import { UpdateUserRequestDTO } from './dto/update-user.request.dto';
 import { UserStatus } from './types';
+import { GetAllRecruitersResponseDTO } from './dto/get-all-recruiters.response.dto';
 
 @Injectable()
 export class UsersService {
@@ -125,5 +126,16 @@ export class UsersService {
     }
 
     return this.usersRepository.remove(user);
+  }
+
+  // To find and return all users with a user status of "Recruiter"
+  async findAllRecruiters(): Promise<GetAllRecruitersResponseDTO[]> {
+    const recruiters = await this.usersRepository.find({
+      where: {
+        status: UserStatus.RECRUITER,
+      },
+      relations: ['user'],
+    });
+    return recruiters;
   }
 }
