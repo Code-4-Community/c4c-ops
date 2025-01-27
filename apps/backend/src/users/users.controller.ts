@@ -20,6 +20,7 @@ import { GetUserResponseDto } from './dto/get-user.response.dto';
 import { UserStatus } from './types';
 import { toGetUserResponseDto } from './users.utils';
 import { User } from './user.entity';
+import { GetAllRecruitersResponseDTO } from './dto/get-all-recruiters.response.dto';
 
 @Controller('users')
 @UseInterceptors(CurrentUserInterceptor)
