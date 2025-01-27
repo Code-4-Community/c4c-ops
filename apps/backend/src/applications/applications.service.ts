@@ -150,6 +150,7 @@ export class ApplicationsService {
       let meanRatingChallenge = null; // Default to null for DESIGNERS
       let meanRatingTechnicalChallenge = null;
       let meanRatingInterview = null;
+      let applicationStep = null;
 
       // Calculate mean rating of all reviews
       if (app.reviews.length > 0) {
@@ -204,12 +205,20 @@ export class ApplicationsService {
           interviewReviews.length;
       }
 
+      // Tthe application step
+      if (app.reviews.length > 0) {
+        applicationStep = ApplicationStep.REVIEWED;
+      } else {
+        applicationStep = ApplicationStep.SUBMITTED;
+      }
+
       return app.toGetAllApplicationResponseDTO(
         meanRatingAllReviews,
         meanRatingResume,
         meanRatingChallenge,
         meanRatingTechnicalChallenge,
         meanRatingInterview,
+        applicationStep,
       );
     });
 

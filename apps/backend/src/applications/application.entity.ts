@@ -18,6 +18,7 @@ import {
 import { GetApplicationResponseDTO } from './dto/get-application.response.dto';
 import { Review } from '../reviews/review.entity';
 import { GetAllApplicationResponseDTO } from './dto/get-all-application.response.dto';
+import { ApplicationStatus } from './dto/application-status';
 
 @Entity()
 export class Application {
@@ -70,13 +71,14 @@ export class Application {
     meanRatingChallenge,
     meanRatingTechnicalChallenge,
     meanRatingInterview,
+    applicationStep,
   ): GetAllApplicationResponseDTO {
     return {
       userId: this.user.id,
       firstName: this.user.firstName,
       lastName: this.user.lastName,
       stage: this.stage,
-      step: this.step,
+      step: applicationStep,
       position: this.position,
       createdAt: this.createdAt,
       meanRatingAllReviews,
@@ -87,7 +89,10 @@ export class Application {
     };
   }
 
-  toGetApplicationResponseDTO(numApps: number): GetApplicationResponseDTO {
+  toGetApplicationResponseDTO(
+    numApps: number,
+    applicationStep,
+  ): GetApplicationResponseDTO {
     return {
       id: this.id,
       createdAt: this.createdAt,
@@ -95,7 +100,7 @@ export class Application {
       semester: this.semester,
       position: this.position,
       stage: this.stage,
-      step: this.step,
+      step: applicationStep,
       response: this.response,
       reviews: this.reviews,
       numApps,
