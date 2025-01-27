@@ -18,7 +18,6 @@ import {
 import { GetApplicationResponseDTO } from './dto/get-application.response.dto';
 import { Review } from '../reviews/review.entity';
 import { GetAllApplicationResponseDTO } from './dto/get-all-application.response.dto';
-import { ApplicationStatus } from './dto/application-status';
 
 @Entity()
 export class Application {
