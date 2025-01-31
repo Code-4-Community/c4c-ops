@@ -20,7 +20,6 @@ import { GetUserResponseDto } from './dto/get-user.response.dto';
 import { UserStatus } from './types';
 import { toGetUserResponseDto } from './users.utils';
 import { User } from './user.entity';
-import { GetAllRecruitersResponseDTO } from './dto/get-all-recruiters.response.dto';
 
 @Controller('users')
 @UseInterceptors(CurrentUserInterceptor)
@@ -44,6 +43,16 @@ export class UsersController {
   @Get('/fullname')
   async getFullName(@Request() req): Promise<string> {
     return `${req.user.firstName} ${req.user.lastName}`;
+  }
+
+  // To handle GET requests for all recruiters if the calling user is an admin
+  @Get('/recruiters')
+  async getRecruiters(@Request() req): Promise<User[]> {
+    console.log('Hello');
+    if (req.user.status !== UserStatus.ADMIN) {
+      throw new UnauthorizedException('Calling user is not an admin');
+    }
+    return this.usersService.findAllRecruiters();
   }
 
   @Get('/:userId')
@@ -83,14 +92,5 @@ export class UsersController {
     }
 
     return this.usersService.remove(req.user, userId);
-  }
-
-  // To handle GET requests for all recruiters if the calling user is an admin
-  @Get('/recruiters')
-  async getRecruiters(@Request() req): Promise<GetAllRecruitersResponseDTO[]> {
-    if (req.user.status !== UserStatus.ADMIN) {
-      throw new UnauthorizedException('Calling user is not an admin');
-    }
-    return this.usersService.findAllRecruiters();
   }
 }
