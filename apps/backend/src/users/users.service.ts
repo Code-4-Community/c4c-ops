@@ -126,4 +126,14 @@ export class UsersService {
 
     return this.usersRepository.remove(user);
   }
+
+  // To find and return all users with a user status of "Recruiter"
+  async findAllRecruiters(): Promise<User[]> {
+    const recruiters = await this.usersRepository.find({
+      where: {
+        status: UserStatus.RECRUITER,
+      },
+    });
+    return recruiters;
+  }
 }
