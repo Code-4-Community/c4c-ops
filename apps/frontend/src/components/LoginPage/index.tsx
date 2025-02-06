@@ -15,11 +15,16 @@ export default function LoginPage() {
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const authCode = urlParams.get('code');
-
     async function getToken() {
-      if (authCode) {
+      const sessionToken = sessionStorage.getItem('token');
+      if (sessionToken) {
+        setToken(JSON.parse(sessionToken));
+        navigate('/');
+      } else if (authCode) {
         try {
           const token = await apiClient.getToken(authCode);
+
+          sessionStorage.setItem('token', JSON.stringify(token));
           setToken(token);
           navigate('/');
         } catch (error) {
@@ -27,6 +32,19 @@ export default function LoginPage() {
         }
       }
     }
+    getToken();
+
+    // async function getToken() {
+    //   if (authCode) {
+    //     try {
+    //       const token = await apiClient.getToken(authCode);
+    //       setToken(token);
+    //       navigate('/');
+    //     } catch (error) {
+    //       console.error('Error fetching token:', error);
+    //     }
+    //   }
+    // }
     getToken();
   }, [navigate, setToken]);
   return (
