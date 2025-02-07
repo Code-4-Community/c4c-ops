@@ -23,7 +23,7 @@ export default function LoginPage() {
       } else if (authCode) {
         try {
           const token = await apiClient.getToken(authCode);
-
+          console.log(token);
           sessionStorage.setItem('token', JSON.stringify(token));
           setToken(token);
           navigate('/');
@@ -32,19 +32,6 @@ export default function LoginPage() {
         }
       }
     }
-    getToken();
-
-    // async function getToken() {
-    //   if (authCode) {
-    //     try {
-    //       const token = await apiClient.getToken(authCode);
-    //       setToken(token);
-    //       navigate('/');
-    //     } catch (error) {
-    //       console.error('Error fetching token:', error);
-    //     }
-    //   }
-    // }
     getToken();
   }, [navigate, setToken]);
   return (
