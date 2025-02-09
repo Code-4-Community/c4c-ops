@@ -77,6 +77,49 @@ export class ApiClient {
     }) as Promise<void>;
   }
 
+  // check this code later mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+  /*
+  public async changeStage(
+    accessToken: string,
+    userId: number,
+  ): Promise<ApplicationStage> {
+    return (await this.post(`/api/decision/${userId}`, {}, {
+      headers: { 
+        Authorization: `Bearer ${accessToken}`,
+      },
+    })) as Promise<ApplicationStage>;
+  } */
+  /////////////////////////////////////////////////////////////////////////////////////////////
+
+  public async changeStage(
+    accessToken: string,
+    userId: number,
+  ): Promise<Application> {
+    // Fetch the current application to get its stage
+    const application = await this.getApplication(accessToken, userId);
+    const currentStage = application.stage; // This is just a string now
+
+    console.log(`Current stage for userId ${userId}: ${currentStage}`);
+
+    // Determine the next stage using string comparison
+    let nextStage = 'REJECTED'; // Default action
+    if (currentStage === 'RESUME') nextStage = 'INTERVIEW';
+    else if (currentStage === 'INTERVIEW') nextStage = 'TECHNICAL_CHALLENGE';
+    else if (currentStage === 'TECHNICAL_CHALLENGE') nextStage = 'PM_CHALLENGE';
+    else if (currentStage === 'PM_CHALLENGE') nextStage = 'ACCEPTED';
+
+    console.log(`Changing stage for userId ${userId} to ${nextStage}`);
+
+    // Call the API to update the stage
+    return (await this.post(
+      `/api/decision/${userId}`,
+      { stage: nextStage },
+      {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      },
+    )) as Promise<Application>;
+  }
+
   private async get(
     path: string,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
