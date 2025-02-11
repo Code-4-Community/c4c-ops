@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import { DoneOutline } from '@mui/icons-material';
 
-import { ApplicationRow, Application, Semester } from '../types';
+import { ApplicationRow, Application, Semester, User } from '../types';
 import apiClient from '@api/apiClient';
 import { applicationColumns } from './columns';
 import { ReviewModal } from './reviewModal';
@@ -43,6 +43,8 @@ export function ApplicationTable() {
   const [selectedUserRow, setSelectedUserRow] = useState<ApplicationRow | null>(
     null,
   );
+  const [recruitersList, setRecruitersList] = useState<Array<User>>([]);
+
   const [selectedApplication, setSelectedApplication] =
     useState<Application | null>(null);
 
@@ -50,6 +52,11 @@ export function ApplicationTable() {
 
   const handleOpenReviewModal = () => {
     setOpenReviewModal(true);
+  };
+
+  const fetchRecruiters = async () => {
+    const data = await apiClient.getAllRecruiters(accessToken);
+    setRecruitersList(data);
   };
 
   const fetchData = async () => {
