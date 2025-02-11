@@ -64,6 +64,8 @@ export class UsersController {
     return toGetUserResponseDto(user);
   }
 
+  // TODO: Ask David if new endpoint is even necessary; can't we just call this one with
+  // an updated recruiters array?
   @Patch('/:userId')
   async updateUser(
     @Body() updateUserDTO: UpdateUserRequestDTO,
