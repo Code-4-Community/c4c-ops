@@ -190,10 +190,7 @@ export function ApplicationTable() {
                   </li>
                 );
               }}
-              style={{
-                width: 200,
-                height: 100,
-              }}
+              style={{ width: 200 }}
               renderInput={(params) => (
                 <TextField
                   {...params}
