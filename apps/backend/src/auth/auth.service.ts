@@ -183,8 +183,6 @@ export class AuthService {
    * @param code - the authorization code granted by Cognito during the user's login
    */
   tokenExchange = async (code: string): Promise<string> => {
-    console.log(`🔍 [AuthService] tokenExchange() called with code: ${code}`);
-    console.trace('📌 Stack Trace for tokenExchange() call');
     const body = {
       grant_type: 'authorization_code',
       code,
