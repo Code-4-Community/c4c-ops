@@ -1,4 +1,8 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { FileUpload } from './entities/file-upload.entity';
@@ -12,13 +16,19 @@ export class FileUploadService {
     private readonly applicationsService: ApplicationsService,
   ) {}
 
-  async handleFileUpload(file: any, applicationId: number) {
+  async handleFileUpload(file: Express.Multer.File, applicationId: number) {
+    console.log('Received file:', file);
     if (!file) {
       throw new BadRequestException('No file uploaded');
     }
 
     // Validate file type
-    const allowedMimeTypes = ['image/jpeg', 'image/png', 'application/pdf', 'application/msword'];
+    const allowedMimeTypes = [
+      'image/jpeg',
+      'image/png',
+      'application/pdf',
+      'application/msword',
+    ];
     if (!allowedMimeTypes.includes(file.mimetype)) {
       throw new BadRequestException('Invalid file type');
     }
@@ -30,7 +40,9 @@ export class FileUploadService {
     }
 
     // Check if the application exists
-    const application = await this.applicationsService.findCurrent(applicationId);
+    const application = await this.applicationsService.findCurrent(
+      applicationId,
+    );
     if (!application) {
       throw new NotFoundException('Application not found');
     }
@@ -38,9 +50,9 @@ export class FileUploadService {
     // Save file to the database
     const uploadedFile = this.fileRepository.create({
       filename: file.originalname, // assuming file name is passed in the request
-      mimetype: file.mimetype,     // assuming mime type is passed in the request
-      size: file.size,             // assuming size is passed in the request
-      file_data: file.buffer,      // the raw buffer from the request
+      mimetype: file.mimetype, // assuming mime type is passed in the request
+      size: file.size, // assuming size is passed in the request
+      file_data: file.buffer, // the raw buffer from the request
       application: application,
     });
 

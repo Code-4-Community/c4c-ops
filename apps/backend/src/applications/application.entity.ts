@@ -11,8 +11,8 @@ import { User } from '../users/user.entity';
 import {
   Response,
   Semester,
-  Position, 
-  ApplicationStage,  
+  Position,
+  ApplicationStage,
   ApplicationStep,
 } from './types';
 import { GetApplicationResponseDTO } from './dto/get-application.response.dto';

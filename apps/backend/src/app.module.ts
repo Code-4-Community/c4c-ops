@@ -10,6 +10,7 @@ import { PluralNamingStrategy } from './strategies/plural-naming.strategy';
 import { ApplicationsModule } from './applications/applications.module';
 import { Application } from './applications/application.entity';
 import { FileUpload } from './file-upload/entities/file-upload.entity';
+import { FileUploadModule } from './file-upload/file-upload.module';
 
 @Module({
   imports: [
@@ -26,11 +27,12 @@ import { FileUpload } from './file-upload/entities/file-upload.entity';
       synchronize: true,
       namingStrategy: new PluralNamingStrategy(),
     }),
-    TypeOrmModule.forFeature([Application, FileUpload]), 
+    TypeOrmModule.forFeature([Application, FileUpload]),
     AuthModule,
     UsersModule,
     ApplicationsModule,
     ReviewsModule,
+    FileUploadModule,
   ],
   controllers: [AppController],
   providers: [AppService],

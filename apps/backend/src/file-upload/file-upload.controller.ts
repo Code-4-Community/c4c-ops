@@ -1,4 +1,12 @@
-import { Controller, Post, Param, BadRequestException, Body } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Param,
+  BadRequestException,
+  UseInterceptors,
+  UploadedFile,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { FileUploadService } from './file-upload.service';
 import { Application } from '../applications/application.entity';
 
@@ -7,14 +15,15 @@ export class FileUploadController {
   constructor(private readonly fileUploadService: FileUploadService) {}
 
   @Post(':applicationId')
+  @UseInterceptors(FileInterceptor('file'))
   async uploadFile(
+    @UploadedFile() file: Express.Multer.File,
     @Param('applicationId') applicationId: number,
-    @Body() file: any, // The file will now be passed in the body as a raw buffer
   ) {
     if (!applicationId) {
       throw new BadRequestException('Application ID is required');
     }
-
+    console.log('Received file in controller:', file);
     return this.fileUploadService.handleFileUpload(file, applicationId);
   }
 }

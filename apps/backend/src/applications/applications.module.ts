@@ -11,7 +11,7 @@ import { CurrentUserInterceptor } from '../interceptors/current-user.interceptor
 import { AuthService } from '../auth/auth.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Application, User, FileUpload])], 
+  imports: [TypeOrmModule.forFeature([Application, User, FileUpload])],
   controllers: [ApplicationsController],
   providers: [
     ApplicationsService,
