@@ -7,7 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { FileUpload } from './entities/file-upload.entity';
 import { ApplicationsService } from '../applications/applications.service';
-import Multer from 'Multer';
+import { Request } from 'express';
 
 @Injectable()
 export class FileUploadService {
