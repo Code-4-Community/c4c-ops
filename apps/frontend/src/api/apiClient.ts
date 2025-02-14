@@ -15,6 +15,8 @@ type SubmitReviewRequest = {
   content: string;
 };
 
+type DecisionRequest = { decision: 'ACCEPT' | 'REJECT' };
+
 export class ApiClient {
   private readonly axiosInstance: AxiosInstance;
 
@@ -35,6 +37,33 @@ export class ApiClient {
   public async getToken(code: string): Promise<string> {
     const token = await this.get(`/api/auth/token/${code}`);
     return token as string;
+  }
+
+  public async changeStage(
+    accessToken: string,
+    userId: number,
+  ): Promise<Application> {
+    // Fetch the current application to get its stage
+    console.log('RUN ONE');
+    const application = await this.getApplication(accessToken, userId);
+    console.log('RUN TWO');
+    const currentStage = application.stage; // This is just a string now
+    console.log(`Current stage for userId ${userId}: ${currentStage}`);
+    // Determine the next stage using string comparison
+    let nextStage = 'REJECTED'; // Default action
+    if (currentStage === 'RESUME') nextStage = 'INTERVIEW';
+    else if (currentStage === 'INTERVIEW') nextStage = 'TECHNICAL_CHALLENGE';
+    else if (currentStage === 'TECHNICAL_CHALLENGE') nextStage = 'PM_CHALLENGE';
+    else if (currentStage === 'PM_CHALLENGE') nextStage = 'ACCEPTED';
+    console.log(`Changing stage for userId ${userId} to ${nextStage}`);
+    // Call the API to update the stage
+    return (await this.post(
+      `/api/apps/decision/${userId}`,
+      { decision: 'ACCEPT' },
+      {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      },
+    )) as Promise<Application>;
   }
 
   public async getAllApplications(
@@ -90,6 +119,17 @@ export class ApiClient {
   private async post(
     path: string,
     body: unknown,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    headers: AxiosRequestConfig<any> | undefined = undefined,
+  ): Promise<unknown> {
+    return this.axiosInstance
+      .post(path, body, headers)
+      .then((response) => response.data);
+  }
+
+  private async postTwo(
+    path: string,
+    body: DecisionRequest,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     headers: AxiosRequestConfig<any> | undefined = undefined,
   ): Promise<unknown> {

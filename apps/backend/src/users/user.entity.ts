@@ -1,3 +1,5 @@
+// describes what a user object consists of
+
 import {
   IsArray,
   IsEmail,
