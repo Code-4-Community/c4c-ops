@@ -73,6 +73,24 @@ export function ApplicationTable() {
     }
   };
 
+  // const changeStage = async (
+  //   event: React.MouseEvent<HTMLButtonElement>,
+  //   userId: number,
+  // ) => {
+  //   console.log(`Attempting to change stage for userId: ${userId}`);
+  //   try {
+  //     const updatedApplication = await apiClient.changeStage(
+  //       accessToken,
+  //       userId,
+  //     );
+  //     console.log('Stage changed successfully:', updatedApplication.stage);
+  //     alert(`Stage updated to: ${updatedApplication.stage}`);
+  //   } catch (error) {
+  //     console.error('Error changing application stage:', error);
+  //     alert('Failed to change application stage.');
+  //   }
+  // };
+
   const getFullName = async () => {
     setFullName(await apiClient.getFullName(accessToken));
   };
@@ -195,6 +213,14 @@ export function ApplicationTable() {
             >
               Start Review
             </Button>
+
+            {selectedUserRow && (
+              <Button
+              // onClick={(event) => changeStage(event, selectedUserRow.userId)}
+              >
+                Move Stage
+              </Button>
+            )}
           </Stack>
           <ReviewModal
             open={openReviewModal}
