@@ -7,7 +7,6 @@ import Test from '@containers/test';
 import LoginContext from '@components/LoginPage/LoginContext';
 import ProtectedRoutes from '@components/ProtectedRoutes';
 import LoginPage from '@components/LoginPage';
-import ApplicantView from '@components/ApplicantView/user';
 
 export const App: React.FC = () => {
   const [token, setToken] = useState<string>('');
