@@ -3,12 +3,12 @@ import apiClient from '@api/apiClient';
 import useLoginContext from './useLoginContext';
 import { useNavigate } from 'react-router-dom';
 import { Button, Stack } from '@mui/material';
-import { CognitoJwtVerifier } from "aws-jwt-verify";
+import { CognitoJwtVerifier } from 'aws-jwt-verify';
 
 const verifier = CognitoJwtVerifier.create({
-  userPoolId: process.env.NX_COGNITO_USER_POOL_ID, 
-  tokenUse: "access", 
-  clientId: process.env.NX_COGNITO_CLIENT_ID,
+  userPoolId: import.meta.env.VITE_COGNITO_USER_POOL_ID as string,
+  tokenUse: 'access',
+  clientId: import.meta.env.VITE_COGNITO_CLIENT_ID as string,
 });
 
 export default function LoginPage() {
@@ -25,18 +25,18 @@ export default function LoginPage() {
       if (sessionToken) {
         try {
           const token = JSON.parse(sessionToken);
-          await verifier.verify(token); 
+          await verifier.verify(token);
           setToken(token);
           navigate('/');
         } catch (error) {
           console.log('Error verifying token:', error);
-          sessionStorage.removeItem('token'); 
+          sessionStorage.removeItem('token');
         }
       } else if (authCode) {
         try {
           const token = await apiClient.getToken(authCode);
           console.log('Fetched Token:', token);
-          
+
           sessionStorage.setItem('token', JSON.stringify(token));
           setToken(token);
           navigate('/');
