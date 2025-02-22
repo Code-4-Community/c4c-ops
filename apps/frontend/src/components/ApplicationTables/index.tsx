@@ -51,7 +51,7 @@ export function ApplicationTable() {
   const [selectedUserRow, setSelectedUserRow] = useState<ApplicationRow | null>(
     null,
   );
-  const [recruitersList, setRecruitersList] = useState<Array<User>>([]);
+  const [allRecruitersList, setAllRecruitersList] = useState<Array<User>>([]);
 
   const [selectedApplication, setSelectedApplication] =
     useState<Application | null>(null);
@@ -64,7 +64,7 @@ export function ApplicationTable() {
 
   const fetchRecruiters = async () => {
     const data = await apiClient.getAllRecruiters(accessToken);
-    setRecruitersList(data);
+    setAllRecruitersList(data);
   };
 
   const fetchData = async () => {
@@ -106,6 +106,20 @@ export function ApplicationTable() {
       setSelectedUserRow(data[rowSelection[0] as number]);
     }
   }, [rowSelection, data]);
+
+  const handleRecruitersChange = async (
+    event: React.SyntheticEvent,
+    value: User[],
+  ) => {
+    event.preventDefault();
+
+    // TODO: This should call updateApplicant, which needs to be implemented
+    /*
+    if (selectedApplication) {
+      await apiClient.updateApplicant(accessToken, selectedApplication.id, value);
+    }
+      */
+  };
 
   return (
     <Container maxWidth="xl">
@@ -167,39 +181,35 @@ export function ApplicationTable() {
               Applications: {selectedApplication.numApps}
             </Typography>
             <Typography variant="body1">Recruiters:</Typography>
-            <Autocomplete
-              multiple
-              options={recruitersList}
-              disableCloseOnSelect
-              getOptionLabel={(recruiter) =>
-                recruiter.firstName + ' ' + recruiter.lastName
-              }
-              renderOption={(props, option, { selected }) => {
-                const { key, ...optionProps } =
-                  props as React.HTMLAttributes<HTMLLIElement> & {
-                    key: string;
-                  };
-                return (
-                  <li key={key} {...optionProps}>
-                    <Checkbox
-                      icon={checkBoxIconUnchecked}
-                      checkedIcon={checkBoxIconChecked}
-                      checked={selected}
-                    />
-                    {option.firstName + ' ' + option.lastName}
-                  </li>
-                );
-              }}
-              style={{ width: 200 }}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label="Assign Recruiter(s)"
-                  placeholder="Recruiter(s)"
-                />
-              )}
-            />
           </Stack>
+          <Autocomplete
+            multiple
+            options={allRecruitersList}
+            disableCloseOnSelect
+            getOptionLabel={(recruiter) =>
+              recruiter.firstName + ' ' + recruiter.lastName
+            }
+            renderOption={(props, option, { selected }) => {
+              const { key, ...optionProps } =
+                props as React.HTMLAttributes<HTMLLIElement> & {
+                  key: string;
+                };
+              return (
+                <li key={key} {...optionProps}>
+                  <Checkbox
+                    icon={checkBoxIconUnchecked}
+                    checkedIcon={checkBoxIconChecked}
+                    checked={selected}
+                  />
+                  {option.firstName + ' ' + option.lastName}
+                </li>
+              );
+            }}
+            style={{ width: 400, marginTop: 10 }}
+            renderInput={(params) => (
+              <TextField {...params} label="Assign Recruiter(s)" />
+            )}
+          />
           <Typography variant="body1" mt={1}>
             Application Responses
           </Typography>
