@@ -2,6 +2,7 @@ import {
   BadRequestException,
   UnauthorizedException,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -19,6 +20,7 @@ import { User } from '../users/user.entity';
 import { Position, ApplicationStage, ApplicationStep } from './types';
 import { GetAllApplicationResponseDTO } from './dto/get-all-application.response.dto';
 import { stagesMap } from './applications.constants';
+import { UpdateApplicationRequestDTO } from './dto/update-application.request.dto';
 
 @Injectable()
 export class ApplicationsService {
@@ -236,5 +238,41 @@ export class ApplicationsService {
     }
 
     return currentApp;
+  }
+
+  async findOne(
+    currentApplication: Application,
+    applicationId: number,
+  ): Promise<Application> {
+    const application = await this.applicationsRepository.findOne({
+      where: { id: applicationId },
+    });
+
+    if (!application) {
+      throw new NotFoundException(
+        `Application with ID ${applicationId} not found`,
+      );
+    }
+
+    return application;
+  }
+
+  async updateApplication(
+    currentApplication: Application,
+    applicationId: number,
+    updateApplicationDTO: UpdateApplicationRequestDTO,
+  ): Promise<Application> {
+    await this.findOne(currentApplication, applicationId);
+
+    try {
+      await this.applicationsRepository.update(
+        { id: applicationId },
+        updateApplicationDTO,
+      );
+    } catch (error) {
+      throw new BadRequestException('Cannot update application');
+    }
+
+    return await this.findOne(currentApplication, applicationId);
   }
 }
