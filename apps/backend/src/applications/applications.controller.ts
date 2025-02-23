@@ -7,6 +7,7 @@ import {
   UseInterceptors,
   UseGuards,
   Post,
+  Patch,
   Body,
   BadRequestException,
   NotFoundException,
@@ -17,11 +18,12 @@ import { ApplicationsService } from './applications.service';
 import { CurrentUserInterceptor } from '../interceptors/current-user.interceptor';
 import { AuthGuard } from '@nestjs/passport';
 import { GetApplicationResponseDTO } from './dto/get-application.response.dto';
-import { getAppForCurrentCycle } from './utils';
+import { getAppForCurrentCycle, toGetApplicationResponseDTO } from './utils';
 import { UserStatus } from '../users/types';
 import { Application } from './application.entity';
 import { GetAllApplicationResponseDTO } from './dto/get-all-application.response.dto';
 import { ApplicationStep } from './types';
+import { UpdateApplicationRequestDTO } from './dto/update-application.request.dto';
 
 @Controller('apps')
 @UseInterceptors(CurrentUserInterceptor)
@@ -114,5 +116,27 @@ export class ApplicationsController {
     }
 
     return app.toGetApplicationResponseDTO(apps.length, applicationStep);
+  }
+
+  // TODO: Update DTOs
+  @Patch('/:applicantId')
+  async updateApplication(
+    @Body() updateApplicationDTO: UpdateApplicationRequestDTO,
+    @Param('applicantId', ParseIntPipe) applicantId: number,
+    @Request() req,
+  ): Promise<GetApplicationResponseDTO> {
+    if (req.user.status !== UserStatus.ADMIN) {
+      throw new UnauthorizedException(
+        'Only admins can assign recruiters to applicants',
+      );
+    }
+
+    const newApplicant = await this.applicationsService.updateApplication(
+      req.application,
+      applicantId,
+      updateApplicationDTO,
+    );
+
+    return toGetApplicationResponseDTO(newApplicant);
   }
 }

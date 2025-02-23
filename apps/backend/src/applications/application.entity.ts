@@ -66,11 +66,22 @@ export class Application {
   @IsObject({ each: true })
   response: Response[];
 
+  @Column('jsonb', { nullable: true, default: [] })
+  @IsArray()
+  @IsObject({ each: true })
+  @OneToMany(() => User, (user) => user.firstName + user.lastName)
+  recruiters: User[];
+
   @Column('varchar', { array: true, default: {} })
   @IsArray()
   @IsObject({ each: true })
   @OneToMany(() => Review, (review) => review.application)
   reviews: Review[];
+
+  @Column({ nullable: false, default: 0 })
+  @IsPositive()
+  @Min(0)
+  numApps: number;
 
   toGetAllApplicationResponseDTO(
     meanRatingAllReviews,
@@ -88,6 +99,7 @@ export class Application {
       step: applicationStep,
       position: this.position,
       createdAt: this.createdAt,
+      recruiters: this.recruiters,
       meanRatingAllReviews,
       meanRatingResume,
       meanRatingChallenge,
@@ -109,6 +121,7 @@ export class Application {
       stage: this.stage,
       step: applicationStep,
       response: this.response,
+      recruiters: this.recruiters,
       reviews: this.reviews,
       numApps,
     };

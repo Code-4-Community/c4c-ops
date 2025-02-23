@@ -9,16 +9,24 @@ import {
   ListItemText,
   ListItemIcon,
   Button,
+  Checkbox,
+  TextField,
+  Autocomplete,
 } from '@mui/material';
+import { CheckBoxOutlineBlank, CheckBox } from '@mui/icons-material';
 import { DoneOutline } from '@mui/icons-material';
 
-import { ApplicationRow, Application, Semester } from '../types';
+import { ApplicationRow, Application, Semester, User } from '../types';
 import apiClient from '@api/apiClient';
 import { applicationColumns } from './columns';
 import { ReviewModal } from './reviewModal';
 import useLoginContext from '@components/LoginPage/useLoginContext';
+import { light } from '@mui/material/styles/createPalette';
 
 const TODAY = new Date();
+
+const checkBoxIconUnchecked = <CheckBoxOutlineBlank fontSize="small" />;
+const checkBoxIconChecked = <CheckBox fontSize="small" />;
 
 const getCurrentSemester = (): Semester => {
   const month: number = TODAY.getMonth();
@@ -43,6 +51,8 @@ export function ApplicationTable() {
   const [selectedUserRow, setSelectedUserRow] = useState<ApplicationRow | null>(
     null,
   );
+  const [allRecruitersList, setAllRecruitersList] = useState<Array<User>>([]);
+
   const [selectedApplication, setSelectedApplication] =
     useState<Application | null>(null);
 
@@ -50,6 +60,11 @@ export function ApplicationTable() {
 
   const handleOpenReviewModal = () => {
     setOpenReviewModal(true);
+  };
+
+  const fetchRecruiters = async () => {
+    const data = await apiClient.getAllRecruiters(accessToken);
+    setAllRecruitersList(data);
   };
 
   const fetchData = async () => {
@@ -92,6 +107,20 @@ export function ApplicationTable() {
     }
   }, [rowSelection, data]);
 
+  const handleRecruitersChange = async (
+    event: React.SyntheticEvent,
+    value: User[],
+  ) => {
+    event.preventDefault();
+
+    // TODO: This should call updateApplicant, which needs to be implemented
+    /*
+    if (selectedApplication) {
+      await apiClient.updateApplicant(accessToken, selectedApplication.id, value);
+    }
+      */
+  };
+
   return (
     <Container maxWidth="xl">
       <Typography variant="h4" mb={1}>
@@ -115,6 +144,7 @@ export function ApplicationTable() {
         onRowSelectionModelChange={(newRowSelectionModel) => {
           setRowSelection(newRowSelectionModel);
           getApplication(data[newRowSelectionModel[0] as number].userId);
+          fetchRecruiters();
         }}
         rowSelectionModel={rowSelection}
       />
@@ -150,7 +180,36 @@ export function ApplicationTable() {
             <Typography variant="body1">
               Applications: {selectedApplication.numApps}
             </Typography>
+            <Typography variant="body1">Recruiters:</Typography>
           </Stack>
+          <Autocomplete
+            multiple
+            options={allRecruitersList}
+            disableCloseOnSelect
+            getOptionLabel={(recruiter) =>
+              recruiter.firstName + ' ' + recruiter.lastName
+            }
+            renderOption={(props, option, { selected }) => {
+              const { key, ...optionProps } =
+                props as React.HTMLAttributes<HTMLLIElement> & {
+                  key: string;
+                };
+              return (
+                <li key={key} {...optionProps}>
+                  <Checkbox
+                    icon={checkBoxIconUnchecked}
+                    checkedIcon={checkBoxIconChecked}
+                    checked={selected}
+                  />
+                  {option.firstName + ' ' + option.lastName}
+                </li>
+              );
+            }}
+            style={{ width: 400, marginTop: 10 }}
+            renderInput={(params) => (
+              <TextField {...params} label="Assign Recruiter(s)" />
+            )}
+          />
           <Typography variant="body1" mt={1}>
             Application Responses
           </Typography>

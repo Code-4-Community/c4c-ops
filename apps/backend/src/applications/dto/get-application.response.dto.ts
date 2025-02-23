@@ -1,4 +1,5 @@
 import { Review } from '../../reviews/review.entity';
+import { User } from '../../users/user.entity';
 import {
   ApplicationStage,
   ApplicationStep,
@@ -23,6 +24,8 @@ export class GetApplicationResponseDTO {
   step: ApplicationStep;
 
   response: Response[];
+
+  recruiters: User[];
 
   reviews: Review[];
 

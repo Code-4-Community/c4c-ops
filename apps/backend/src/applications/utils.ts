@@ -1,5 +1,6 @@
 import { Application } from './application.entity';
 import { Cycle } from './dto/cycle';
+import { GetApplicationResponseDTO } from './dto/get-application.response.dto';
 import { Semester } from './types';
 
 export const getCurrentSemester = (): Semester => {
@@ -33,4 +34,22 @@ export const getAppForCurrentCycle = (
   }
 
   return null;
+};
+
+export const toGetApplicationResponseDTO = (
+  application: Application,
+): GetApplicationResponseDTO => {
+  return {
+    id: application.id,
+    createdAt: application.createdAt,
+    year: application.year,
+    semester: application.semester,
+    position: application.position,
+    stage: application.stage,
+    step: application.step,
+    response: application.response,
+    recruiters: application.recruiters,
+    reviews: application.reviews,
+    numApps: application.numApps,
+  };
 };
