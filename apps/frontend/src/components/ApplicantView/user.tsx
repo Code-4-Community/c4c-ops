@@ -12,7 +12,7 @@ import {
 import { DoneOutline } from '@mui/icons-material';
 import apiClient from '@api/apiClient';
 import useLoginContext from '@components/LoginPage/useLoginContext';
-import { ApplicationRow, Application, Semester } from '../types';
+import { Application } from '../types';
 
 export const ApplicantView: React.FC = () => {
   const { token: accessToken } = useLoginContext();
@@ -57,6 +57,25 @@ export const ApplicantView: React.FC = () => {
         justifyContent: 'center',
         alignItems: 'center',
         overflow: 'hidden',
+        position: 'relative',
+        '::before, ::after': {
+          content: '""',
+          position: 'absolute',
+          width: 200,
+          height: '80%',
+          background: 'linear-gradient(180deg, #8A2BE2, #FF00FF, #00FFFF)',
+          filter: 'blur(80px)',
+          zIndex: 0,
+          opacity: 0.8,
+        },
+        '::before': {
+          left: '5%',
+          top: '10%',
+        },
+        '::after': {
+          right: '5%',
+          top: '10%',
+        },
       }}
     >
       <Box
@@ -72,6 +91,8 @@ export const ApplicantView: React.FC = () => {
           boxShadow: 2,
           width: '80%',
           maxWidth: 600,
+          position: 'relative',
+          zIndex: 1,
         }}
       >
         <Typography variant="h4" sx={{ mb: 3 }}>
@@ -132,8 +153,7 @@ export const ApplicantView: React.FC = () => {
                   {selectedApplication.response.map((response, index) => (
                     <ListItem key={index}>
                       <ListItemIcon>
-                        <DoneOutline sx={{ color: '#4CAF50' }} />{' '}
-                        {/* Green color for checkmark */}
+                        <DoneOutline sx={{ color: '#4CAF50' }} />
                       </ListItemIcon>
                       <ListItemText
                         primary={`Q: ${response.question}`}
