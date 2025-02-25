@@ -1,3 +1,4 @@
+import { User } from '../../users/user.entity';
 import { Application } from '../../applications/application.entity';
 import { UserStatus, Role, Team } from '../types';
 import {
@@ -55,4 +56,9 @@ export class UpdateUserRequestDTO {
   @IsArray()
   @IsObject({ each: true })
   applications?: Application[];
+
+  @IsOptional()
+  @IsArray()
+  @IsObject({ each: true })
+  recruiters?: User[];
 }

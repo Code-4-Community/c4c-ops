@@ -71,4 +71,10 @@ export class User {
   @IsObject({ each: true })
   @OneToMany(() => Application, (application) => application.user)
   applications: Application[];
+
+  @Column('jsonb', { nullable: true, default: [] })
+  @IsArray()
+  @IsObject({ each: true })
+  @OneToMany(() => User, (user) => user.firstName + user.lastName)
+  recruiters: User[];
 }
