@@ -83,6 +83,27 @@ export class ApplicationsController {
     return this.applicationsService.findAllCurrentApplications();
   }
 
+  // To handle GET requests for the number of events attended by an applicant
+  // if the calling user is a recruiter or admin
+  @Get('/events/:appId')
+  @UseGuards(AuthGuard('jwt'))
+  async getEventsAttended(
+    @Param('appId', ParseIntPipe) applicantId: number,
+    @Request() req,
+  ): Promise<number> {
+    if (
+      !(
+        req.user.status === UserStatus.RECRUITER ||
+        req.user.status === UserStatus.ADMIN
+      )
+    ) {
+      throw new UnauthorizedException(
+        'Calling user is not a recruiter or admin',
+      );
+    }
+    return this.applicationsService.obtainEventsAttended(applicantId);
+  }
+
   @Get('/:userId')
   @UseGuards(AuthGuard('jwt'))
   async getApplication(

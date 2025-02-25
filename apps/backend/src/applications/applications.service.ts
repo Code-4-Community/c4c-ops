@@ -275,4 +275,12 @@ export class ApplicationsService {
 
     return await this.findOne(currentApplication, applicationId);
   }
+
+  async obtainEventsAttended(applicationId: number): Promise<number> {
+    const application = await this.applicationsRepository.findOne({
+      where: { id: applicationId },
+    });
+
+    return application.eventsAttended;
+  }
 }

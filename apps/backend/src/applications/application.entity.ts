@@ -75,6 +75,11 @@ export class Application {
   @Min(0)
   numApps: number;
 
+  @Column({ default: 0 })
+  @IsPositive()
+  @Min(0)
+  eventsAttended: number;
+
   toGetAllApplicationResponseDTO(
     meanRatingAllReviews,
     meanRatingResume,
