@@ -21,6 +21,7 @@ import { Position, ApplicationStage, ApplicationStep } from './types';
 import { GetAllApplicationResponseDTO } from './dto/get-all-application.response.dto';
 import { stagesMap } from './applications.constants';
 import { UpdateApplicationRequestDTO } from './dto/update-application.request.dto';
+import { UpdateEventsAttendedRequestDTO } from './dto/update-events-attended.request.dto';
 
 @Injectable()
 export class ApplicationsService {
@@ -240,10 +241,7 @@ export class ApplicationsService {
     return currentApp;
   }
 
-  async findOne(
-    currentApplication: Application,
-    applicationId: number,
-  ): Promise<Application> {
+  async findOne(applicationId: number): Promise<Application> {
     const application = await this.applicationsRepository.findOne({
       where: { id: applicationId },
     });
@@ -262,7 +260,7 @@ export class ApplicationsService {
     applicationId: number,
     updateApplicationDTO: UpdateApplicationRequestDTO,
   ): Promise<Application> {
-    await this.findOne(currentApplication, applicationId);
+    await this.findOne(applicationId);
 
     try {
       await this.applicationsRepository.update(
@@ -273,13 +271,11 @@ export class ApplicationsService {
       throw new BadRequestException('Cannot update application');
     }
 
-    return await this.findOne(currentApplication, applicationId);
+    return await this.findOne(applicationId);
   }
 
   async obtainEventsAttended(applicationId: number): Promise<number> {
-    const application = await this.applicationsRepository.findOne({
-      where: { id: applicationId },
-    });
+    const application = await this.findOne(applicationId);
 
     return application.eventsAttended;
   }

@@ -24,6 +24,7 @@ import { Application } from './application.entity';
 import { GetAllApplicationResponseDTO } from './dto/get-all-application.response.dto';
 import { ApplicationStep } from './types';
 import { UpdateApplicationRequestDTO } from './dto/update-application.request.dto';
+import { UpdateEventsAttendedRequestDTO } from './dto/update-events-attended.request.dto';
 
 @Controller('apps')
 @UseInterceptors(CurrentUserInterceptor)
@@ -139,25 +140,23 @@ export class ApplicationsController {
     return app.toGetApplicationResponseDTO(apps.length, applicationStep);
   }
 
-  // TODO: Update DTOs
   @Patch('/:applicantId')
+  @UseGuards(AuthGuard('jwt'))
   async updateApplication(
     @Body() updateApplicationDTO: UpdateApplicationRequestDTO,
     @Param('applicantId', ParseIntPipe) applicantId: number,
     @Request() req,
   ): Promise<GetApplicationResponseDTO> {
     if (req.user.status !== UserStatus.ADMIN) {
-      throw new UnauthorizedException(
-        'Only admins can assign recruiters to applicants',
-      );
+      throw new UnauthorizedException('Only admins can update an application');
     }
 
-    const newApplicant = await this.applicationsService.updateApplication(
+    const newApplication = await this.applicationsService.updateApplication(
       req.application,
       applicantId,
       updateApplicationDTO,
     );
 
-    return toGetApplicationResponseDTO(newApplicant);
+    return toGetApplicationResponseDTO(newApplication);
   }
 }

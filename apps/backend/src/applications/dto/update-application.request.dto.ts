@@ -13,6 +13,7 @@ import {
   IsObject,
   IsOptional,
   IsPositive,
+  Min,
 } from 'class-validator';
 
 export class UpdateApplicationRequestDTO {
@@ -45,4 +46,9 @@ export class UpdateApplicationRequestDTO {
   @IsOptional()
   @IsPositive()
   numApps: number;
+
+  @IsOptional()
+  @IsPositive()
+  @Min(0)
+  eventsAttended: number;
 }
