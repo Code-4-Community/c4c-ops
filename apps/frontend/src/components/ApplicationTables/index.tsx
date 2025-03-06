@@ -20,6 +20,7 @@ import { ApplicationRow, Application, Semester, User } from '../types';
 import apiClient from '@api/apiClient';
 import { applicationColumns } from './columns';
 import { ReviewModal } from './reviewModal';
+import { ConfirmModal } from './confirmModal';
 import useLoginContext from '@components/LoginPage/useLoginContext';
 import { light } from '@mui/material/styles/createPalette';
 
@@ -57,6 +58,7 @@ export function ApplicationTable() {
     useState<Application | null>(null);
 
   const [openReviewModal, setOpenReviewModal] = useState(false);
+  const [openConfirmModal, setOpenConfirmModal] = useState(false);
 
   const handleOpenReviewModal = () => {
     setOpenReviewModal(true);
@@ -121,6 +123,10 @@ export function ApplicationTable() {
       */
   };
 
+  const handleOpenConfirmModal = () => {
+    setOpenConfirmModal(true);
+  };
+
   return (
     <Container maxWidth="xl">
       <Typography variant="h4" mb={1}>
@@ -181,6 +187,9 @@ export function ApplicationTable() {
               Applications: {selectedApplication.numApps}
             </Typography>
             <Typography variant="body1">Recruiters:</Typography>
+            <Typography>
+              # Events Attended: {selectedApplication.eventsAttended}
+            </Typography>
           </Stack>
           <Autocomplete
             multiple
@@ -209,6 +218,19 @@ export function ApplicationTable() {
             renderInput={(params) => (
               <TextField {...params} label="Assign Recruiter(s)" />
             )}
+          />
+          <Button
+            variant="contained"
+            size="small"
+            onClick={handleOpenConfirmModal}
+          >
+            Check Into Event
+          </Button>
+          <ConfirmModal
+            open={openConfirmModal}
+            setOpen={setOpenConfirmModal}
+            selectedApplication={selectedApplication}
+            accessToken={accessToken}
           />
           <Typography variant="body1" mt={1}>
             Application Responses

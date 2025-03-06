@@ -24,7 +24,6 @@ import { Application } from './application.entity';
 import { GetAllApplicationResponseDTO } from './dto/get-all-application.response.dto';
 import { ApplicationStep } from './types';
 import { UpdateApplicationRequestDTO } from './dto/update-application.request.dto';
-import { UpdateEventsAttendedRequestDTO } from './dto/update-events-attended.request.dto';
 
 @Controller('apps')
 @UseInterceptors(CurrentUserInterceptor)

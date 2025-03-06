@@ -96,6 +96,7 @@ type Application = {
   numApps: number;
   reviews: Review[];
   assignedRecruiters: User[];
+  eventsAttended: number;
 };
 
 type User = {

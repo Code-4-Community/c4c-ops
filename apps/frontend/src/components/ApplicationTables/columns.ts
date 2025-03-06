@@ -44,4 +44,9 @@ export const applicationColumns = [
     headerName: 'Rating Single Stage',
     width: 150,
   },
+  {
+    field: 'eventsAttended',
+    headerName: 'Events Attended',
+    width: 150,
+  },
 ];

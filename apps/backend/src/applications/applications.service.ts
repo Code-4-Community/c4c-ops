@@ -21,7 +21,6 @@ import { Position, ApplicationStage, ApplicationStep } from './types';
 import { GetAllApplicationResponseDTO } from './dto/get-all-application.response.dto';
 import { stagesMap } from './applications.constants';
 import { UpdateApplicationRequestDTO } from './dto/update-application.request.dto';
-import { UpdateEventsAttendedRequestDTO } from './dto/update-events-attended.request.dto';
 
 @Injectable()
 export class ApplicationsService {

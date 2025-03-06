@@ -86,6 +86,33 @@ export class ApiClient {
     }) as Promise<void>;
   }
 
+  public async getNumEventsAttended(
+    accessToken: string,
+    applicationId: number,
+  ): Promise<number> {
+    return this.get(`/api/apps/events/${applicationId}`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }) as Promise<number>;
+  }
+
+  public async checkApplicantIn(
+    accessToken: string,
+    applicationId: number,
+    currNumEventsAttended: number,
+  ): Promise<void> {
+    return this.patch(
+      `/api/apps/${applicationId}`,
+      { eventsAttended: currNumEventsAttended + 1 },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+    ) as Promise<void>;
+  }
+
   private async get(
     path: string,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -107,9 +134,13 @@ export class ApiClient {
       .then((response) => response.data);
   }
 
-  private async patch(path: string, body: unknown): Promise<unknown> {
+  private async patch(
+    path: string,
+    body: unknown,
+    headers: AxiosRequestConfig<unknown> | undefined = undefined,
+  ): Promise<unknown> {
     return this.axiosInstance
-      .patch(path, body)
+      .patch(path, body, headers)
       .then((response) => response.data);
   }
 
@@ -119,3 +150,11 @@ export class ApiClient {
 }
 
 export default new ApiClient();
+
+/*
+To implement check-in process:
+
+- Display "Check-in to event" button for a selected applicant
+- Upon button press, show modal to confirm check-in
+- Send patch request, incrementing eventsAttended
+*/

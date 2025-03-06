@@ -1,5 +1,4 @@
 import { User } from '../../users/user.entity';
-import { Application } from '../application.entity';
 import {
   Semester,
   Position,
