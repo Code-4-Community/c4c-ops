@@ -1,6 +1,6 @@
 import { Button, Dialog, DialogTitle, DialogActions } from '@mui/material';
 import apiClient from '@api/apiClient';
-import { Application } from '@components/types';
+import { Application, ApplicationRow } from '@components/types';
 
 interface ConfirmModalProps {
   open: boolean;

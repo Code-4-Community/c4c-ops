@@ -30,4 +30,6 @@ export class GetApplicationResponseDTO {
   reviews: Review[];
 
   numApps: number;
+
+  eventsAttended: number;
 }

@@ -22,7 +22,6 @@ import { applicationColumns } from './columns';
 import { ReviewModal } from './reviewModal';
 import { ConfirmModal } from './confirmModal';
 import useLoginContext from '@components/LoginPage/useLoginContext';
-import { light } from '@mui/material/styles/createPalette';
 
 const TODAY = new Date();
 
@@ -108,20 +107,6 @@ export function ApplicationTable() {
       setSelectedUserRow(data[rowSelection[0] as number]);
     }
   }, [rowSelection, data]);
-
-  const handleRecruitersChange = async (
-    event: React.SyntheticEvent,
-    value: User[],
-  ) => {
-    event.preventDefault();
-
-    // TODO: This should call updateApplicant, which needs to be implemented
-    /*
-    if (selectedApplication) {
-      await apiClient.updateApplicant(accessToken, selectedApplication.id, value);
-    }
-      */
-  };
 
   const handleOpenConfirmModal = () => {
     setOpenConfirmModal(true);

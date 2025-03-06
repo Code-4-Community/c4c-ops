@@ -150,11 +150,3 @@ export class ApiClient {
 }
 
 export default new ApiClient();
-
-/*
-To implement check-in process:
-
-- Display "Check-in to event" button for a selected applicant
-- Upon button press, show modal to confirm check-in
-- Send patch request, incrementing eventsAttended
-*/

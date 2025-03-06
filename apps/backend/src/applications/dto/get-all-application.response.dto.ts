@@ -41,4 +41,7 @@ export class GetAllApplicationResponseDTO {
 
   @IsPositive()
   meanRatingInterview: number;
+
+  @IsPositive()
+  eventsAttended: number;
 }

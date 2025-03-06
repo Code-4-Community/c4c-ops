@@ -102,6 +102,7 @@ export class Application {
       meanRatingChallenge,
       meanRatingTechnicalChallenge,
       meanRatingInterview,
+      eventsAttended: this.eventsAttended,
     };
   }
 
@@ -121,6 +122,7 @@ export class Application {
       recruiters: this.recruiters,
       reviews: this.reviews,
       numApps,
+      eventsAttended: this.eventsAttended,
     };
   }
 }

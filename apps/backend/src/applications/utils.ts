@@ -51,5 +51,6 @@ export const toGetApplicationResponseDTO = (
     recruiters: application.recruiters,
     reviews: application.reviews,
     numApps: application.numApps,
+    eventsAttended: application.eventsAttended,
   };
 };

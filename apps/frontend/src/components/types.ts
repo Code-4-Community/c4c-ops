@@ -60,8 +60,10 @@ type ApplicationRow = {
   step: ApplicationStep;
   position: Position;
   createdAt: string;
+  assignedRecruiters: User[];
   meanRatingAllStages: number;
   meanRatingSingleStages: number;
+  eventsAttended: number;
 };
 
 type Response = {
