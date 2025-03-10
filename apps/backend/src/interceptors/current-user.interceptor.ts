@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { AuthService } from '../auth/auth.service';
 import { UsersService } from '../users/users.service';
+import { UpdatedAttributeType } from '../auth/auth.utils';
 
 @Injectable()
 export class CurrentUserInterceptor implements NestInterceptor {
@@ -18,17 +19,29 @@ export class CurrentUserInterceptor implements NestInterceptor {
     const request = context.switchToHttp().getRequest();
 
     if (request.user?.idUser != null) {
-      const cognitoUserAttributes = await this.authService.getUserAttributes(
+      // Fetch both username and attributes from Cognito
+      const {
+        username,
+        attributes: cognitoUserAttributes
+      }: UpdatedAttributeType = await this.authService.getUserAttributes(
         request.user.idUser,
       );
-      const userEmail = cognitoUserAttributes.find(
-        (attribute) => attribute.Name === 'email',
-      ).Value;
-      const name = cognitoUserAttributes
-        .find((attribute) => attribute.Name === 'name')
-        .Value.split(' ');
 
-      const [firstName, lastName] = [name[0], name.at(-1)];
+      // Retrieve name and email
+      const userEmail = cognitoUserAttributes.find(
+        (attr) => attr.Name === 'email',
+      )?.Value;
+      const fullName = cognitoUserAttributes
+        .find((attr) => attr.Name === 'name')?.Value;
+      
+      // Validates that both the email and name are found
+      if (!userEmail || !fullName) {
+        throw new Error('Required Cognito attributes not found');
+      }
+
+      const nameParts = fullName.split(' ');
+      const firstName = nameParts[0];
+      const lastName = nameParts.length > 1 ? nameParts.at(-1) : '';
 
       // check if the cognito user has a corresponding user in the database
       const users = await this.usersService.findByEmail(userEmail);

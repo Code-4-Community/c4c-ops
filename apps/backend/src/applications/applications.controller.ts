@@ -68,6 +68,7 @@ export class ApplicationsController {
   async getApplications(
     @Request() req,
   ): Promise<GetAllApplicationResponseDTO[]> {
+    console.log('applications', req.user);
     if (
       !(
         req.user.status === UserStatus.RECRUITER ||
@@ -103,7 +104,6 @@ export class ApplicationsController {
         `User with ID ${userId} hasn't applied this semester`,
       );
     }
-
     let applicationStep = null;
 
     // Tthe application step

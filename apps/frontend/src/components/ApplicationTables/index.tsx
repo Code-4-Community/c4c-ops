@@ -9,6 +9,8 @@ import {
   ListItemText,
   ListItemIcon,
   Button,
+  Select,
+  MenuItem,
 } from '@mui/material';
 import { DoneOutline } from '@mui/icons-material';
 
@@ -50,6 +52,18 @@ export function ApplicationTable() {
 
   const handleOpenReviewModal = () => {
     setOpenReviewModal(true);
+  };
+
+  const deleteUserFromRow = async (userId: number) => {
+    try {
+      await apiClient.deleteUser(accessToken, userId);
+      setSelectedApplication(null);
+      setRowSelection([]); // Reset selection after deletion
+      fetchData(); // Refresh the application list
+    } catch (error) {
+      alert('Failed to delete user.');
+      console.error('Error deleting user:', error);
+    }
   };
 
   const fetchData = async () => {
@@ -195,6 +209,21 @@ export function ApplicationTable() {
             >
               Start Review
             </Button>
+
+            <Button
+              variant="contained"
+              size="small"
+              onClick={(event) => {
+                if (selectedUserRow?.userId) {
+                  deleteUserFromRow(selectedUserRow.userId);
+                } else {
+                  alert('No user selected.');
+                }
+              }}
+            >
+              Delete User
+            </Button>
+
           </Stack>
           <ReviewModal
             open={openReviewModal}
