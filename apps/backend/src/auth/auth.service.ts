@@ -19,6 +19,7 @@ import { SignUpRequestDTO } from './dtos/sign-up.request.dto';
 import { SignInRequestDto } from './dtos/sign-in.request.dto';
 import { SignInResponseDto } from './dtos/sign-in.response.dto';
 import { TokenExchangeResponseDTO } from './dtos/token-exchange.response.dto';
+import { UpdatedAttributeType } from '../auth/auth.utils';
 
 @Injectable()
 export class AuthService {
@@ -40,18 +41,23 @@ export class AuthService {
     });
   }
 
-  async getUserAttributes(userSub: string): Promise<AttributeType[]> {
+  async getUserAttributes(userSub: string): Promise<UpdatedAttributeType> {
     const listUsersCommand = new ListUsersCommand({
       UserPoolId: CognitoAuthConfig.userPoolId,
       Filter: `sub = "${userSub}"`,
     });
 
     const { Users } = await this.providerClient.send(listUsersCommand);
-    if (Users.length === 0) {
+    if (!Users || Users.length === 0) {
       throw new BadRequestException('The given bearer token is invalid');
     }
 
-    return Users[0].Attributes;
+    const user = Users[0];
+
+    return {
+      username: user.Username,
+      attributes: user.Attributes,
+    } 
   }
 
   signup({
