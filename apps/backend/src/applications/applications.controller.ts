@@ -7,6 +7,7 @@ import {
   UseInterceptors,
   UseGuards,
   Post,
+  Patch,
   Body,
   BadRequestException,
   NotFoundException,
@@ -17,11 +18,12 @@ import { ApplicationsService } from './applications.service';
 import { CurrentUserInterceptor } from '../interceptors/current-user.interceptor';
 import { AuthGuard } from '@nestjs/passport';
 import { GetApplicationResponseDTO } from './dto/get-application.response.dto';
-import { getAppForCurrentCycle } from './utils';
+import { getAppForCurrentCycle, toGetApplicationResponseDTO } from './utils';
 import { UserStatus } from '../users/types';
 import { Application } from './application.entity';
 import { GetAllApplicationResponseDTO } from './dto/get-all-application.response.dto';
 import { ApplicationStep } from './types';
+import { UpdateApplicationRequestDTO } from './dto/update-application.request.dto';
 
 @Controller('apps')
 @UseInterceptors(CurrentUserInterceptor)
@@ -81,6 +83,27 @@ export class ApplicationsController {
     return this.applicationsService.findAllCurrentApplications();
   }
 
+  // To handle GET requests for the number of events attended by an applicant
+  // if the calling user is a recruiter or admin
+  @Get('/events/:appId')
+  @UseGuards(AuthGuard('jwt'))
+  async getEventsAttended(
+    @Param('appId', ParseIntPipe) applicantId: number,
+    @Request() req,
+  ): Promise<number> {
+    if (
+      !(
+        req.user.status === UserStatus.RECRUITER ||
+        req.user.status === UserStatus.ADMIN
+      )
+    ) {
+      throw new UnauthorizedException(
+        'Calling user is not a recruiter or admin',
+      );
+    }
+    return this.applicationsService.obtainEventsAttended(applicantId);
+  }
+
   @Get('/:userId')
   @UseGuards(AuthGuard('jwt'))
   async getApplication(
@@ -114,5 +137,25 @@ export class ApplicationsController {
     }
 
     return app.toGetApplicationResponseDTO(apps.length, applicationStep);
+  }
+
+  @Patch('/:applicantId')
+  @UseGuards(AuthGuard('jwt'))
+  async updateApplication(
+    @Body() updateApplicationDTO: UpdateApplicationRequestDTO,
+    @Param('applicantId', ParseIntPipe) applicantId: number,
+    @Request() req,
+  ): Promise<GetApplicationResponseDTO> {
+    if (req.user.status !== UserStatus.ADMIN) {
+      throw new UnauthorizedException('Only admins can update an application');
+    }
+
+    const newApplication = await this.applicationsService.updateApplication(
+      req.application,
+      applicantId,
+      updateApplicationDTO,
+    );
+
+    return toGetApplicationResponseDTO(newApplication);
   }
 }

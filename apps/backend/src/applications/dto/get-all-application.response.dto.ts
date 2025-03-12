@@ -1,5 +1,6 @@
-import { IsDate, IsEnum, IsPositive, IsString } from 'class-validator';
+import { IsArray, IsDate, IsEnum, IsPositive, IsString } from 'class-validator';
 import { ApplicationStage, ApplicationStep, Position } from '../types';
+import { User } from '../../users/user.entity';
 
 export class GetAllApplicationResponseDTO {
   @IsPositive()
@@ -23,6 +24,9 @@ export class GetAllApplicationResponseDTO {
   @IsDate()
   createdAt: Date;
 
+  @IsArray()
+  recruiters: User[];
+
   @IsPositive()
   meanRatingAllReviews: number;
 
@@ -37,4 +41,7 @@ export class GetAllApplicationResponseDTO {
 
   @IsPositive()
   meanRatingInterview: number;
+
+  @IsPositive()
+  eventsAttended: number;
 }
