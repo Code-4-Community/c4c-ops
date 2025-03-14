@@ -1,5 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { DataGrid, GridRowSelectionModel } from '@mui/x-data-grid';
+import { Cycle } from '../../../../backend/src/applications/dto/cycle';
+import { getCurrentCycle } from '../../../../backend/src/applications/utils';
 import {
   Container,
   Typography,
@@ -9,10 +11,15 @@ import {
   ListItemText,
   ListItemIcon,
   Button,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Dialog,
 } from '@mui/material';
 import { DoneOutline } from '@mui/icons-material';
 
 import { ApplicationRow, Application, Semester } from '../types';
+import { User } from '../../../../backend/src/users/user.entity'
 import apiClient from '@api/apiClient';
 import { applicationColumns } from './columns';
 import { ReviewModal } from './reviewModal';
@@ -45,8 +52,43 @@ export function ApplicationTable() {
   );
   const [selectedApplication, setSelectedApplication] =
     useState<Application | null>(null);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   const [openReviewModal, setOpenReviewModal] = useState(false);
+  const [previousApps, setPreviousApps] = useState<{ position: string; semester: string; year: number}[]>([]);
+const [open, setOpen] = useState(false);
+
+const handleOpenAppModal = async () => {
+  if (!selectedUser) return;
+
+  try {
+    const response = await fetch(`/api/apps/user/${selectedUser.id}`);
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`);
+    }
+
+    const applications = await response.json();
+
+    if (!Array.isArray(applications)) {
+      throw new Error("Applications data is not an array");
+    }
+
+    // Get the current cycle
+    const currentCycle = getCurrentCycle();
+
+    // Filter out applications from the current cycle
+    const previousApps = applications.filter((app) => {
+      const appCycle = new Cycle(app.year, app.semester);
+      return !appCycle.isCurrentCycle(currentCycle);
+    });
+
+    setPreviousApps(previousApps);
+    setOpen(true);
+  } catch (error) {
+    console.error("Error fetching applications:", error);
+  }
+};
+
 
   const handleOpenReviewModal = () => {
     setOpenReviewModal(true);
@@ -67,6 +109,12 @@ export function ApplicationTable() {
     try {
       const application = await apiClient.getApplication(accessToken, userId);
       setSelectedApplication(application);
+
+      if (application.user) {
+        setSelectedUser(application.user);
+      } else {
+        console.warn("User not found in application response");
+      }
     } catch (error) {
       console.error('Error fetching application:', error);
       alert('Failed to fetch application details.');
@@ -114,7 +162,8 @@ export function ApplicationTable() {
         pageSizeOptions={[5, 10]}
         onRowSelectionModelChange={(newRowSelectionModel) => {
           setRowSelection(newRowSelectionModel);
-          getApplication(data[newRowSelectionModel[0] as number].userId);
+          const selectedRow = data[newRowSelectionModel[0] as number];
+          getApplication(selectedRow.userId);
         }}
         rowSelectionModel={rowSelection}
       />
@@ -148,8 +197,32 @@ export function ApplicationTable() {
               Status: {selectedApplication.step}
             </Typography>
             <Typography variant="body1">
-              Applications: {selectedApplication.numApps}
+              Total Applications Submitted: {selectedUser ? selectedUser.numApps : ''}
             </Typography>
+            <Button variant="contained" size="small" onClick={handleOpenAppModal}>
+            Previous Applications
+          </Button>
+
+          <Dialog open={open} onClose={() => setOpen(false)}>
+  <DialogTitle>Previous Applications</DialogTitle>
+  <DialogContent>
+    {previousApps.length > 0 ? (
+      <List>
+        {previousApps.map((app, index) => (
+          <ListItem key={index}>
+            <ListItemText primary={`Position: ${app.position}`} secondary={`Semester: ${app.semester} ${app.year}`} />
+          </ListItem>
+        ))}
+      </List>
+    ) : (
+      <Typography>No previous applications found.</Typography>
+    )}
+  </DialogContent>
+  <DialogActions>
+    <Button onClick={() => setOpen(false)}>Close</Button>
+  </DialogActions>
+</Dialog>
+
           </Stack>
           <Typography variant="body1" mt={1}>
             Application Responses

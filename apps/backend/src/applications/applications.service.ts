@@ -19,12 +19,17 @@ import { User } from '../users/user.entity';
 import { Position, ApplicationStage, ApplicationStep } from './types';
 import { GetAllApplicationResponseDTO } from './dto/get-all-application.response.dto';
 import { stagesMap } from './applications.constants';
+import { GetApplicationResponseDTO } from './dto/get-application.response.dto';
 
 @Injectable()
 export class ApplicationsService {
   constructor(
     @InjectRepository(Application)
     private readonly applicationsRepository: Repository<Application>,
+
+    @InjectRepository(User)
+    private readonly usersRepository: Repository<User>,
+    
     private readonly usersService: UsersService,
   ) {}
 
@@ -41,12 +46,14 @@ export class ApplicationsService {
     const { applications: existingApplications } = user;
     const { year, semester } = getCurrentCycle();
 
+    
     // TODO Maybe allow for more applications?
     if (getAppForCurrentCycle(existingApplications)) {
       throw new UnauthorizedException(
         `Applicant ${user.id} has already submitted an application for the current cycle`,
       );
     }
+      
 
     const newApplication: Application = this.applicationsRepository.create({
       user,
@@ -60,8 +67,20 @@ export class ApplicationsService {
       reviews: [],
     });
 
-    return await this.applicationsRepository.save(newApplication);
+    await this.applicationsRepository.save(newApplication);
+
+    await this.usersRepository.increment({ id: user.id }, 'numApps', 1);
+
+    return newApplication;
   }
+
+  async getUserApplications(userId: number): Promise<Partial<Application>[]> {
+    return this.applicationsRepository.find({
+      where: { user: { id: userId } },
+      select: ['position', 'semester', 'year'], 
+    });
+  }
+  
 
   /**
    * Verifies that this endpoint is being called from our Google Forms.
@@ -133,6 +152,12 @@ export class ApplicationsService {
     });
     return apps;
   }
+
+  async findAllApplicationsForUser(userId: number): Promise<Application[]> {
+    return this.applicationsRepository.find({
+      where: { user: { id: userId } },
+    });
+  }  
 
   async findAllCurrentApplications(): Promise<GetAllApplicationResponseDTO[]> {
     const applications = await this.applicationsRepository.find({
@@ -217,7 +242,10 @@ export class ApplicationsService {
   }
 
   async findCurrent(userId: number): Promise<Application> {
-    const apps = await this.findAll(userId);
+    const apps = await this.applicationsRepository.find({
+      where: { user: { id: userId } },
+      relations: ['user', 'reviews'],
+    });
     const currentApp = getAppForCurrentCycle(apps);
 
     if (currentApp == null) {

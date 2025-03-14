@@ -8,6 +8,7 @@ import { UsersService } from '../users/users.service';
 import { User } from '../users/user.entity';
 import { JwtStrategy } from './jwt.strategy';
 import { CurrentUserInterceptor } from '../interceptors/current-user.interceptor';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [

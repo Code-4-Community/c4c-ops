@@ -52,6 +52,7 @@ enum Semester {
 }
 
 type Application = {
+  user: any;
   id: number;
   createdAt: Date;
   year: number;

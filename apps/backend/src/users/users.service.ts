@@ -9,12 +9,13 @@ import { Not, Repository } from 'typeorm';
 import { User } from './user.entity';
 import { UpdateUserRequestDTO } from './dto/update-user.request.dto';
 import { UserStatus } from './types';
+import { Application } from '../applications/application.entity';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
-    private usersRepository: Repository<User>,
+    private usersRepository: Repository<User>, 
   ) {}
 
   async create(
@@ -27,6 +28,7 @@ export class UsersService {
       firstName,
       lastName,
       email,
+      numApps: 0,
     });
 
     return this.usersRepository.save(user);

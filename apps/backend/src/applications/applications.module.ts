@@ -3,14 +3,16 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ApplicationsService } from './applications.service';
 import { ApplicationsController } from './applications.controller';
 import { Application } from './application.entity';
-import { UsersService } from '../users/users.service';
 import { User } from '../users/user.entity';
+import { FileUpload } from '../file-upload/entities/file-upload.entity';
+import { UsersService } from '../users/users.service';
 import { JwtStrategy } from '../auth/jwt.strategy';
 import { CurrentUserInterceptor } from '../interceptors/current-user.interceptor';
 import { AuthService } from '../auth/auth.service';
+import { UsersModule } from '../users/users.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Application, User])],
+  imports: [TypeOrmModule.forFeature([Application, User, FileUpload]), UsersModule],
   controllers: [ApplicationsController],
   providers: [
     ApplicationsService,

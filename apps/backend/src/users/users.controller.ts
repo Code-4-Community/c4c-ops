@@ -74,6 +74,7 @@ export class UsersController {
     return toGetUserResponseDto(newUser);
   }
 
+
   // TODO test this endpoint
   @Delete('/:userId')
   removeUser(@Param('userId', ParseIntPipe) userId: number, @Request() req) {
