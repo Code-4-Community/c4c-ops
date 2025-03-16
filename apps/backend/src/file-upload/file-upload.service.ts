@@ -58,10 +58,6 @@ export class FileUploadService {
 
     await this.fileRepository.save(uploadedFile);
 
-<<<<<<< HEAD
-=======
-    console.log('File uploaded:', uploadedFile);
->>>>>>> main
     return { message: 'File uploaded successfully', fileId: uploadedFile.id };
   }
 }
