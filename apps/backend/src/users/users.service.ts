@@ -15,7 +15,7 @@ import { Application } from '../applications/application.entity';
 export class UsersService {
   constructor(
     @InjectRepository(User)
-    private usersRepository: Repository<User>, 
+    private usersRepository: Repository<User>,
   ) {}
 
   async create(

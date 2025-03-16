@@ -45,7 +45,6 @@ export class ApplicationsController {
     return this.applicationsService.getUserApplications(Number(userId));
   }
 
-
   @Post('/decision/:appId')
   @UseGuards(AuthGuard('jwt'))
   async makeDecision(
@@ -111,6 +110,4 @@ export class ApplicationsController {
 
     return app.toGetApplicationResponseDTO(apps.length);
   }
-
-  
 }

@@ -14,7 +14,11 @@ import { ApplicationsModule } from '../applications/applications.module';
 import { UsersModule } from '../users/users.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Review, Application, User]), ApplicationsModule, UsersModule],
+  imports: [
+    TypeOrmModule.forFeature([Review, Application, User]),
+    ApplicationsModule,
+    UsersModule,
+  ],
   controllers: [ReviewsController],
   providers: [
     ReviewsService,

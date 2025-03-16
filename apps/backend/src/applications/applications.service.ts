@@ -29,7 +29,7 @@ export class ApplicationsService {
 
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
-    
+
     private readonly usersService: UsersService,
   ) {}
 
@@ -46,14 +46,12 @@ export class ApplicationsService {
     const { applications: existingApplications } = user;
     const { year, semester } = getCurrentCycle();
 
-    
     // TODO Maybe allow for more applications?
     if (getAppForCurrentCycle(existingApplications)) {
       throw new UnauthorizedException(
         `Applicant ${user.id} has already submitted an application for the current cycle`,
       );
     }
-      
 
     const newApplication: Application = this.applicationsRepository.create({
       user,
@@ -77,10 +75,9 @@ export class ApplicationsService {
   async getUserApplications(userId: number): Promise<Partial<Application>[]> {
     return this.applicationsRepository.find({
       where: { user: { id: userId } },
-      select: ['position', 'semester', 'year'], 
+      select: ['position', 'semester', 'year'],
     });
   }
-  
 
   /**
    * Verifies that this endpoint is being called from our Google Forms.
@@ -157,7 +154,7 @@ export class ApplicationsService {
     return this.applicationsRepository.find({
       where: { user: { id: userId } },
     });
-  }  
+  }
 
   async findAllCurrentApplications(): Promise<GetAllApplicationResponseDTO[]> {
     const applications = await this.applicationsRepository.find({
