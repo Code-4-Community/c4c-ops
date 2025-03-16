@@ -1,4 +1,4 @@
-import { User } from "../../../backend/src/users/user.entity";
+import { User } from '@backend/users/user.entity';
 
 enum ApplicationStage {
   RESUME = 'RESUME',

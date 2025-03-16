@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { DataGrid, GridRowSelectionModel } from '@mui/x-data-grid';
-import Cycle from '@backend/dto/cycle';
-import getCurrentCycle from '@backend/src/applications/utils';
+import { Cycle } from '@backend/applications/dto/cycle';
+import { getCurrentCycle } from '@backend/applications/utils';
 import {
   Container,
   Typography,
@@ -19,7 +19,7 @@ import {
 import { DoneOutline } from '@mui/icons-material';
 
 import { ApplicationRow, Application, Semester } from '../types';
-import  User  from '@backend/src/users/user.entity';
+import { User } from '@backend/users/user.entity';
 import apiClient from '@api/apiClient';
 import { applicationColumns } from './columns';
 import { ReviewModal } from './reviewModal';
