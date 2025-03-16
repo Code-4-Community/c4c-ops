@@ -1,3 +1,5 @@
+import { User } from "../../../backend/src/users/user.entity";
+
 enum ApplicationStage {
   RESUME = 'RESUME',
   INTERVIEW = 'INTERVIEW',
@@ -52,7 +54,7 @@ enum Semester {
 }
 
 type Application = {
-  user: any;
+  user: User;
   id: number;
   createdAt: Date;
   year: number;

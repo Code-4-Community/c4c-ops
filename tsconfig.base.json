@@ -14,7 +14,9 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
-    "paths": {}
+    "paths": {
+      "@backend/*": ["backend/src/*"]
+    }
   },
   "exclude": ["node_modules", "tmp"]
 }
