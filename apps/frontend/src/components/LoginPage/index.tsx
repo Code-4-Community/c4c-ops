@@ -3,23 +3,41 @@ import apiClient from '@api/apiClient';
 import useLoginContext from './useLoginContext';
 import { useNavigate } from 'react-router-dom';
 import { Button, Stack } from '@mui/material';
+import { CognitoJwtVerifier } from 'aws-jwt-verify';
 
-/**
- * Login Page component first checks if the user has been redirected from the
- * Cognito login page with an authorization code. If the code is present, it
- * fetches the user's access token and stores it in the context.
- */
+const verifier = CognitoJwtVerifier.create({
+  userPoolId: import.meta.env.VITE_COGNITO_USER_POOL_ID as string,
+  tokenUse: 'access',
+  clientId: import.meta.env.VITE_COGNITO_CLIENT_ID as string,
+});
+
 export default function LoginPage() {
   const { setToken } = useLoginContext();
   const navigate = useNavigate();
+
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const authCode = urlParams.get('code');
 
     async function getToken() {
-      if (authCode) {
+      const sessionToken = sessionStorage.getItem('token');
+
+      if (sessionToken) {
+        try {
+          const token = JSON.parse(sessionToken);
+          await verifier.verify(token);
+          setToken(token);
+          navigate('/');
+        } catch (error) {
+          console.log('Error verifying token:', error);
+          sessionStorage.removeItem('token');
+        }
+      } else if (authCode) {
         try {
           const token = await apiClient.getToken(authCode);
+          console.log('Fetched Token:', token);
+
+          sessionStorage.setItem('token', JSON.stringify(token));
           setToken(token);
           navigate('/');
         } catch (error) {
@@ -29,6 +47,7 @@ export default function LoginPage() {
     }
     getToken();
   }, [navigate, setToken]);
+
   return (
     <Stack
       width="100vw"

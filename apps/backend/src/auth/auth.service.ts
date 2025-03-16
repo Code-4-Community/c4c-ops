@@ -197,6 +197,11 @@ export class AuthService {
     const res = await axios
       .post(tokenExchangeEndpoint, urlEncodedBody)
       .catch((err) => {
+        console.error(
+          'Cognito Token Fetch Error:',
+          err.response?.data || err.message,
+        );
+        console.error('Full Error Details:', err.toJSON ? err.toJSON() : err);
         throw new Error(`Error while fetching tokens from cognito: ${err}`);
       });
     const tokens = res.data as TokenExchangeResponseDTO;

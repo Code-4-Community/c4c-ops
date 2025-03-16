@@ -18,6 +18,10 @@ export class FileUploadService {
   ) {}
 
   async handleFileUpload(file: Express.Multer.File, applicationId: number) {
+<<<<<<< HEAD
+=======
+    console.log('Received file:', file);
+>>>>>>> main
     if (!file) {
       throw new BadRequestException('No file uploaded');
     }
@@ -58,6 +62,10 @@ export class FileUploadService {
 
     await this.fileRepository.save(uploadedFile);
 
+<<<<<<< HEAD
+=======
+    console.log('File uploaded:', uploadedFile);
+>>>>>>> main
     return { message: 'File uploaded successfully', fileId: uploadedFile.id };
   }
 }
