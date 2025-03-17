@@ -13,7 +13,6 @@
   "compilerOptions": {
     "esModuleInterop": true,
     "types": ["node", "Multer"],
-    "strictPropertyInitialization": false,
-    "strict": true
+    "strictPropertyInitialization": false
   }
 }
