@@ -98,7 +98,7 @@ export class Application {
 
   toGetApplicationResponseDTO(
     numApps: number,
-    applicationStep,
+    applicationStep: ApplicationStep,
   ): GetApplicationResponseDTO {
     return {
       id: this.id,
