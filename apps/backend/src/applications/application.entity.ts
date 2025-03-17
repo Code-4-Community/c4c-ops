@@ -73,12 +73,12 @@ export class Application {
   reviews: Review[];
 
   toGetAllApplicationResponseDTO(
-    meanRatingAllReviews,
-    meanRatingResume,
-    meanRatingChallenge,
-    meanRatingTechnicalChallenge,
-    meanRatingInterview,
-    applicationStep,
+    meanRatingAllReviews: number,
+    meanRatingResume: number,
+    meanRatingChallenge: number,
+    meanRatingTechnicalChallenge: number,
+    meanRatingInterview: number,
+    applicationStep: ApplicationStep,
   ): GetAllApplicationResponseDTO {
     return {
       userId: this.user.id,
