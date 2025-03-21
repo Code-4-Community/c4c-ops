@@ -57,7 +57,7 @@ export class AuthService {
     return {
       username: user.Username,
       attributes: user.Attributes,
-    } 
+    };
   }
 
   signup({
