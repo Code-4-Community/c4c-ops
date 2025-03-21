@@ -54,9 +54,11 @@ export function ApplicationTable() {
     setOpenReviewModal(true);
   };
 
+  // deletes user from row
   const deleteUserFromRow = async (userId: number) => {
     try {
       await apiClient.deleteUser(accessToken, userId);
+      setSelectedUserRow(null);
       setSelectedApplication(null);
       setRowSelection([]); // Reset selection after deletion
       fetchData(); // Refresh the application list
@@ -78,6 +80,7 @@ export function ApplicationTable() {
   };
 
   const getApplication = async (userId: number) => {
+    if (!userId) return;
     try {
       const application = await apiClient.getApplication(accessToken, userId);
       setSelectedApplication(application);
@@ -228,7 +231,6 @@ export function ApplicationTable() {
               Start Review
             </Button>
 
-<<<<<<< HEAD
             {selectedUserRow && (
               <Button
               // onClick={(event) => changeStage(event, selectedUserRow.userId)}
@@ -236,7 +238,6 @@ export function ApplicationTable() {
                 Move Stage
               </Button>
             )}
-=======
             <Button
               variant="contained"
               size="small"
@@ -250,8 +251,6 @@ export function ApplicationTable() {
             >
               Delete User
             </Button>
-
->>>>>>> f9072e4 (added UpdatesAttributes Type to include username)
           </Stack>
           <ReviewModal
             open={openReviewModal}
