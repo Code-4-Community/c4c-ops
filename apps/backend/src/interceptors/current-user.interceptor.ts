@@ -22,7 +22,7 @@ export class CurrentUserInterceptor implements NestInterceptor {
       // Fetch both username and attributes from Cognito
       const {
         username,
-        attributes: cognitoUserAttributes
+        attributes: cognitoUserAttributes,
       }: UpdatedAttributeType = await this.authService.getUserAttributes(
         request.user.idUser,
       );
@@ -31,9 +31,10 @@ export class CurrentUserInterceptor implements NestInterceptor {
       const userEmail = cognitoUserAttributes.find(
         (attr) => attr.Name === 'email',
       )?.Value;
-      const fullName = cognitoUserAttributes
-        .find((attr) => attr.Name === 'name')?.Value;
-      
+      const fullName = cognitoUserAttributes.find(
+        (attr) => attr.Name === 'name',
+      )?.Value;
+
       // Validates that both the email and name are found
       if (!userEmail || !fullName) {
         throw new Error('Required Cognito attributes not found');
@@ -54,6 +55,7 @@ export class CurrentUserInterceptor implements NestInterceptor {
         user = await this.usersService.create(userEmail, firstName, lastName);
       }
       request.user = user;
+      request.username = username;
     }
 
     return handler.handle();

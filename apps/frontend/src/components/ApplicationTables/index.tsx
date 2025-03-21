@@ -54,9 +54,11 @@ export function ApplicationTable() {
     setOpenReviewModal(true);
   };
 
+  // deletes user from row
   const deleteUserFromRow = async (userId: number) => {
     try {
       await apiClient.deleteUser(accessToken, userId);
+      setSelectedUserRow(null);
       setSelectedApplication(null);
       setRowSelection([]); // Reset selection after deletion
       fetchData(); // Refresh the application list
@@ -78,6 +80,7 @@ export function ApplicationTable() {
   };
 
   const getApplication = async (userId: number) => {
+    if (!userId) return;
     try {
       const application = await apiClient.getApplication(accessToken, userId);
       setSelectedApplication(application);
@@ -223,7 +226,6 @@ export function ApplicationTable() {
             >
               Delete User
             </Button>
-
           </Stack>
           <ReviewModal
             open={openReviewModal}

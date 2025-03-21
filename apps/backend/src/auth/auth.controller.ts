@@ -87,11 +87,12 @@ export class AuthController {
     @Request() req,
   ): Promise<void> {
     const user = await this.usersService.findOne(req.user, userId);
+    console.log(req.username);
     if (user.id !== userId && user.status !== UserStatus.ADMIN) {
       throw new UnauthorizedException();
     }
     try {
-      await this.authService.deleteUser(user.email);
+      await this.authService.deleteUser(req.username);
     } catch (e) {
       throw new BadRequestException(e.message);
     }
