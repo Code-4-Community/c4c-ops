@@ -61,10 +61,7 @@ export class ApiClient {
     })) as Promise<Application>;
   }
 
-  public async deleteUser(
-    accessToken: string,
-    userId: number,
-  ): Promise<void> {
+  public async deleteUser(accessToken: string, userId: number): Promise<void> {
     return this.delete(`/api/auth/delete/${userId}`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -141,7 +138,9 @@ export class ApiClient {
     path: string,
     headers: AxiosRequestConfig<any> | undefined = undefined,
   ): Promise<unknown> {
-    return this.axiosInstance.delete(path, headers).then((response) => response.data);
+    return this.axiosInstance
+      .delete(path, headers)
+      .then((response) => response.data);
   }
 }
 
