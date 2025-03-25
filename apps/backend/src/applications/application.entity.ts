@@ -18,12 +18,20 @@ import {
 import { GetApplicationResponseDTO } from './dto/get-application.response.dto';
 import { Review } from '../reviews/review.entity';
 import { GetAllApplicationResponseDTO } from './dto/get-all-application.response.dto';
+import { FileUpload } from '../file-upload/entities/file-upload.entity';
+import { PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class Application {
-  @Column({ primary: true, generated: true })
+  @PrimaryGeneratedColumn()
   @IsPositive()
   id: number;
+
+  @Column({ nullable: true })
+  content: string;
+
+  @OneToMany(() => FileUpload, (file) => file.application)
+  attachments: FileUpload[];
 
   @ManyToOne(() => User, (user) => user.applications, { nullable: false })
   @JoinColumn()
@@ -70,13 +78,14 @@ export class Application {
     meanRatingChallenge,
     meanRatingTechnicalChallenge,
     meanRatingInterview,
+    applicationStep,
   ): GetAllApplicationResponseDTO {
     return {
       userId: this.user.id,
       firstName: this.user.firstName,
       lastName: this.user.lastName,
       stage: this.stage,
-      step: this.step,
+      step: applicationStep,
       position: this.position,
       createdAt: this.createdAt,
       meanRatingAllReviews,
@@ -87,7 +96,10 @@ export class Application {
     };
   }
 
-  toGetApplicationResponseDTO(numApps: number): GetApplicationResponseDTO {
+  toGetApplicationResponseDTO(
+    numApps: number,
+    applicationStep,
+  ): GetApplicationResponseDTO {
     return {
       id: this.id,
       createdAt: this.createdAt,
@@ -95,7 +107,7 @@ export class Application {
       semester: this.semester,
       position: this.position,
       stage: this.stage,
-      step: this.step,
+      step: applicationStep,
       response: this.response,
       reviews: this.reviews,
       numApps,

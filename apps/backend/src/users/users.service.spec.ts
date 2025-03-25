@@ -1,14 +1,14 @@
 import { NotFoundException } from '@nestjs/common';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Test, TestingModule } from '@nestjs/testing';
-import { MongoRepository } from 'typeorm';
+import { Repository } from 'typeorm';
 
 import { UsersService } from './users.service';
 import { User } from './user.entity';
 import { userFactory } from '../testing/factories/user.factory';
 import { UserStatus } from './types';
 
-const mockUsersRepository: Partial<MongoRepository<User>> = {
+const mockUsersRepository: Partial<Repository<User>> = {
   findOne: jest.fn(),
 };
 

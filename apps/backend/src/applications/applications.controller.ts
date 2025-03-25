@@ -21,6 +21,7 @@ import { getAppForCurrentCycle } from './utils';
 import { UserStatus } from '../users/types';
 import { Application } from './application.entity';
 import { GetAllApplicationResponseDTO } from './dto/get-all-application.response.dto';
+import { ApplicationStep } from './types';
 
 @Controller('apps')
 @UseInterceptors(CurrentUserInterceptor)
@@ -103,6 +104,15 @@ export class ApplicationsController {
       );
     }
 
-    return app.toGetApplicationResponseDTO(apps.length);
+    let applicationStep = null;
+
+    // Tthe application step
+    if (app.reviews.length > 0) {
+      applicationStep = ApplicationStep.REVIEWED;
+    } else {
+      applicationStep = ApplicationStep.SUBMITTED;
+    }
+
+    return app.toGetApplicationResponseDTO(apps.length, applicationStep);
   }
 }

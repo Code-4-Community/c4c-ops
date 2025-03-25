@@ -21,6 +21,14 @@ interface ReviewModalProps {
   accessToken: string;
 }
 
+interface ReviewData {
+  numReviews: number;
+}
+
+const reviewData: ReviewData = {
+  numReviews: 5,
+};
+
 export const ReviewModal = ({
   open,
   setOpen,
@@ -29,7 +37,15 @@ export const ReviewModal = ({
   accessToken,
 }: ReviewModalProps) => {
   const [reviewComment, setReviewComment] = useState('');
-  const [reviewRating, setReviewRating] = useState<number>(0);
+  const [reviewRating, setReviewRating] = useState<number[]>(
+    Array(reviewData.numReviews).fill(0),
+  );
+
+  const handleRatingChange = (index: number, value: number | null) => {
+    const newRatings = [...reviewRating];
+    newRatings[index] = value || 0; // Update the rating for the specified index
+    setReviewRating(newRatings);
+  };
 
   const handleCloseReviewModal = () => {
     setOpen(false);
@@ -38,7 +54,20 @@ export const ReviewModal = ({
   const stageToSubmit = selectedApplication?.stage || ApplicationStage.ACCEPTED;
 
   const handleReviewSubmit = async () => {
-    if (!selectedUserRow || reviewRating === 0 || !reviewComment) {
+    const totalRatings = reviewRating.reduce((sum, rating) => sum + rating, 0);
+    const averageRating = Number(
+      (totalRatings / reviewRating.length).toFixed(1),
+    );
+
+    const concatenatedComments = reviewRating
+      .map((rating, index) => `Review ${index + 1}: ${rating}`)
+      .join(', ');
+
+    if (
+      !selectedUserRow ||
+      reviewRating.some((rating) => rating === 0) ||
+      !reviewComment
+    ) {
       alert('Please select a user, provide a rating, and add a comment.');
       return;
     }
@@ -47,29 +76,40 @@ export const ReviewModal = ({
       await apiClient.submitReview(accessToken, {
         applicantId: selectedUserRow.userId,
         stage: stageToSubmit,
-        rating: reviewRating,
-        content: reviewComment,
+        rating: Number(averageRating.toFixed(1)),
+        content: `${reviewComment} | ${concatenatedComments}`,
       });
-      alert('Review submitted successfully!');
+
+      alert('Reviews submitted successfully!');
       handleCloseReviewModal();
     } catch (error) {
-      console.error('Error submitting review:', error);
-      alert('Failed to submit review.');
+      console.error('Error submitting reviews:', error);
+      alert('Failed to submit reviews.');
     }
   };
   return (
     <Dialog open={open} onClose={handleCloseReviewModal}>
       <DialogTitle>Write Review</DialogTitle>
       <DialogContent>
-        <Stack direction="row" alignItems="center" spacing={2} mb={2}>
-          <Typography variant="body1">Rating:</Typography>
-          <Rating
-            name="review-rating"
-            value={reviewRating}
-            onChange={(_, value) => setReviewRating(value || 0)}
-            precision={1}
-          />
-        </Stack>
+        <div>
+          {reviewRating.map((rating, index) => (
+            <Stack
+              direction="row"
+              alignItems="center"
+              spacing={2}
+              mb={2}
+              key={index}
+            >
+              <Typography variant="body1">Rating {index + 1}:</Typography>
+              <Rating
+                name={`review-rating-${index}`}
+                value={rating}
+                onChange={(_, value) => handleRatingChange(index, value)}
+                precision={1}
+              />
+            </Stack>
+          ))}
+        </div>
         <TextField
           autoFocus
           margin="dense"
@@ -80,7 +120,7 @@ export const ReviewModal = ({
           multiline
           rows={4}
           variant="outlined"
-          value={reviewComment}
+          value={reviewComment} // add comments here
           onChange={(e) => setReviewComment(e.target.value)}
         />
       </DialogContent>
