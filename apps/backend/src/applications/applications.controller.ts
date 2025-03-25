@@ -104,7 +104,7 @@ export class ApplicationsController {
     return this.applicationsService.obtainEventsAttended(applicantId);
   }
 
-  @Get('/:userId')
+  @Get('/:applicationId')
   @UseGuards(AuthGuard('jwt'))
   async getApplication(
     @Param('userId', ParseIntPipe) userId: number,
@@ -151,7 +151,6 @@ export class ApplicationsController {
     }
 
     const newApplication = await this.applicationsService.updateApplication(
-      req.application,
       applicantId,
       updateApplicationDTO,
     );

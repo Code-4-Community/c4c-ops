@@ -7,7 +7,7 @@ import {
   IsUrl,
   IsObject,
 } from 'class-validator';
-import { Entity, Column, OneToMany } from 'typeorm';
+import { Entity, Column, OneToMany, ManyToMany, JoinTable } from 'typeorm';
 import { Application } from '../applications/application.entity';
 import { Role, Team, UserStatus } from './types';
 
@@ -72,9 +72,6 @@ export class User {
   @OneToMany(() => Application, (application) => application.user)
   applications: Application[];
 
-  @Column('jsonb', { nullable: true, default: [] })
-  @IsArray()
-  @IsObject({ each: true })
-  @OneToMany(() => User, (user) => user.firstName + user.lastName)
-  recruiters: User[];
+  @ManyToMany(() => Application, (application) => application.recruiters)
+  applicationsToReview: Application[];
 }

@@ -255,22 +255,25 @@ export class ApplicationsService {
   }
 
   async updateApplication(
-    currentApplication: Application,
     applicationId: number,
     updateApplicationDTO: UpdateApplicationRequestDTO,
   ): Promise<Application> {
-    await this.findOne(applicationId);
-
     try {
-      await this.applicationsRepository.update(
-        { id: applicationId },
-        updateApplicationDTO,
-      );
+      // const application = await this.applicationsRepository.findOne({
+      //   where: { id: 1 },
+      //   relations: ['recruiters'],
+      // });
+      const application = await this.applicationsRepository.findOne({
+        where: { id: applicationId },
+        relations: ['recruiters'],
+      });
+
+      Object.assign(application, updateApplicationDTO);
+      return this.applicationsRepository.save(application);
     } catch (error) {
+      console.log(error);
       throw new BadRequestException('Cannot update application');
     }
-
-    return await this.findOne(applicationId);
   }
 
   async obtainEventsAttended(applicationId: number): Promise<number> {
