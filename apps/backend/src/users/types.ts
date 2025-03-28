@@ -1,4 +1,5 @@
 // TODO Probably want these types to be available to both the frontend and backend in a "common" folder
+import { User } from './user.entity';
 
 export enum UserStatus {
   MEMBER = 'Member',

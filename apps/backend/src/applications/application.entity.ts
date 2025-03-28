@@ -33,7 +33,7 @@ export class Application {
   @OneToMany(() => FileUpload, (file) => file.application)
   attachments: FileUpload[];
 
-  @ManyToOne(() => User, (user) => user.applications, { nullable: false })
+  @ManyToOne(() => User, (user) => user.applications, { onDelete: 'CASCADE' })
   @JoinColumn()
   user: User;
 

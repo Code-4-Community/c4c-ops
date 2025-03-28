@@ -9,6 +9,8 @@ import {
   ListItemText,
   ListItemIcon,
   Button,
+  Select,
+  MenuItem,
 } from '@mui/material';
 import { DoneOutline } from '@mui/icons-material';
 
@@ -52,6 +54,20 @@ export function ApplicationTable() {
     setOpenReviewModal(true);
   };
 
+  // deletes user from row
+  const deleteUserFromRow = async (userId: number) => {
+    try {
+      await apiClient.deleteUser(accessToken, userId);
+      setSelectedUserRow(null);
+      setSelectedApplication(null);
+      setRowSelection([]); // Reset selection after deletion
+      fetchData(); // Refresh the application list
+    } catch (error) {
+      alert('Failed to delete user.');
+      console.error('Error deleting user:', error);
+    }
+  };
+
   const fetchData = async () => {
     const data = await apiClient.getAllApplications(accessToken);
     // Each application needs an id for the DataGrid to work
@@ -64,6 +80,7 @@ export function ApplicationTable() {
   };
 
   const getApplication = async (userId: number) => {
+    if (!userId) return;
     try {
       const application = await apiClient.getApplication(accessToken, userId);
       setSelectedApplication(application);
@@ -194,6 +211,20 @@ export function ApplicationTable() {
               onClick={handleOpenReviewModal}
             >
               Start Review
+            </Button>
+
+            <Button
+              variant="contained"
+              size="small"
+              onClick={(event) => {
+                if (selectedUserRow?.userId) {
+                  deleteUserFromRow(selectedUserRow.userId);
+                } else {
+                  alert('No user selected.');
+                }
+              }}
+            >
+              Delete User
             </Button>
           </Stack>
           <ReviewModal
