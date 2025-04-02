@@ -59,6 +59,24 @@ export class UsersController {
     return req.user.status;
   }
 
+  @Get('/')
+  async getRole(@Request() req) {
+    console.log('user: ', req.user);
+    if (
+      req.user.status !== UserStatus.ADMIN &&
+      req.user.status !== UserStatus.ALUMNI &&
+      req.user.status !== UserStatus.APPLICANT &&
+      req.user.status !== UserStatus.MEMBER &&
+      req.user.status !== UserStatus.RECRUITER
+    ) {
+      throw new UnauthorizedException('Invalid role');
+    }
+
+    const user = await this.usersService.findOne(req.user, req.user.id);
+
+    return toGetUserResponseDto(user);
+  }
+
   @Get('/:userId')
   async getUser(
     @Param('userId', ParseIntPipe) userId: number,

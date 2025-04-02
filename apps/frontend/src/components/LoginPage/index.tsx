@@ -47,7 +47,6 @@ export default function LoginPage() {
     }
     getToken();
   }, [navigate, setToken]);
-
   return (
     <Stack
       width="100vw"
