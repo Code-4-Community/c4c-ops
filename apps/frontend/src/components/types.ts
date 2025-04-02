@@ -64,7 +64,14 @@ type Application = {
   reviews: Review[];
 };
 
+// TODO: should match backend type
+type User = {
+  id: number;
+  status: string;
+};
+
 export {
+  User,
   ApplicationRow,
   Application,
   ApplicationStage,

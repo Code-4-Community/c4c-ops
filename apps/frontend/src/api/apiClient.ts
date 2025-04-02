@@ -3,6 +3,7 @@ import type {
   Application,
   ApplicationRow,
   ApplicationStage,
+  User,
 } from '@components/types';
 
 const defaultBaseUrl =
@@ -77,6 +78,14 @@ export class ApiClient {
         Authorization: `Bearer ${accessToken}`,
       },
     }) as Promise<void>;
+  }
+
+  public async getUser(accessToken: string): Promise<User> {
+    return this.get('/api/users/', {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }) as Promise<User>;
   }
 
   private async get(

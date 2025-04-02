@@ -12,9 +12,13 @@ import {
 import { DoneOutline } from '@mui/icons-material';
 import apiClient from '@api/apiClient';
 import useLoginContext from '@components/LoginPage/useLoginContext';
-import { Application } from '../types';
+import { Application, User } from '../types';
 
-export const ApplicantView: React.FC = () => {
+interface ApplicantViewProps {
+  user: User;
+}
+
+export const ApplicantView = ({ user }: ApplicantViewProps) => {
   const { token: accessToken } = useLoginContext();
   const [selectedApplication, setSelectedApplication] =
     useState<Application | null>(null);
@@ -43,9 +47,9 @@ export const ApplicantView: React.FC = () => {
       }
     };
 
-    fetchApplication(2);
+    fetchApplication(user.id);
     fetchFullName();
-  }, [accessToken]);
+  }, [accessToken, user.id]);
 
   return (
     <Box
@@ -102,7 +106,7 @@ export const ApplicantView: React.FC = () => {
         {loading ? (
           <CircularProgress sx={{ color: 'white' }} />
         ) : (
-          <>
+          <div>
             {selectedApplication && (
               <>
                 <Box
@@ -168,7 +172,7 @@ export const ApplicantView: React.FC = () => {
                 </List>
               </>
             )}
-          </>
+          </div>
         )}
       </Box>
     </Box>
