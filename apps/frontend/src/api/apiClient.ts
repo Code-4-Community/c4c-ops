@@ -113,6 +113,22 @@ export class ApiClient {
     ) as Promise<void>;
   }
 
+  public async updateAssignedRecruiters(
+    accessToken: string,
+    applicationId: number,
+    recruiters: User[],
+  ): Promise<void> {
+    return this.patch(
+      `api/apps/${applicationId}`,
+      { recruiters: recruiters },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+    ) as Promise<void>;
+  }
+
   private async get(
     path: string,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -69,6 +69,7 @@ export function ApplicationTable() {
   };
 
   const fetchData = async () => {
+    console.log(accessToken);
     const data = await apiClient.getAllApplications(accessToken);
     // Each application needs an id for the DataGrid to work
     if (data) {
@@ -110,6 +111,22 @@ export function ApplicationTable() {
 
   const handleOpenConfirmModal = () => {
     setOpenConfirmModal(true);
+  };
+
+  const handleAssignedRecruitersChange = async (
+    event: React.SyntheticEvent,
+    value: User[],
+  ) => {
+    event.preventDefault();
+    if (selectedApplication) {
+      await apiClient.updateAssignedRecruiters(
+        accessToken,
+        selectedApplication.id,
+        value,
+      );
+    } else {
+      console.error('Could not update assigned recruiters');
+    }
   };
 
   return (
@@ -180,6 +197,7 @@ export function ApplicationTable() {
             multiple
             options={allRecruitersList}
             disableCloseOnSelect
+            onChange={handleAssignedRecruitersChange}
             getOptionLabel={(recruiter) =>
               recruiter.firstName + ' ' + recruiter.lastName
             }
