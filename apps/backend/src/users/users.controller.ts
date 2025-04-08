@@ -20,6 +20,7 @@ import { GetUserResponseDto } from './dto/get-user.response.dto';
 import { UserStatus } from './types';
 import { toGetUserResponseDto } from './users.utils';
 import { User } from './user.entity';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 
 @Controller('users')
 @UseInterceptors(CurrentUserInterceptor)
@@ -81,6 +82,14 @@ export class UsersController {
     );
 
     return toGetUserResponseDto(newUser);
+  }
+
+  @Patch(':userId/role')
+  async updateUserRole(
+    @Param('userId') userId: number,
+    @Body('newRole') newRole: UserStatus, // Only expect `newRole` and `userId`
+  ): Promise<User> {
+    return this.usersService.updateUserRole(userId, newRole); // Call service with userId and newRole only
   }
 
   // TODO test this endpoint

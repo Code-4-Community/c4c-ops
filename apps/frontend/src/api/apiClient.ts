@@ -4,6 +4,7 @@ import type {
   ApplicationRow,
   ApplicationStage,
 } from '@components/types';
+import { UserStatus } from '@shared/types';
 
 const defaultBaseUrl =
   import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3000';
@@ -56,6 +57,22 @@ export class ApiClient {
         Authorization: `Bearer ${accessToken}`,
       },
     })) as Promise<Application>;
+  }
+
+  public async changeUserRole(
+    accessToken: string,
+    userId: number,
+    newRole: UserStatus,
+  ): Promise<void> {
+    await this.axiosInstance.patch(
+      `/api/users/${userId}/role`,
+      { newRole },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+    );
   }
 
   public async deleteUser(accessToken: string, userId: number): Promise<void> {

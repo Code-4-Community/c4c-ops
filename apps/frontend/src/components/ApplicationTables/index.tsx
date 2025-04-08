@@ -19,6 +19,7 @@ import apiClient from '@api/apiClient';
 import { applicationColumns } from './columns';
 import { ReviewModal } from './reviewModal';
 import useLoginContext from '@components/LoginPage/useLoginContext';
+import { UserStatus } from '@shared/types';
 
 const TODAY = new Date();
 
@@ -47,7 +48,7 @@ export function ApplicationTable() {
   );
   const [selectedApplication, setSelectedApplication] =
     useState<Application | null>(null);
-
+  const [newRole, setNewRole] = useState<UserStatus | string>('MEMBER'); // Added for role change
   const [openReviewModal, setOpenReviewModal] = useState(false);
 
   const handleOpenReviewModal = () => {
@@ -65,6 +66,26 @@ export function ApplicationTable() {
     } catch (error) {
       alert('Failed to delete user.');
       console.error('Error deleting user:', error);
+    }
+  };
+
+  // Function to change the role
+  const changeRole = async () => {
+    if (selectedUserRow) {
+      try {
+        await apiClient.changeUserRole(
+          accessToken,
+          selectedUserRow.userId,
+          newRole as UserStatus, // Ensure newRole is cast to UserStatus
+        );
+        alert('User role updated successfully');
+        fetchData(); // Refresh data after role change
+      } catch (error) {
+        alert('Failed to change user role.');
+        console.error('Error changing user role:', error);
+      }
+    } else {
+      alert('No user selected.');
     }
   };
 
@@ -226,6 +247,22 @@ export function ApplicationTable() {
             >
               Delete User
             </Button>
+            <Stack mt={2} direction="row" spacing={2}>
+              <Typography variant="body1">Change Role:</Typography>
+              <Select
+                value={newRole}
+                onChange={(e) => setNewRole(e.target.value)}
+                label="New Role"
+                size="small"
+              >
+                <MenuItem value="APPLICANT">Applicant</MenuItem>
+                <MenuItem value="RECRUITER">Recruiter</MenuItem>
+                <MenuItem value="ADMIN">Admin</MenuItem>
+              </Select>
+              <Button variant="contained" size="small" onClick={changeRole}>
+                Update Role
+              </Button>
+            </Stack>
           </Stack>
           <ReviewModal
             open={openReviewModal}

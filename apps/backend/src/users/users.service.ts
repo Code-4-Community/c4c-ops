@@ -117,6 +117,22 @@ export class UsersService {
     return await this.findOne(currentUser, userId);
   }
 
+  async updateUserRole(
+    userId: number,
+    newRole: UserStatus, // Only need the userId and newRole
+  ): Promise<User> {
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    user.status = newRole; // Update the user's role
+
+    await this.usersRepository.save(user);
+    return user;
+  }
+
   async remove(currentUser: User, userId: number): Promise<User> {
     const user = await this.findOne(currentUser, userId);
 
