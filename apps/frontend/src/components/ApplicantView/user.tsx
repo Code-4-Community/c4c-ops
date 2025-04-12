@@ -8,6 +8,8 @@ import {
   ListItemText,
   Box,
   CircularProgress,
+  TextField,
+  Button,
 } from '@mui/material';
 import { DoneOutline } from '@mui/icons-material';
 import apiClient from '@api/apiClient';
@@ -24,6 +26,8 @@ export const ApplicantView = ({ user }: ApplicantViewProps) => {
     useState<Application | null>(null);
   const [fullName, setFullName] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
+  const [email, setEmail] = useState<string>(user.email || '');
+  const [editMode, setEditMode] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchApplication = async (userId: number) => {
@@ -50,6 +54,22 @@ export const ApplicantView = ({ user }: ApplicantViewProps) => {
     fetchApplication(user.id);
     fetchFullName();
   }, [accessToken, user.id]);
+
+  const handleUserUpdate = async () => {
+    try {
+      await apiClient.updateUser(accessToken, user.id, { email });
+      alert(
+        'Email updated successfully! Please close this tab and login using ' +
+          email +
+          ' in a new tab.',
+      );
+      setEditMode(false);
+    } catch (err) {
+      //  add better error message for invalid inputs
+      console.error('Error updating email:', err);
+      alert('Failed to update email.');
+    }
+  };
 
   return (
     <Box
@@ -170,6 +190,40 @@ export const ApplicantView = ({ user }: ApplicantViewProps) => {
                     </ListItem>
                   ))}
                 </List>
+                {/* Update Email Section */}
+                <Typography variant="h6" mt={3}>
+                  Contact Information
+                </Typography>
+
+                {editMode ? (
+                  <Box>
+                    <TextField
+                      label="Email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      fullWidth
+                      sx={{ mb: 2, backgroundColor: '#fff', borderRadius: 1 }}
+                    />
+                    <Button
+                      onClick={handleUserUpdate}
+                      variant="contained"
+                      color="primary"
+                    >
+                      Save
+                    </Button>
+                  </Box>
+                ) : (
+                  <Box>
+                    <Typography variant="body1">Email: {email}</Typography>
+                    <Button
+                      onClick={() => setEditMode(true)}
+                      variant="contained"
+                      color="secondary"
+                    >
+                      Update
+                    </Button>
+                  </Box>
+                )}
               </>
             )}
           </div>

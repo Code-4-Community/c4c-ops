@@ -16,6 +16,14 @@ type SubmitReviewRequest = {
   content: string;
 };
 
+type UpdateUserRequest = {
+  applicantId: number;
+  email?: string;
+  phoneNumber?: string;
+  linkedin?: string;
+  github?: string;
+};
+
 type DecisionRequest = { decision: 'ACCEPT' | 'REJECT' };
 
 export class ApiClient {
@@ -88,6 +96,18 @@ export class ApiClient {
     }) as Promise<User>;
   }
 
+  public async updateUser(
+    accessToken: string,
+    userId: number,
+    updatesData: Partial<UpdateUserRequest>,
+  ): Promise<void> {
+    return this.patch(`/api/users/${userId}`, updatesData, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }) as Promise<void>;
+  }
+
   private async get(
     path: string,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -120,9 +140,14 @@ export class ApiClient {
       .then((response) => response.data);
   }
 
-  private async patch(path: string, body: unknown): Promise<unknown> {
+  private async patch(
+    path: string,
+    body: unknown,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    headers: AxiosRequestConfig<any> | undefined = undefined,
+  ): Promise<unknown> {
     return this.axiosInstance
-      .patch(path, body)
+      .patch(path, body, headers)
       .then((response) => response.data);
   }
 
