@@ -6,6 +6,7 @@
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { NestFactory } from '@nestjs/core';
+import { useContainer } from 'class-validator';
 
 import { AppModule } from './app.module';
 
@@ -19,8 +20,11 @@ async function bootstrap() {
     new ValidationPipe({
       transform: true,
       whitelist: true,
+      validateCustomDecorators: true,
     }),
   );
+
+  useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
   const config = new DocumentBuilder()
     .setTitle('Scaffolding API Docs')
