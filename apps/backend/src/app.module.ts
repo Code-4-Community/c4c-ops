@@ -24,8 +24,7 @@ import { FileUploadModule } from './file-upload/file-upload.module';
       database: process.env.NX_DB_DATABASE || 'c4c-ops',
       entities: [Application, FileUpload],
       // Setting synchronize: true shouldn't be used in production - otherwise you can lose production data
-      synchronize: true,
-      namingStrategy: new PluralNamingStrategy(),
+      synchronize: false,
     }),
     TypeOrmModule.forFeature([Application, FileUpload]),
     AuthModule,

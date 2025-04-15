@@ -19,6 +19,10 @@ export class User {
   @IsPositive()
   id: number;
 
+  @Column({ default: 0 })
+  @IsPositive()
+  numApps: number;
+
   @Column('varchar')
   @IsEnum(UserStatus)
   status: UserStatus;

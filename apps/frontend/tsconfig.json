@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "strictPropertyInitialization": false,
     "jsx": "react-jsx",
     "allowJs": false,
     "esModuleInterop": false,
@@ -13,7 +14,8 @@
       "@containers/*": ["containers/*"],
       "@public/*": ["../public/*"],
       "@shared/*": ["../../../shared/*"],
-      "@utils/*": ["utils/*"]
+      "@utils/*": ["utils/*"],
+      "@backend/*": ["../../backend/src/*"]
     }
   },
   "files": [],

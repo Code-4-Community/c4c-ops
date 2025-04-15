@@ -1,4 +1,5 @@
 import { Review } from '../../reviews/review.entity';
+import { User } from '../../users/user.entity';
 import {
   ApplicationStage,
   ApplicationStep,
@@ -7,10 +8,13 @@ import {
   Semester,
 } from '../types';
 
+
 export class GetApplicationResponseDTO {
   id: number;
 
   createdAt: Date;
+
+  user: User;
 
   year: number;
 
@@ -25,6 +29,4 @@ export class GetApplicationResponseDTO {
   response: Response[];
 
   reviews: Review[];
-
-  numApps: number;
 }
