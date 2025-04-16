@@ -1,3 +1,5 @@
+import { Application, ApplicationRow, User } from '@components/types';
+
 export const applicationColumns = [
   {
     field: 'firstName',
@@ -30,9 +32,15 @@ export const applicationColumns = [
     width: 150,
   },
   {
-    field: 'assignedRecruiters',
+    field: 'recruiters',
     headerName: 'Assigned Recruiters',
     width: 150,
+    valueGetter: (params: { row: ApplicationRow }) =>
+      params.row.recruiters
+        ?.map(
+          (recruiter: User) => `${recruiter.firstName} ${recruiter.lastName}`,
+        )
+        .join(', ') ?? 'None',
   },
   {
     field: 'meanRatingAllStages',

@@ -60,7 +60,7 @@ type ApplicationRow = {
   step: ApplicationStep;
   position: Position;
   createdAt: string;
-  assignedRecruiters: User[];
+  recruiters: User[];
   meanRatingAllStages: number;
   meanRatingSingleStages: number;
   eventsAttended: number;
@@ -88,6 +88,7 @@ enum Semester {
 
 type Application = {
   id: number;
+  user: User;
   createdAt: Date;
   year: number;
   semester: Semester;

@@ -22,7 +22,7 @@ import { applicationColumns } from './columns';
 import { ReviewModal } from './reviewModal';
 import { ConfirmModal } from './confirmModal';
 import useLoginContext from '@components/LoginPage/useLoginContext';
-import { debounce } from 'lodash';
+import { debounce, update } from 'lodash';
 
 const TODAY = new Date();
 
@@ -104,14 +104,21 @@ export function ApplicationTable() {
   const handleRecruitersChange = debounce(
     async (event: React.SyntheticEvent, newRecruiters: User[]) => {
       event.preventDefault();
+
       if (selectedApplication) {
-        console.log(selectedApplication.id);
         try {
           await apiClient.updateAssignedRecruiters(
             accessToken,
             selectedApplication.id,
             newRecruiters,
           );
+          const updatedApp = await apiClient.getApplication(
+            accessToken,
+            selectedApplication.user.id,
+          );
+
+          setSelectedApplication(updatedApp);
+          setSelectedApplicationRecruiters(updatedApp.recruiters);
         } catch (error) {
           console.error('Error updating the database: ' + error);
         }
@@ -127,7 +134,7 @@ export function ApplicationTable() {
     }
     isPageRendered.current = true;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [accessToken]);
+  }, [accessToken, data]);
 
   useEffect(() => {
     if (rowSelection.length > 0) {
@@ -175,7 +182,7 @@ export function ApplicationTable() {
           <Typography variant="h6" mt={2}>
             Application Details
           </Typography>
-          <Stack spacing={2} direction="column" mt={1}>
+          <Stack spacing={2} direction="row" mt={1}>
             <Typography variant="body1">
               Year: {selectedApplication.year}
             </Typography>
@@ -210,6 +217,7 @@ export function ApplicationTable() {
               setSelectedApplicationRecruiters(newRecruiters);
               handleRecruitersChange(event, newRecruiters);
             }}
+            isOptionEqualToValue={(option, value) => option.id === value.id}
             renderOption={(props, option, { selected }) => {
               const { key, ...optionProps } =
                 props as React.HTMLAttributes<HTMLLIElement> & {

@@ -13,7 +13,7 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { ApplicationStage, Decision, Response } from './types';
+import { Decision, Response } from './types';
 import { ApplicationsService } from './applications.service';
 import { CurrentUserInterceptor } from '../interceptors/current-user.interceptor';
 import { AuthGuard } from '@nestjs/passport';
@@ -172,23 +172,4 @@ export class ApplicationsController {
       updateApplicationDTO,
     );
   }
-
-  // @Patch('/:applicationId')
-  // @UseGuards(AuthGuard('jwt'))
-  // async updateApplication(
-  //   @Body() updateApplicationDTO: UpdateApplicationRequestDTO,
-  //   @Param('applicationId', ParseIntPipe) applicationId: number,
-  //   @Request() req,
-  // ): Promise<GetApplicationResponseDTO> {
-  //   if (req.user.status !== UserStatus.ADMIN) {
-  //     throw new UnauthorizedException('Only admins can update an application');
-  //   }
-
-  //   const newApplication = await this.applicationsService.updateApplication(
-  //     applicationId,
-  //     updateApplicationDTO,
-  //   );
-
-  //   return toGetApplicationResponseDTO(newApplication);
-  // }
 }

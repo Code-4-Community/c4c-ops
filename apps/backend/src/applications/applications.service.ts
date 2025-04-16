@@ -131,7 +131,7 @@ export class ApplicationsService {
   async findAll(userId: number): Promise<Application[]> {
     const apps = await this.applicationsRepository.find({
       where: { user: { id: userId } },
-      relations: ['user', 'reviews'],
+      relations: ['user', 'reviews', 'recruiters'],
     });
     return apps;
   }
@@ -142,7 +142,7 @@ export class ApplicationsService {
         year: getCurrentYear(),
         semester: getCurrentSemester(),
       },
-      relations: ['user', 'reviews'],
+      relations: ['user', 'reviews', 'recruiters'],
     });
 
     const allApplicationsDto = applications.map((app) => {

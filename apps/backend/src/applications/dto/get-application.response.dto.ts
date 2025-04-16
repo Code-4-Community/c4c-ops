@@ -11,6 +11,8 @@ import {
 export class GetApplicationResponseDTO {
   id: number;
 
+  user: User;
+
   createdAt: Date;
 
   year: number;

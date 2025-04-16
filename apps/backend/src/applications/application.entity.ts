@@ -119,6 +119,7 @@ export class Application {
   ): GetApplicationResponseDTO {
     return {
       id: this.id,
+      user: this.user,
       createdAt: this.createdAt,
       year: this.year,
       semester: this.semester,

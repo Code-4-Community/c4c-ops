@@ -41,6 +41,7 @@ export const toGetApplicationResponseDTO = (
 ): GetApplicationResponseDTO => {
   return {
     id: application.id,
+    user: application.user,
     createdAt: application.createdAt,
     year: application.year,
     semester: application.semester,

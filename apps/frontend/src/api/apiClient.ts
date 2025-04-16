@@ -106,7 +106,6 @@ export class ApiClient {
     applicationId: number,
     recruiters: User[],
   ): Promise<void> {
-    console.log(recruiters);
     return this.patch(
       `/api/apps/${applicationId}/update-recruiters`,
       { recruiters },
