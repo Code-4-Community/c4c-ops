@@ -23,7 +23,6 @@ export class FileUploadController {
     if (!applicationId) {
       throw new BadRequestException('Application ID is required');
     }
-    console.log('Received file in controller:', file);
     return this.fileUploadService.handleFileUpload(file, applicationId);
   }
 }

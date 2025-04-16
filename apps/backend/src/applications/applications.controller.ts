@@ -41,6 +41,11 @@ export class ApplicationsController {
     return await this.applicationsService.submitApp(application, user);
   }
 
+  @Get('/user/:userId')
+  async getUserApplications(@Param('userId') userId: number) {
+    return this.applicationsService.getUserApplications(Number(userId));
+  }
+
   @Post('/decision/:appId')
   @UseGuards(AuthGuard('jwt'))
   async makeDecision(

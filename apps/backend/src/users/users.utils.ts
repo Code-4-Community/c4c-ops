@@ -13,5 +13,6 @@ export const toGetUserResponseDto = (user: User): GetUserResponseDto => {
     github: user.github,
     team: user.team,
     role: user.role,
+    numApps: user.numApps,
   };
 };

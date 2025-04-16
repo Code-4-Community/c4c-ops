@@ -21,6 +21,9 @@ export class UpdateUserRequestDTO {
   email?: string;
 
   @IsOptional()
+  numApps?: number;
+
+  @IsOptional()
   @IsUrl()
   profilePicture?: string;
 

@@ -22,4 +22,6 @@ export class GetUserResponseDto {
   team: Team | null;
 
   role: Role[] | null;
+
+  numApps: number;
 }

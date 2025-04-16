@@ -10,9 +10,15 @@ import { AuthService } from '../auth/auth.service';
 import { UsersService } from '../users/users.service';
 import { ApplicationsService } from '../applications/applications.service';
 import { Application } from '../applications/application.entity';
+import { ApplicationsModule } from '../applications/applications.module';
+import { UsersModule } from '../users/users.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Review, Application, User])],
+  imports: [
+    TypeOrmModule.forFeature([Review, Application, User]),
+    ApplicationsModule,
+    UsersModule,
+  ],
   controllers: [ReviewsController],
   providers: [
     ReviewsService,

@@ -33,6 +33,7 @@ export default defineConfig({
     include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
   },
 
+
   resolve: {
     alias: {
       '@api': path.resolve(__dirname, './src/api'),
@@ -41,6 +42,8 @@ export default defineConfig({
       '@public': path.resolve(__dirname, './public'),
       '@shared': path.resolve(__dirname, '../../shared'),
       '@utils': path.resolve(__dirname, './src/utils'),
+      '@backend': path.resolve(__dirname, '../backend/src'),
     },
   },
+  
 });

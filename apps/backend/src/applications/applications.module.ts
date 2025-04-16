@@ -9,9 +9,13 @@ import { UsersService } from '../users/users.service';
 import { JwtStrategy } from '../auth/jwt.strategy';
 import { CurrentUserInterceptor } from '../interceptors/current-user.interceptor';
 import { AuthService } from '../auth/auth.service';
+import { UsersModule } from '../users/users.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Application, User, FileUpload])],
+  imports: [
+    TypeOrmModule.forFeature([Application, User, FileUpload]),
+    UsersModule,
+  ],
   controllers: [ApplicationsController],
   providers: [
     ApplicationsService,

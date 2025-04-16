@@ -15,6 +15,7 @@ export const defaultUser: User = {
   team: null,
   role: null,
   applications: [],
+  numApps: 0,
 };
 
 export const userFactory = (user: Partial<User> = {}): User =>

@@ -16,6 +16,7 @@ describe('toGetUserResponseDto()', () => {
       github: user.github,
       team: user.team,
       role: user.role,
+      numApps: user.numApps,
     });
   });
 });
