@@ -86,25 +86,30 @@ export class ApiClient {
     }) as Promise<void>;
   }
 
-  public async getNumEventsAttended(
-    accessToken: string,
-    applicationId: number,
-  ): Promise<number> {
-    return this.get(`/api/apps/events/${applicationId}`, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    }) as Promise<number>;
-  }
-
   public async checkApplicantIn(
     accessToken: string,
     applicationId: number,
-    currNumEventsAttended: number,
   ): Promise<void> {
     return this.patch(
-      `/api/apps/${applicationId}`,
-      { eventsAttended: currNumEventsAttended + 1 },
+      `/api/apps/${applicationId}/check-in`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+    ) as Promise<void>;
+  }
+
+  public async updateAssignedRecruiters(
+    accessToken: string,
+    applicationId: number,
+    recruiters: User[],
+  ): Promise<void> {
+    console.log(recruiters);
+    return this.patch(
+      `/api/apps/${applicationId}/update-recruiters`,
+      { recruiters },
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,

@@ -22,6 +22,7 @@ import { applicationColumns } from './columns';
 import { ReviewModal } from './reviewModal';
 import { ConfirmModal } from './confirmModal';
 import useLoginContext from '@components/LoginPage/useLoginContext';
+import { debounce } from 'lodash';
 
 const TODAY = new Date();
 
@@ -52,6 +53,8 @@ export function ApplicationTable() {
     null,
   );
   const [allRecruitersList, setAllRecruitersList] = useState<Array<User>>([]);
+  const [selectedApplicationRecruiters, setSelectedApplicationRecruiters] =
+    useState<User[]>([]);
 
   const [selectedApplication, setSelectedApplication] =
     useState<Application | null>(null);
@@ -83,6 +86,7 @@ export function ApplicationTable() {
     try {
       const application = await apiClient.getApplication(accessToken, userId);
       setSelectedApplication(application);
+      setSelectedApplicationRecruiters(application.recruiters ?? []);
     } catch (error) {
       console.error('Error fetching application:', error);
       alert('Failed to fetch application details.');
@@ -92,6 +96,29 @@ export function ApplicationTable() {
   const getFullName = async () => {
     setFullName(await apiClient.getFullName(accessToken));
   };
+
+  const handleOpenConfirmModal = () => {
+    setOpenConfirmModal(true);
+  };
+
+  const handleRecruitersChange = debounce(
+    async (event: React.SyntheticEvent, newRecruiters: User[]) => {
+      event.preventDefault();
+      if (selectedApplication) {
+        console.log(selectedApplication.id);
+        try {
+          await apiClient.updateAssignedRecruiters(
+            accessToken,
+            selectedApplication.id,
+            newRecruiters,
+          );
+        } catch (error) {
+          console.error('Error updating the database: ' + error);
+        }
+      }
+    },
+    1000,
+  );
 
   useEffect(() => {
     if (isPageRendered.current) {
@@ -107,10 +134,6 @@ export function ApplicationTable() {
       setSelectedUserRow(data[rowSelection[0] as number]);
     }
   }, [rowSelection, data]);
-
-  const handleOpenConfirmModal = () => {
-    setOpenConfirmModal(true);
-  };
 
   return (
     <Container maxWidth="xl">
@@ -152,7 +175,7 @@ export function ApplicationTable() {
           <Typography variant="h6" mt={2}>
             Application Details
           </Typography>
-          <Stack spacing={2} direction="row" mt={1}>
+          <Stack spacing={2} direction="column" mt={1}>
             <Typography variant="body1">
               Year: {selectedApplication.year}
             </Typography>
@@ -171,7 +194,6 @@ export function ApplicationTable() {
             <Typography variant="body1">
               Applications: {selectedApplication.numApps}
             </Typography>
-            <Typography variant="body1">Recruiters:</Typography>
             <Typography>
               # Events Attended: {selectedApplication.eventsAttended}
             </Typography>
@@ -183,6 +205,11 @@ export function ApplicationTable() {
             getOptionLabel={(recruiter) =>
               recruiter.firstName + ' ' + recruiter.lastName
             }
+            value={selectedApplicationRecruiters}
+            onChange={(event, newRecruiters) => {
+              setSelectedApplicationRecruiters(newRecruiters);
+              handleRecruitersChange(event, newRecruiters);
+            }}
             renderOption={(props, option, { selected }) => {
               const { key, ...optionProps } =
                 props as React.HTMLAttributes<HTMLLIElement> & {
@@ -215,6 +242,7 @@ export function ApplicationTable() {
             open={openConfirmModal}
             setOpen={setOpenConfirmModal}
             selectedApplication={selectedApplication}
+            setSelectedApplication={setSelectedApplication}
             accessToken={accessToken}
           />
           <Typography variant="body1" mt={1}>

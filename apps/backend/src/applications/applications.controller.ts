@@ -13,7 +13,7 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { Decision, Response } from './types';
+import { ApplicationStage, Decision, Response } from './types';
 import { ApplicationsService } from './applications.service';
 import { CurrentUserInterceptor } from '../interceptors/current-user.interceptor';
 import { AuthGuard } from '@nestjs/passport';
@@ -139,23 +139,56 @@ export class ApplicationsController {
     return app.toGetApplicationResponseDTO(apps.length, applicationStep);
   }
 
-  @Patch('/:applicantId')
+  @Patch('/:applicationId/check-in')
   @UseGuards(AuthGuard('jwt'))
-  async updateApplication(
-    @Body() updateApplicationDTO: UpdateApplicationRequestDTO,
-    @Param('applicantId', ParseIntPipe) applicantId: number,
+  async checkApplicantIn(
+    @Param('applicationId', ParseIntPipe) applicationId: number,
     @Request() req,
   ): Promise<GetApplicationResponseDTO> {
     if (req.user.status !== UserStatus.ADMIN) {
       throw new UnauthorizedException('Only admins can update an application');
     }
 
-    const newApplication = await this.applicationsService.updateApplication(
-      req.application,
-      applicantId,
-      updateApplicationDTO,
+    const newApplication = await this.applicationsService.checkApplicantIn(
+      applicationId,
     );
 
     return toGetApplicationResponseDTO(newApplication);
   }
+
+  @Patch('/:applicationId/update-recruiters')
+  @UseGuards(AuthGuard('jwt'))
+  async updateRecruiters(
+    @Body() updateApplicationDTO: UpdateApplicationRequestDTO,
+    @Param('applicationId', ParseIntPipe) applicationId: number,
+    @Request() req,
+  ): Promise<void> {
+    if (req.user.status !== UserStatus.ADMIN) {
+      throw new UnauthorizedException('Only admins can assign recruiters');
+    }
+
+    await this.applicationsService.updateAssignedRecruiters(
+      applicationId,
+      updateApplicationDTO,
+    );
+  }
+
+  // @Patch('/:applicationId')
+  // @UseGuards(AuthGuard('jwt'))
+  // async updateApplication(
+  //   @Body() updateApplicationDTO: UpdateApplicationRequestDTO,
+  //   @Param('applicationId', ParseIntPipe) applicationId: number,
+  //   @Request() req,
+  // ): Promise<GetApplicationResponseDTO> {
+  //   if (req.user.status !== UserStatus.ADMIN) {
+  //     throw new UnauthorizedException('Only admins can update an application');
+  //   }
+
+  //   const newApplication = await this.applicationsService.updateApplication(
+  //     applicationId,
+  //     updateApplicationDTO,
+  //   );
+
+  //   return toGetApplicationResponseDTO(newApplication);
+  // }
 }

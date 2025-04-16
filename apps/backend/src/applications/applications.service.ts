@@ -254,20 +254,30 @@ export class ApplicationsService {
     return application;
   }
 
-  async updateApplication(
-    currentApplication: Application,
+  async updateAssignedRecruiters(
     applicationId: number,
     updateApplicationDTO: UpdateApplicationRequestDTO,
-  ): Promise<Application> {
-    await this.findOne(applicationId);
+  ): Promise<void> {
+    const application = await this.findOne(applicationId);
+
+    Object.assign(application, updateApplicationDTO);
+    await this.applicationsRepository.save(application);
+  }
+
+  async checkApplicantIn(applicationId: number): Promise<Application> {
+    const currNumEventsAttended = await this.obtainEventsAttended(
+      applicationId,
+    );
 
     try {
       await this.applicationsRepository.update(
         { id: applicationId },
-        updateApplicationDTO,
+        { eventsAttended: currNumEventsAttended + 1 },
       );
     } catch (error) {
-      throw new BadRequestException('Cannot update application');
+      throw new BadRequestException(
+        'Unable to update event attendance of chosen applicant: ' + error,
+      );
     }
 
     return await this.findOne(applicationId);

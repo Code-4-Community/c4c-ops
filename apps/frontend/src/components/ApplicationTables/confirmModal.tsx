@@ -1,11 +1,12 @@
 import { Button, Dialog, DialogTitle, DialogActions } from '@mui/material';
 import apiClient from '@api/apiClient';
-import { Application, ApplicationRow } from '@components/types';
+import { Application } from '@components/types';
 
 interface ConfirmModalProps {
   open: boolean;
   setOpen: (open: boolean) => void;
   selectedApplication: Application;
+  setSelectedApplication: (selectedApplication: Application) => void;
   accessToken: string;
 }
 
@@ -13,6 +14,7 @@ export const ConfirmModal = ({
   open,
   setOpen,
   selectedApplication,
+  setSelectedApplication,
   accessToken,
 }: ConfirmModalProps) => {
   const handleCloseConfirmModal = () => {
@@ -21,15 +23,12 @@ export const ConfirmModal = ({
 
   const handleConfirm = async () => {
     try {
-      const currNumEventsAttended = await apiClient.getNumEventsAttended(
+      await apiClient.checkApplicantIn(accessToken, selectedApplication.id);
+      const newApplication = await apiClient.getApplication(
         accessToken,
         selectedApplication.id,
       );
-      await apiClient.checkApplicantIn(
-        accessToken,
-        selectedApplication.id,
-        currNumEventsAttended,
-      );
+      setSelectedApplication(newApplication);
     } catch (error) {
       console.error('Error confirming: ', error);
       alert('Failed to check user in');

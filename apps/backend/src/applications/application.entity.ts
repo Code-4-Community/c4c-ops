@@ -6,7 +6,15 @@ import {
   IsPositive,
   Min,
 } from 'class-validator';
-import { Entity, Column, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
+import {
+  Entity,
+  Column,
+  ManyToOne,
+  JoinColumn,
+  OneToMany,
+  ManyToMany,
+  JoinTable,
+} from 'typeorm';
 import { User } from '../users/user.entity';
 import {
   Response,
@@ -58,13 +66,12 @@ export class Application {
   @IsObject({ each: true })
   response: Response[];
 
-  @Column('jsonb', { nullable: true, default: [] })
   @IsArray()
   @IsObject({ each: true })
-  @OneToMany(() => User, (user) => user.firstName + user.lastName)
+  @ManyToMany(() => User)
+  @JoinTable()
   recruiters: User[];
 
-  @Column('varchar', { array: true, default: {} })
   @IsArray()
   @IsObject({ each: true })
   @OneToMany(() => Review, (review) => review.application)
