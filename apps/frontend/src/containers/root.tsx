@@ -14,14 +14,12 @@ const Root: React.FC = () => {
     };
     getUser();
   }, [accessToken]);
-
-  if (user?.status === 'Admin' || user?.status === 'Recruiter') {
-    return <ApplicationTable />;
-  } else if (user?.status === 'Applicant') {
+  // (user?.status === 'Admin' || user?.status === 'Recruiter')
+  if (user?.status === 'Applicant') {
     return <ApplicantView user={user} />;
+  } else {
+    return <ApplicationTable />;
   }
-
-  return <div></div>;
 };
 
 export default Root;
