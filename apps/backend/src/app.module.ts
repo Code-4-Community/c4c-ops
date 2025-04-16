@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule } from '@nestjs/config';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -21,6 +22,8 @@ import { ApplicationsModule } from './applications/applications.module';
       database: process.env.NX_DB_DATABASE || 'c4c-ops',
       // entities: [join(__dirname, '**/**.entity.{ts,js}')],
       // Setting synchronize: true shouldn't be used in production - otherwise you can lose production data
+
+      // TODO: When working on migrations, set this to false
       synchronize: true,
       namingStrategy: new PluralNamingStrategy(),
     }),

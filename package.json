@@ -12,7 +12,10 @@
     "prepare": "husky install",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:cov": "jest --coverage"
+    "test:cov": "jest --coverage",
+    "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli",
+    "migration:create": "typeorm migration:create ./apps/backend/src/migrations/${MIGRATION_NAME}",
+    "migration:run": "npm run typeorm -- --dataSource=apps/backend/src/config/typeorm-cli.config.ts migration:run "
   },
   "private": true,
   "dependencies": {
@@ -24,6 +27,7 @@
     "@mui/x-data-grid": "^6.19.6",
     "@nestjs/cli": "^10.1.17",
     "@nestjs/common": "^10.0.2",
+    "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^10.0.2",
     "@nestjs/passport": "^10.0.2",
     "@nestjs/platform-express": "^10.0.2",
@@ -46,6 +50,7 @@
     "react-router-dom": "^6.15.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.0",
+    "ts-node": "^10.9.2",
     "typeorm": "^0.3.17"
   },
   "devDependencies": {
