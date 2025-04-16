@@ -26,7 +26,7 @@ export const ConfirmModal = ({
       await apiClient.checkApplicantIn(accessToken, selectedApplication.id);
       const newApplication = await apiClient.getApplication(
         accessToken,
-        selectedApplication.id,
+        selectedApplication.user.id,
       );
       setSelectedApplication(newApplication);
     } catch (error) {

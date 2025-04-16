@@ -145,6 +145,7 @@ export class ApplicationsController {
     @Param('applicationId', ParseIntPipe) applicationId: number,
     @Request() req,
   ): Promise<GetApplicationResponseDTO> {
+    // TODO: Users should be able to update their own application
     if (req.user.status !== UserStatus.ADMIN) {
       throw new UnauthorizedException('Only admins can update an application');
     }

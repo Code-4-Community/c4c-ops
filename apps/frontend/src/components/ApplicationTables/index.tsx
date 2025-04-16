@@ -22,7 +22,7 @@ import { applicationColumns } from './columns';
 import { ReviewModal } from './reviewModal';
 import { ConfirmModal } from './confirmModal';
 import useLoginContext from '@components/LoginPage/useLoginContext';
-import { debounce, update } from 'lodash';
+import { debounce } from 'lodash';
 
 const TODAY = new Date();
 
