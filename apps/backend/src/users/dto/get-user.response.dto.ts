@@ -1,6 +1,7 @@
 import { Entity } from 'typeorm';
 import { Role, Team, UserStatus } from '../types';
 
+// TODO: Update this DTO and toGetUserResponseDto to include 'recruiters' field
 @Entity()
 export class GetUserResponseDto {
   id: number;

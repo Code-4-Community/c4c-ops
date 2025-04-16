@@ -30,6 +30,11 @@ export const applicationColumns = [
     width: 150,
   },
   {
+    field: 'assignedRecruiters',
+    headerName: 'Assigned Recruiters',
+    width: 150,
+  },
+  {
     field: 'meanRatingAllStages',
     headerName: 'Rating All Stages',
     width: 150,
@@ -37,6 +42,11 @@ export const applicationColumns = [
   {
     field: 'meanRatingSingleStages',
     headerName: 'Rating Single Stage',
+    width: 150,
+  },
+  {
+    field: 'eventsAttended',
+    headerName: 'Events Attended',
     width: 150,
   },
 ];

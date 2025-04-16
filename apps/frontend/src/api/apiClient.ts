@@ -50,6 +50,14 @@ export class ApiClient {
     })) as Promise<ApplicationRow[]>;
   }
 
+  public async getAllRecruiters(accessToken: string): Promise<User[]> {
+    return (await this.get('/api/users/recruiters', {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    })) as Promise<User[]>;
+  }
+
   public async getApplication(
     accessToken: string,
     userId: number,
@@ -78,6 +86,33 @@ export class ApiClient {
         Authorization: `Bearer ${accessToken}`,
       },
     }) as Promise<void>;
+  }
+
+  public async getNumEventsAttended(
+    accessToken: string,
+    applicationId: number,
+  ): Promise<number> {
+    return this.get(`/api/apps/events/${applicationId}`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }) as Promise<number>;
+  }
+
+  public async checkApplicantIn(
+    accessToken: string,
+    applicationId: number,
+    currNumEventsAttended: number,
+  ): Promise<void> {
+    return this.patch(
+      `/api/apps/${applicationId}`,
+      { eventsAttended: currNumEventsAttended + 1 },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+    ) as Promise<void>;
   }
 
   public async getUser(accessToken: string): Promise<User> {
@@ -120,9 +155,13 @@ export class ApiClient {
       .then((response) => response.data);
   }
 
-  private async patch(path: string, body: unknown): Promise<unknown> {
+  private async patch(
+    path: string,
+    body: unknown,
+    headers: AxiosRequestConfig<unknown> | undefined = undefined,
+  ): Promise<unknown> {
     return this.axiosInstance
-      .patch(path, body)
+      .patch(path, body, headers)
       .then((response) => response.data);
   }
 

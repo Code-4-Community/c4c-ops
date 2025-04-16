@@ -1,4 +1,5 @@
 import { Review } from '../../reviews/review.entity';
+import { User } from '../../users/user.entity';
 import {
   ApplicationStage,
   ApplicationStep,
@@ -24,7 +25,11 @@ export class GetApplicationResponseDTO {
 
   response: Response[];
 
+  recruiters: User[];
+
   reviews: Review[];
 
   numApps: number;
+
+  eventsAttended: number;
 }

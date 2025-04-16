@@ -9,16 +9,24 @@ import {
   ListItemText,
   ListItemIcon,
   Button,
+  Checkbox,
+  TextField,
+  Autocomplete,
 } from '@mui/material';
+import { CheckBoxOutlineBlank, CheckBox } from '@mui/icons-material';
 import { DoneOutline } from '@mui/icons-material';
 
-import { ApplicationRow, Application, Semester } from '../types';
+import { ApplicationRow, Application, Semester, User } from '../types';
 import apiClient from '@api/apiClient';
 import { applicationColumns } from './columns';
 import { ReviewModal } from './reviewModal';
+import { ConfirmModal } from './confirmModal';
 import useLoginContext from '@components/LoginPage/useLoginContext';
 
 const TODAY = new Date();
+
+const checkBoxIconUnchecked = <CheckBoxOutlineBlank fontSize="small" />;
+const checkBoxIconChecked = <CheckBox fontSize="small" />;
 
 const getCurrentSemester = (): Semester => {
   const month: number = TODAY.getMonth();
@@ -43,13 +51,21 @@ export function ApplicationTable() {
   const [selectedUserRow, setSelectedUserRow] = useState<ApplicationRow | null>(
     null,
   );
+  const [allRecruitersList, setAllRecruitersList] = useState<Array<User>>([]);
+
   const [selectedApplication, setSelectedApplication] =
     useState<Application | null>(null);
 
   const [openReviewModal, setOpenReviewModal] = useState(false);
+  const [openConfirmModal, setOpenConfirmModal] = useState(false);
 
   const handleOpenReviewModal = () => {
     setOpenReviewModal(true);
+  };
+
+  const fetchRecruiters = async () => {
+    const data = await apiClient.getAllRecruiters(accessToken);
+    setAllRecruitersList(data);
   };
 
   const fetchData = async () => {
@@ -110,6 +126,10 @@ export function ApplicationTable() {
     }
   }, [rowSelection, data]);
 
+  const handleOpenConfirmModal = () => {
+    setOpenConfirmModal(true);
+  };
+
   return (
     <Container maxWidth="xl">
       <Typography variant="h4" mb={1}>
@@ -133,6 +153,7 @@ export function ApplicationTable() {
         onRowSelectionModelChange={(newRowSelectionModel) => {
           setRowSelection(newRowSelectionModel);
           getApplication(data[newRowSelectionModel[0] as number].userId);
+          fetchRecruiters();
         }}
         rowSelectionModel={rowSelection}
       />
@@ -168,7 +189,52 @@ export function ApplicationTable() {
             <Typography variant="body1">
               Applications: {selectedApplication.numApps}
             </Typography>
+            <Typography variant="body1">Recruiters:</Typography>
+            <Typography>
+              # Events Attended: {selectedApplication.eventsAttended}
+            </Typography>
           </Stack>
+          <Autocomplete
+            multiple
+            options={allRecruitersList}
+            disableCloseOnSelect
+            getOptionLabel={(recruiter) =>
+              recruiter.firstName + ' ' + recruiter.lastName
+            }
+            renderOption={(props, option, { selected }) => {
+              const { key, ...optionProps } =
+                props as React.HTMLAttributes<HTMLLIElement> & {
+                  key: string;
+                };
+              return (
+                <li key={key} {...optionProps}>
+                  <Checkbox
+                    icon={checkBoxIconUnchecked}
+                    checkedIcon={checkBoxIconChecked}
+                    checked={selected}
+                  />
+                  {option.firstName + ' ' + option.lastName}
+                </li>
+              );
+            }}
+            style={{ width: 400, marginTop: 10 }}
+            renderInput={(params) => (
+              <TextField {...params} label="Assign Recruiter(s)" />
+            )}
+          />
+          <Button
+            variant="contained"
+            size="small"
+            onClick={handleOpenConfirmModal}
+          >
+            Check Into Event
+          </Button>
+          <ConfirmModal
+            open={openConfirmModal}
+            setOpen={setOpenConfirmModal}
+            selectedApplication={selectedApplication}
+            accessToken={accessToken}
+          />
           <Typography variant="body1" mt={1}>
             Application Responses
           </Typography>
