@@ -6,11 +6,18 @@ import { User } from './user.entity';
 import { JwtStrategy } from '../auth/jwt.strategy';
 import { CurrentUserInterceptor } from '../interceptors/current-user.interceptor';
 import { AuthService } from '../auth/auth.service';
+import { IsEmailUniqueConstraint } from './email-unique.decorator';
 
 @Module({
   imports: [TypeOrmModule.forFeature([User])],
   controllers: [UsersController],
-  providers: [UsersService, AuthService, JwtStrategy, CurrentUserInterceptor],
-  exports: [UsersService],
+  providers: [
+    UsersService,
+    AuthService,
+    JwtStrategy,
+    IsEmailUniqueConstraint,
+    CurrentUserInterceptor,
+  ],
+  exports: [UsersService, IsEmailUniqueConstraint],
 })
 export class UsersModule {}

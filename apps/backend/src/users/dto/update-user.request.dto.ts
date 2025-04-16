@@ -10,6 +10,7 @@ import {
   IsUrl,
   IsObject,
 } from 'class-validator';
+import { IsEmailUnique } from '../email-unique.decorator';
 
 export class UpdateUserRequestDTO {
   @IsOptional()
@@ -18,6 +19,7 @@ export class UpdateUserRequestDTO {
 
   @IsOptional()
   @IsEmail()
+  @IsEmailUnique({ message: 'This email is already in use.' })
   email?: string;
 
   @IsOptional()

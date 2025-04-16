@@ -68,6 +68,7 @@ type Application = {
 type User = {
   id: number;
   status: string;
+  email: string;
 };
 
 export {
