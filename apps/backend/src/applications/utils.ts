@@ -52,5 +52,6 @@ export const toGetApplicationResponseDTO = (
     reviews: application.reviews,
     numApps: application.numApps,
     eventsAttended: application.eventsAttended,
+    user: application.user,
   };
 };

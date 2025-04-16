@@ -35,18 +35,18 @@ export const applicationColumns = [
     width: 150,
   },
   {
-    field: 'meanRatingAllStages',
+    field: 'meanRatingAllReviews',
     headerName: 'Rating All Stages',
     width: 150,
   },
-  {
-    field: 'meanRatingSingleStages',
-    headerName: 'Rating Single Stage',
-    width: 150,
-  },
-  {
-    field: 'eventsAttended',
-    headerName: 'Events Attended',
-    width: 150,
-  },
+  // {
+  //   field: 'meanRatingSingleStages',
+  //   headerName: 'Rating Single Stage',
+  //   width: 150,
+  // },
+  // {
+  //   field: 'eventsAttended',
+  //   headerName: 'Events Attended',
+  //   width: 150,
+  // },
 ];

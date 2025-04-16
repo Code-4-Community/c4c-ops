@@ -89,12 +89,12 @@ export class Application {
   eventsAttended: number;
 
   toGetAllApplicationResponseDTO(
-    meanRatingAllReviews,
-    meanRatingResume,
-    meanRatingChallenge,
-    meanRatingTechnicalChallenge,
-    meanRatingInterview,
-    applicationStep,
+    meanRatingAllReviews: number,
+    meanRatingResume: number,
+    meanRatingChallenge: number,
+    meanRatingTechnicalChallenge: number,
+    meanRatingInterview: number,
+    applicationStep: ApplicationStep,
   ): GetAllApplicationResponseDTO {
     return {
       userId: this.user.id,
@@ -116,7 +116,7 @@ export class Application {
 
   toGetApplicationResponseDTO(
     numApps: number,
-    applicationStep,
+    applicationStep: ApplicationStep,
   ): GetApplicationResponseDTO {
     return {
       id: this.id,
@@ -129,7 +129,8 @@ export class Application {
       response: this.response,
       recruiters: this.recruiters,
       reviews: this.reviews,
-      numApps,
+      user: this.user,
+      numApps: numApps,
       eventsAttended: this.eventsAttended,
     };
   }

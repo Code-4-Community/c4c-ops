@@ -72,6 +72,7 @@ export function ApplicationTable() {
     const data = await apiClient.getAllApplications(accessToken);
     // Each application needs an id for the DataGrid to work
     if (data) {
+      console.log('data', data);
       data.forEach((row, index) => {
         row.id = index;
       });
@@ -190,9 +191,9 @@ export function ApplicationTable() {
               Applications: {selectedApplication.numApps}
             </Typography>
             <Typography variant="body1">Recruiters:</Typography>
-            <Typography>
+            {/* <Typography>
               # Events Attended: {selectedApplication.eventsAttended}
-            </Typography>
+            </Typography> */}
           </Stack>
           <Autocomplete
             multiple
@@ -280,13 +281,13 @@ export function ApplicationTable() {
               Start Review
             </Button>
 
-            {selectedUserRow && (
+            {/* {selectedUserRow && (
               <Button
               // onClick={(event) => changeStage(event, selectedUserRow.userId)}
               >
                 Move Stage
               </Button>
-            )}
+            )} */}
           </Stack>
           <ReviewModal
             open={openReviewModal}

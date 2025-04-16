@@ -146,6 +146,7 @@ export class ApplicationsService {
     });
 
     const allApplicationsDto = applications.map((app) => {
+      console.log('applications', app.reviews);
       // Initialize variables for storing mean ratings
       let meanRatingAllReviews = null;
       let meanRatingResume = null;
@@ -156,10 +157,13 @@ export class ApplicationsService {
 
       // Calculate mean rating of all reviews
       if (app.reviews.length > 0) {
+        console.log('entered here');
         meanRatingAllReviews =
           app.reviews.reduce((acc, review) => acc + review.rating, 0) /
           app.reviews.length;
+        console.log('mean rating', meanRatingAllReviews);
       }
+      console.log('mean rating', meanRatingAllReviews);
 
       // Filter reviews by stage and calculate mean ratings accordingly
       const resumeReviews = app.reviews.filter(
@@ -214,7 +218,7 @@ export class ApplicationsService {
         applicationStep = ApplicationStep.SUBMITTED;
       }
 
-      return app.toGetAllApplicationResponseDTO(
+      const ans = app.toGetAllApplicationResponseDTO(
         meanRatingAllReviews,
         meanRatingResume,
         meanRatingChallenge,
@@ -222,6 +226,9 @@ export class ApplicationsService {
         meanRatingInterview,
         applicationStep,
       );
+      console.log('ans', ans);
+
+      return ans;
     });
 
     return allApplicationsDto;

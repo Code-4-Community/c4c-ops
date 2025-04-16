@@ -32,4 +32,6 @@ export class GetApplicationResponseDTO {
   numApps: number;
 
   eventsAttended: number;
+
+  user: User;
 }
