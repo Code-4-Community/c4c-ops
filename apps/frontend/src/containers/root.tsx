@@ -20,8 +20,6 @@ const Root: React.FC = () => {
   } else {
     return <ApplicationTable />;
   }
-
-  return <div></div>;
 };
 
 export default Root;
