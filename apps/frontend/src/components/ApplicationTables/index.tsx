@@ -15,6 +15,7 @@ import { DoneOutline } from '@mui/icons-material';
 import { ApplicationRow, Application, Semester } from '../types';
 import apiClient from '@api/apiClient';
 import { applicationColumns } from './columns';
+import { DecisionModal } from './decisionModal';
 import { ReviewModal } from './reviewModal';
 import useLoginContext from '@components/LoginPage/useLoginContext';
 
@@ -47,9 +48,14 @@ export function ApplicationTable() {
     useState<Application | null>(null);
 
   const [openReviewModal, setOpenReviewModal] = useState(false);
+  const [openDecisionModal, setOpenDecisionModal] = useState(false);
 
   const handleOpenReviewModal = () => {
     setOpenReviewModal(true);
+  };
+
+  const handleOpenDecisionModal = () => {
+    setOpenDecisionModal(true);
   };
 
   const fetchData = async () => {
@@ -72,24 +78,6 @@ export function ApplicationTable() {
       alert('Failed to fetch application details.');
     }
   };
-
-  // const changeStage = async (
-  //   event: React.MouseEvent<HTMLButtonElement>,
-  //   userId: number,
-  // ) => {
-  //   console.log(`Attempting to change stage for userId: ${userId}`);
-  //   try {
-  //     const updatedApplication = await apiClient.changeStage(
-  //       accessToken,
-  //       userId,
-  //     );
-  //     console.log('Stage changed successfully:', updatedApplication.stage);
-  //     alert(`Stage updated to: ${updatedApplication.stage}`);
-  //   } catch (error) {
-  //     console.error('Error changing application stage:', error);
-  //     alert('Failed to change application stage.');
-  //   }
-  // };
 
   const getFullName = async () => {
     setFullName(await apiClient.getFullName(accessToken));
@@ -215,9 +203,7 @@ export function ApplicationTable() {
             </Button>
 
             {selectedUserRow && (
-              <Button
-              // onClick={(event) => changeStage(event, selectedUserRow.userId)}
-              >
+              <Button size="small" onClick={handleOpenDecisionModal}>
                 Move Stage
               </Button>
             )}
@@ -225,6 +211,13 @@ export function ApplicationTable() {
           <ReviewModal
             open={openReviewModal}
             setOpen={setOpenReviewModal}
+            selectedUserRow={selectedUserRow}
+            selectedApplication={selectedApplication}
+            accessToken={accessToken}
+          />
+          <DecisionModal
+            open={openDecisionModal}
+            setOpen={setOpenDecisionModal}
             selectedUserRow={selectedUserRow}
             selectedApplication={selectedApplication}
             accessToken={accessToken}
