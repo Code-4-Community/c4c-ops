@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { DataGrid, GridRowSelectionModel } from '@mui/x-data-grid';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import {
   Container,
   Typography,
@@ -100,15 +101,43 @@ export function ApplicationTable() {
 
   return (
     <Container maxWidth="xl">
-      <Typography variant="h4" mb={1}>
-        Welcome back, {fullName ? fullName : 'User'}
-      </Typography>
-      <Typography variant="h6" mb={1}>
-        Current Recruitment Cycle: {getCurrentSemester()} {getCurrentYear()}
-      </Typography>
-      <Typography variant="body1" mb={3}>
-        Assigned For Review: Jane Smith, John Doe (Complete by 5/1/2024)
-      </Typography>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          flexDirection: 'row',
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            flexDirection: 'column',
+          }}
+        >
+          <Typography variant="h4" mb={1}>
+            Welcome back, {fullName ? fullName : 'User'}
+          </Typography>
+          <Typography variant="h6" mb={1}>
+            Current Recruitment Cycle: {getCurrentSemester()} {getCurrentYear()}
+          </Typography>
+          <Typography variant="body1" mb={3}>
+            Assigned For Review: Jane Smith, John Doe (Complete by 5/1/2024)
+          </Typography>
+        </div>
+        <Button
+          variant="contained"
+          color="primary"
+          size="small"
+          sx={{ alignSelf: 'center' }}
+          onClick={() => {
+            fetchData();
+          }}
+          startIcon={<RefreshIcon />}
+        >
+          Refresh
+        </Button>
+      </div>
       <DataGrid
         rows={data}
         columns={applicationColumns}

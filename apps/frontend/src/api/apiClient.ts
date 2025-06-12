@@ -74,10 +74,10 @@ export class ApiClient {
 
   public async submitDecision(
     accessToken: string,
-    userId: number,
+    applicationId: number,
     decision: DecisionRequest,
   ): Promise<void> {
-    return this.post(`/decision/${userId}`, decision, {
+    return this.post(`/api/apps/decision/${applicationId}`, decision, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
