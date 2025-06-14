@@ -18,7 +18,7 @@ type SubmitReviewRequest = {
 };
 
 type DecisionRequest = {
-  decision: Decision;
+  decision: 'ACCEPT' | 'REJECT';
 };
 
 export class ApiClient {
@@ -75,9 +75,9 @@ export class ApiClient {
   public async submitDecision(
     accessToken: string,
     applicationId: number,
-    decision: DecisionRequest,
+    decisionRequest: DecisionRequest,
   ): Promise<void> {
-    return this.post(`/api/apps/decision/${applicationId}`, decision, {
+    return this.post(`/api/apps/decision/${applicationId}`, decisionRequest, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },

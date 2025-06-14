@@ -66,7 +66,7 @@ export class Application {
   @IsObject({ each: true })
   response: Response[];
 
-  @Column('varchar', { array: true, default: {} })
+  // @Column('varchar', { array: true, default: {} })
   @IsArray()
   @IsObject({ each: true })
   @OneToMany(() => Review, (review) => review.application)
