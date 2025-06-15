@@ -96,11 +96,9 @@ export function ApplicationTable() {
   };
 
   useEffect(() => {
-    if (isPageRendered.current) {
-      fetchData();
-      getFullName();
-    }
-    isPageRendered.current = true;
+    // if statement removed, was causing issues with frontend loading data
+    fetchData();
+    getFullName();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessToken]);
 
