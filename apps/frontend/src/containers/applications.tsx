@@ -5,4 +5,4 @@ const Applications: React.FC = () => {
   return <ApplicationTable />;
 };
 
-export default Applications; 
+export default Applications;

@@ -16,7 +16,7 @@ const AdminRoutes: React.FC = () => {
       try {
         const userData = await apiClient.getUser(accessToken);
         setUser(userData);
-        
+
         if (userData?.status === 'Applicant') {
           navigate('/applicant');
         }
@@ -34,10 +34,10 @@ const AdminRoutes: React.FC = () => {
 
   if (loading) {
     return (
-      <Box 
-        display="flex" 
-        justifyContent="center" 
-        alignItems="center" 
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
         minHeight="100vh"
       >
         <CircularProgress />
@@ -53,4 +53,4 @@ const AdminRoutes: React.FC = () => {
   return null;
 };
 
-export default AdminRoutes; 
+export default AdminRoutes;

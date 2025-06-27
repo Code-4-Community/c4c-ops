@@ -92,32 +92,39 @@ export const Navigation: React.FC<NavigationProps> = ({ children }) => {
   const drawerContent = (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       {!isMobile && (
-        <Toolbar sx={{ justifyContent: 'flex-end', minHeight: '64px !important' }}>
+        <Toolbar
+          sx={{ justifyContent: 'flex-end', minHeight: '64px !important' }}
+        >
           <IconButton onClick={handleCollapseToggle} size="small">
             {collapsed ? <MenuIcon /> : <ChevronLeftIcon />}
           </IconButton>
         </Toolbar>
       )}
-      
+
       <List sx={{ flexGrow: 1, pt: isMobile ? 2 : 0 }}>
         {navigationItems.map((item) => {
           const isActive = isActivePath(item.path);
-          
+
           return (
             <ListItem key={item.text} disablePadding>
-              <Tooltip 
-                title={item.text} 
-                placement="right" 
+              <Tooltip
+                title={item.text}
+                placement="right"
                 disableHoverListener={!collapsed || isMobile}
               >
                 <ListItemButton
                   onClick={() => handleNavigation(item.path)}
                   sx={{
                     minHeight: 48,
-                    justifyContent: collapsed && !isMobile ? 'center' : 'initial',
+                    justifyContent:
+                      collapsed && !isMobile ? 'center' : 'initial',
                     px: 2.5,
-                    backgroundColor: isActive ? theme.palette.action.selected : 'transparent',
-                    borderRight: isActive ? `3px solid ${theme.palette.primary.main}` : 'none',
+                    backgroundColor: isActive
+                      ? theme.palette.action.selected
+                      : 'transparent',
+                    borderRight: isActive
+                      ? `3px solid ${theme.palette.primary.main}`
+                      : 'none',
                     '&:hover': {
                       backgroundColor: theme.palette.action.hover,
                     },
@@ -128,16 +135,20 @@ export const Navigation: React.FC<NavigationProps> = ({ children }) => {
                       minWidth: 0,
                       mr: collapsed && !isMobile ? 'auto' : 3,
                       justifyContent: 'center',
-                      color: isActive ? theme.palette.primary.main : theme.palette.text.secondary,
+                      color: isActive
+                        ? theme.palette.primary.main
+                        : theme.palette.text.secondary,
                     }}
                   >
                     {item.icon}
                   </ListItemIcon>
                   {(!collapsed || isMobile) && (
-                    <ListItemText 
+                    <ListItemText
                       primary={item.text}
                       sx={{
-                        color: isActive ? theme.palette.primary.main : theme.palette.text.primary,
+                        color: isActive
+                          ? theme.palette.primary.main
+                          : theme.palette.text.primary,
                         fontWeight: isActive ? 600 : 400,
                       }}
                     />
@@ -185,21 +196,21 @@ export const Navigation: React.FC<NavigationProps> = ({ children }) => {
         open={isMobile ? mobileOpen : true}
         onClose={handleDrawerToggle}
         ModalProps={{
-          keepMounted: true, 
+          keepMounted: true,
         }}
         sx={{
-          width: isMobile 
-            ? DRAWER_WIDTH 
-            : collapsed 
-              ? COLLAPSED_DRAWER_WIDTH 
-              : DRAWER_WIDTH,
+          width: isMobile
+            ? DRAWER_WIDTH
+            : collapsed
+            ? COLLAPSED_DRAWER_WIDTH
+            : DRAWER_WIDTH,
           flexShrink: 0,
           '& .MuiDrawer-paper': {
-            width: isMobile 
-              ? DRAWER_WIDTH 
-              : collapsed 
-                ? COLLAPSED_DRAWER_WIDTH 
-                : DRAWER_WIDTH,
+            width: isMobile
+              ? DRAWER_WIDTH
+              : collapsed
+              ? COLLAPSED_DRAWER_WIDTH
+              : DRAWER_WIDTH,
             boxSizing: 'border-box',
             borderRight: `1px solid ${theme.palette.divider}`,
             backgroundColor: theme.palette.background.paper,
@@ -219,8 +230,8 @@ export const Navigation: React.FC<NavigationProps> = ({ children }) => {
           flexGrow: 1,
           width: {
             xs: '100%',
-            md: collapsed 
-              ? `calc(100% - ${COLLAPSED_DRAWER_WIDTH}px)` 
+            md: collapsed
+              ? `calc(100% - ${COLLAPSED_DRAWER_WIDTH}px)`
               : `calc(100% - ${DRAWER_WIDTH}px)`,
           },
           marginTop: isMobile ? '64px' : 0,
@@ -236,4 +247,4 @@ export const Navigation: React.FC<NavigationProps> = ({ children }) => {
   );
 };
 
-export default Navigation; 
+export default Navigation;
