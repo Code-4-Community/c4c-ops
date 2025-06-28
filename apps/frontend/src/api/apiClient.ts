@@ -3,7 +3,11 @@ import type {
   Application,
   ApplicationRow,
   ApplicationStage,
+<<<<<<< HEAD
   User,
+=======
+  UserStatus,
+>>>>>>> 6b25e52 (fixed delete button and added change status functionality)
 } from '@components/types';
 
 const defaultBaseUrl =
@@ -88,12 +92,28 @@ export class ApiClient {
     }) as Promise<void>;
   }
 
+<<<<<<< HEAD
   public async getUser(accessToken: string): Promise<User> {
     return this.get('/api/users/', {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
     }) as Promise<User>;
+=======
+  public async updateUserStatus(
+    accessToken: string,
+    userId: number,
+    newStatus: UserStatus,
+  ): Promise<ApplicationRow> {
+    const payload: Partial<ApplicationRow> = {
+      status: newStatus,
+    };
+    return (await this.patch(`/api/users/${userId}`, payload, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    })) as Promise<ApplicationRow>;
+>>>>>>> 6b25e52 (fixed delete button and added change status functionality)
   }
 
   private async get(
@@ -117,6 +137,7 @@ export class ApiClient {
       .then((response) => response.data);
   }
 
+<<<<<<< HEAD
   private async postTwo(
     path: string,
     body: DecisionRequest,
@@ -129,8 +150,23 @@ export class ApiClient {
   }
 
   private async patch(path: string, body: unknown): Promise<unknown> {
+=======
+  private async patch(
+    path: string,
+    body: unknown,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    config: AxiosRequestConfig<any> | undefined = undefined,
+  ): Promise<unknown> {
+    console.log(`[API CLIENT] PATCH Request to: ${path}`);
+    console.log('[API CLIENT] PATCH Request Body:', body);
+    console.log(
+      '[API CLIENT] PATCH Request Config received by patch method:',
+      config,
+    );
+
+>>>>>>> 6b25e52 (fixed delete button and added change status functionality)
     return this.axiosInstance
-      .patch(path, body)
+      .patch(path, body, config)
       .then((response) => response.data);
   }
 

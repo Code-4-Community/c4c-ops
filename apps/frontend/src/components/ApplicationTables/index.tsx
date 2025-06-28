@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { DataGrid, GridRowSelectionModel } from '@mui/x-data-grid';
+
 import {
   Container,
   Typography,
@@ -9,8 +10,6 @@ import {
   ListItemText,
   ListItemIcon,
   Button,
-  Select,
-  MenuItem,
 } from '@mui/material';
 import { DoneOutline } from '@mui/icons-material';
 
@@ -19,6 +18,7 @@ import apiClient from '@api/apiClient';
 import { applicationColumns } from './columns';
 import { ReviewModal } from './reviewModal';
 import useLoginContext from '@components/LoginPage/useLoginContext';
+import { ChangeRoleModal } from './ChangeRoleModal';
 
 const TODAY = new Date();
 
@@ -49,6 +49,7 @@ export function ApplicationTable() {
     useState<Application | null>(null);
 
   const [openReviewModal, setOpenReviewModal] = useState(false);
+  const [openChangeRoleModal, setOpenChangeRoleModal] = useState(false);
 
   const handleOpenReviewModal = () => {
     setOpenReviewModal(true);
@@ -80,7 +81,6 @@ export function ApplicationTable() {
   };
 
   const getApplication = async (userId: number) => {
-    if (!userId) return;
     try {
       const application = await apiClient.getApplication(accessToken, userId);
       setSelectedApplication(application);
@@ -110,6 +110,24 @@ export function ApplicationTable() {
 
   const getFullName = async () => {
     setFullName(await apiClient.getFullName(accessToken));
+  };
+
+  const handleOpenChangeRoleModal = () => {
+    if (selectedUserRow) {
+      setOpenChangeRoleModal(true);
+    } else {
+      alert('Please select a user to change their role.');
+    }
+  };
+
+  const handleRoleChanged = (updatedUser: ApplicationRow) => {
+    setData((prevData) =>
+      prevData.map((row) =>
+        row.userId === updatedUser.userId ? updatedUser : row,
+      ),
+    );
+    setSelectedUserRow(updatedUser); // Update selected user info as well
+    // No need to call fetchData() here, as we received the updated user directly
   };
 
   useEffect(() => {
@@ -251,6 +269,14 @@ export function ApplicationTable() {
             >
               Delete User
             </Button>
+            <Button
+              variant="contained"
+              size="small"
+              onClick={handleOpenChangeRoleModal}
+              disabled={!selectedUserRow}
+            >
+              Change Status
+            </Button>
           </Stack>
           <ReviewModal
             open={openReviewModal}
@@ -259,6 +285,15 @@ export function ApplicationTable() {
             selectedApplication={selectedApplication}
             accessToken={accessToken}
           />
+          {selectedUserRow && (
+            <ChangeRoleModal
+              open={openChangeRoleModal}
+              setOpen={setOpenChangeRoleModal}
+              selectedUserRow={selectedUserRow}
+              accessToken={accessToken}
+              onRoleChanged={handleRoleChanged}
+            />
+          )}
         </>
       ) : null}
     </Container>
