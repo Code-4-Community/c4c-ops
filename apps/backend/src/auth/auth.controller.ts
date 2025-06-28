@@ -87,7 +87,6 @@ export class AuthController {
     @Request() req,
   ): Promise<void> {
     const user = await this.usersService.findOne(req.user, userId);
-    console.log(req.username);
     if (user.id !== userId && user.status !== UserStatus.ADMIN) {
       throw new UnauthorizedException();
     }
