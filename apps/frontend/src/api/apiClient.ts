@@ -3,7 +3,7 @@ import type {
   Application,
   ApplicationRow,
   ApplicationStage,
-  User,
+  UserStatus,
 } from '@components/types';
 
 const defaultBaseUrl =
@@ -61,6 +61,14 @@ export class ApiClient {
     })) as Promise<Application>;
   }
 
+  public async deleteUser(accessToken: string, userId: number): Promise<void> {
+    return this.delete(`/api/auth/delete/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }) as Promise<void>;
+  }
+
   public async getFullName(accessToken: string): Promise<string> {
     return (await this.get('/api/users/fullname', {
       headers: {
@@ -80,12 +88,19 @@ export class ApiClient {
     }) as Promise<void>;
   }
 
-  public async getUser(accessToken: string): Promise<User> {
-    return this.get('/api/users/', {
+  public async updateUserStatus(
+    accessToken: string,
+    userId: number,
+    newStatus: UserStatus,
+  ): Promise<ApplicationRow> {
+    const payload: Partial<ApplicationRow> = {
+      status: newStatus,
+    };
+    return (await this.patch(`/api/users/${userId}`, payload, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
-    }) as Promise<User>;
+    })) as Promise<ApplicationRow>;
   }
 
   private async get(
@@ -109,25 +124,24 @@ export class ApiClient {
       .then((response) => response.data);
   }
 
-  private async postTwo(
+  private async patch(
     path: string,
-    body: DecisionRequest,
+    body: unknown,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    config: AxiosRequestConfig<any> | undefined = undefined,
+  ): Promise<unknown> {
+    return this.axiosInstance
+      .patch(path, body, config)
+      .then((response) => response.data);
+  }
+
+  private async delete(
+    path: string,
     headers: AxiosRequestConfig<any> | undefined = undefined,
   ): Promise<unknown> {
     return this.axiosInstance
-      .post(path, body, headers)
+      .delete(path, headers)
       .then((response) => response.data);
-  }
-
-  private async patch(path: string, body: unknown): Promise<unknown> {
-    return this.axiosInstance
-      .patch(path, body)
-      .then((response) => response.data);
-  }
-
-  private async delete(path: string): Promise<unknown> {
-    return this.axiosInstance.delete(path).then((response) => response.data);
   }
 }
 

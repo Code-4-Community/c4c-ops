@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -79,20 +80,18 @@ export class AuthController {
     });
   }
 
-  @Post('/delete/:userId')
+  @Delete('/delete/:userId')
   @UseGuards(AuthGuard('jwt'))
   async delete(
     @Param('userId', ParseIntPipe) userId: number,
     @Request() req,
   ): Promise<void> {
     const user = await this.usersService.findOne(req.user, userId);
-
     if (user.id !== userId && user.status !== UserStatus.ADMIN) {
       throw new UnauthorizedException();
     }
-
     try {
-      await this.authService.deleteUser(user.email);
+      await this.authService.deleteUser(req.username);
     } catch (e) {
       throw new BadRequestException(e.message);
     }

@@ -18,6 +18,14 @@ enum Position {
   DESIGNER = 'DESIGNER',
 }
 
+enum UserStatus {
+  MEMBER = 'Member',
+  RECRUITER = 'Recruiter',
+  ADMIN = 'Admin',
+  ALUMNI = 'Alumni',
+  APPLICANT = 'Applicant',
+}
+
 type ApplicationRow = {
   id: number;
   userId: number;
@@ -25,6 +33,7 @@ type ApplicationRow = {
   lastName: string;
   stage: ApplicationStage;
   step: ApplicationStep;
+  status: UserStatus;
   position: Position;
   createdAt: string;
   meanRatingAllStages: number;
@@ -59,6 +68,7 @@ type Application = {
   position: Position;
   stage: ApplicationStage;
   step: ApplicationStep;
+  status: UserStatus;
   response: Response[];
   numApps: number;
   reviews: Review[];
@@ -79,5 +89,6 @@ export {
   Position,
   Response,
   Review,
+  UserStatus,
   Semester,
 };
