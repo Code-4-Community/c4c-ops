@@ -1,5 +1,11 @@
 import { useEffect, useState, useRef } from 'react';
-import { DataGrid, GridRowSelectionModel } from '@mui/x-data-grid';
+import {
+  DataGrid,
+  GridRowSelectionModel,
+  GridColDef,
+  GridRenderCellParams,
+} from '@mui/x-data-grid';
+import { Snackbar, Alert } from '@mui/material';
 import {
   Container,
   Typography,
@@ -9,16 +15,34 @@ import {
   ListItemText,
   ListItemIcon,
   Button,
+  Select,
+  MenuItem,
+  FormControl,
+  SelectChangeEvent,
 } from '@mui/material';
 import { DoneOutline } from '@mui/icons-material';
 
-import { ApplicationRow, Application, Semester } from '../types';
+import {
+  ApplicationRow,
+  Application,
+  Semester,
+  ApplicationStage,
+} from '../types';
 import apiClient from '@api/apiClient';
 import { applicationColumns } from './columns';
 import { ReviewModal } from './reviewModal';
 import useLoginContext from '@components/LoginPage/useLoginContext';
 
 const TODAY = new Date();
+
+const STAGE_OPTIONS: ApplicationStage[] = [
+  ApplicationStage.RESUME,
+  ApplicationStage.INTERVIEW,
+  ApplicationStage.ACCEPTED,
+  ApplicationStage.REJECTED,
+  ApplicationStage.TECHNICAL_CHALLENGE,
+  ApplicationStage.PM_CHALLENGE,
+];
 
 const getCurrentSemester = (): Semester => {
   const month: number = TODAY.getMonth();
@@ -48,6 +72,13 @@ export function ApplicationTable() {
 
   const [openReviewModal, setOpenReviewModal] = useState(false);
 
+  const [toastOpen, setToastOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+
+  const handleToastClose = () => {
+    setToastOpen(false);
+  };
+
   const handleOpenReviewModal = () => {
     setOpenReviewModal(true);
   };
@@ -73,33 +104,113 @@ export function ApplicationTable() {
     }
   };
 
-  // const changeStage = async (
-  //   event: React.MouseEvent<HTMLButtonElement>,
-  //   userId: number,
-  // ) => {
-  //   console.log(`Attempting to change stage for userId: ${userId}`);
-  //   try {
-  //     const updatedApplication = await apiClient.changeStage(
-  //       accessToken,
-  //       userId,
-  //     );
-  //     console.log('Stage changed successfully:', updatedApplication.stage);
-  //     alert(`Stage updated to: ${updatedApplication.stage}`);
-  //   } catch (error) {
-  //     console.error('Error changing application stage:', error);
-  //     alert('Failed to change application stage.');
-  //   }
-  // };
+  const updateStage = async (userId: number, newStage: ApplicationStage) => {
+    try {
+      // send payload to backend & update local state
+      await apiClient.updateStage(accessToken, userId, newStage);
+      setData((prevData) =>
+        prevData.map((row) =>
+          row.userId === userId ? { ...row, stage: newStage } : row,
+        ),
+      );
+
+      // if this row is selected update the selected application too
+      if (selectedUserRow?.userId === userId) {
+        setSelectedApplication((prev) =>
+          prev ? { ...prev, stage: newStage } : null,
+        );
+      }
+      setToastMessage(`Stage updated to ${newStage} successfully!`);
+      setToastOpen(true);
+    } catch (error) {
+      setToastMessage('Failed to update stage. Please try again.');
+      setToastOpen(true);
+    }
+  };
 
   const getFullName = async () => {
     setFullName(await apiClient.getFullName(accessToken));
   };
 
-  useEffect(() => {
-    if (isPageRendered.current) {
-      fetchData();
-      getFullName();
+  const enhancedColumns: GridColDef[] = applicationColumns.map((col) => {
+    if (col.field === 'stage') {
+      return {
+        ...col,
+        width: 240,
+        renderCell: (params: GridRenderCellParams<ApplicationRow>) => {
+          const handleStageChange = async (event: SelectChangeEvent) => {
+            const newStage = event.target.value as ApplicationStage;
+            await updateStage(params.row.userId, newStage);
+          };
+
+          return (
+            <FormControl size="medium" fullWidth>
+              <Select
+                value={params.value || ''}
+                onChange={handleStageChange}
+                placeholder={'Select'}
+                variant={'standard'}
+                sx={{
+                  fontSize: '0.875rem',
+                  '& .MuiInput-underline:before': {
+                    display: 'none',
+                  },
+                  '& .MuiInput-underline:after': {
+                    display: 'none',
+                  },
+                  '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
+                    display: 'none',
+                  },
+                }}
+              >
+                {STAGE_OPTIONS.map((option) => (
+                  <MenuItem
+                    key={option}
+                    value={option}
+                    sx={{ fontSize: '0.875rem' }}
+                  >
+                    {option}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          );
+        },
+      };
+    } else if (col.field === 'assigned') {
+      return {
+        ...col,
+        renderCell: (params: GridRenderCellParams<ApplicationRow>) => {
+          return (
+            <FormControl size="medium" fullWidth>
+              <Select
+                value={params.value || 'Unassigned'}
+                placeholder={'Unassigned'}
+                variant={'standard'}
+                displayEmpty
+                sx={{
+                  fontSize: '0.875rem',
+                }}
+              >
+                {/* TODO: backend integration */}
+                <MenuItem value="Unassigned" sx={{ fontSize: '0.875rem' }}>
+                  Unassigned
+                </MenuItem>
+                <MenuItem value="Jane Smith" sx={{ fontSize: '0.875rem' }}>
+                  Jane Smith
+                </MenuItem>
+              </Select>
+            </FormControl>
+          );
+        },
+      };
     }
+    return col;
+  });
+
+  useEffect(() => {
+    fetchData();
+    getFullName();
     isPageRendered.current = true;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessToken]);
@@ -123,7 +234,7 @@ export function ApplicationTable() {
       </Typography>
       <DataGrid
         rows={data}
-        columns={applicationColumns}
+        columns={enhancedColumns}
         initialState={{
           pagination: {
             paginationModel: { page: 0, pageSize: 5 },
@@ -231,6 +342,20 @@ export function ApplicationTable() {
           />
         </>
       ) : null}
+      <Snackbar
+        open={toastOpen}
+        autoHideDuration={3000}
+        onClose={handleToastClose}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <Alert
+          onClose={handleToastClose}
+          severity={toastMessage.includes('Failed') ? 'error' : 'success'}
+          sx={{ width: '100%' }}
+        >
+          {toastMessage}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 }

@@ -25,6 +25,11 @@ export const applicationColumns = [
     width: 150,
   },
   {
+    field: 'assigned',
+    headerName: 'Assigned',
+    width: 150,
+  },
+  {
     field: 'createdAt',
     headerName: 'Date',
     width: 150,
