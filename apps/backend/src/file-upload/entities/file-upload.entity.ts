@@ -1,6 +1,13 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
 import { Application } from '../../applications/application.entity';
 
+export enum FileType {
+  OVERVIEW = 'overview',
+  APPLICATION = 'application',
+  MATERIALS = 'materials',
+  INTERVIEW_NOTES = 'interview_notes',
+}
+
 @Entity()
 export class FileUpload {
   @PrimaryGeneratedColumn()
@@ -17,6 +24,13 @@ export class FileUpload {
 
   @Column({ type: 'bytea' }) // For PostgreSQL binary data
   file_data: Buffer;
+
+  @Column({
+    type: 'enum',
+    enum: FileType,
+    default: FileType.MATERIALS,
+  })
+  file_type: FileType;
 
   @ManyToOne(() => Application, (application) => application.attachments, {
     onDelete: 'CASCADE',

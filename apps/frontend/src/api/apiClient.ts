@@ -18,6 +18,13 @@ type SubmitReviewRequest = {
 
 type DecisionRequest = { decision: 'ACCEPT' | 'REJECT' };
 
+export enum FileType {
+  OVERVIEW = 'overview',
+  APPLICATION = 'application',
+  MATERIALS = 'materials',
+  INTERVIEW_NOTES = 'interview_notes',
+}
+
 export class ApiClient {
   private readonly axiosInstance: AxiosInstance;
 
@@ -86,6 +93,87 @@ export class ApiClient {
         Authorization: `Bearer ${accessToken}`,
       },
     }) as Promise<User>;
+  }
+
+  /**
+   * Downloads a file by type for a specific applicant
+   *
+   * @param accessToken - Authorization token
+   * @param applicantId - ID of the applicant
+   * @param fileType - Type of file to download
+   */
+  public async downloadFile(
+    accessToken: string,
+    applicantId: number,
+    fileType: FileType,
+  ): Promise<void> {
+    try {
+      const response = await this.axiosInstance.get(
+        `/api/file-upload/download/${applicantId}/${fileType}`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+          responseType: 'blob',
+        },
+      );
+
+      const blob = new Blob([response.data]);
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+
+      let filename = `applicant_${fileType}.pdf`; // default fallback
+
+      const contentDisposition =
+        response.headers['content-disposition'] ||
+        response.headers['Content-Disposition'];
+
+      if (contentDisposition) {
+        const matches = contentDisposition.match(
+          /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/,
+        );
+        if (matches && matches[1]) {
+          filename = matches[1].replace(/['"]/g, '').trim();
+        }
+      }
+
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading file:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Gets available file types for a specific applicant
+   *
+   * @param accessToken - Authorization token
+   * @param applicantId - ID of the applicant
+   * @returns Array of available file types
+   */
+  public async getAvailableFileTypes(
+    accessToken: string,
+    applicantId: number,
+  ): Promise<FileType[]> {
+    try {
+      const response = (await this.get(
+        `/api/file-upload/available-types/${applicantId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        },
+      )) as { availableTypes: FileType[] };
+      return response.availableTypes;
+    } catch (error) {
+      console.error('Error getting available file types:', error);
+      return [];
+    }
   }
 
   private async get(

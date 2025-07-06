@@ -16,6 +16,7 @@ import { ApplicationRow, Application, Semester } from '../types';
 import apiClient from '@api/apiClient';
 import { applicationColumns } from './columns';
 import { ReviewModal } from './reviewModal';
+import { FileDownloadTabs } from './FileDownloadTabs';
 import useLoginContext from '@components/LoginPage/useLoginContext';
 
 const TODAY = new Date();
@@ -142,6 +143,15 @@ export function ApplicationTable() {
           ? `Selected Applicant: ${selectedUserRow.firstName} ${selectedUserRow.lastName}`
           : 'No Applicant Selected'}
       </Typography>
+
+      {/* File Download Tabs */}
+      {selectedUserRow && (
+        <FileDownloadTabs
+          applicantId={selectedUserRow.userId}
+          applicantName={`${selectedUserRow.firstName}${selectedUserRow.lastName}`}
+          accessToken={accessToken}
+        />
+      )}
 
       {/* TODO refactor application details into a separate component */}
       {selectedApplication ? (
