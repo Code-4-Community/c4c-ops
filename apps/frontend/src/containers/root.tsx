@@ -1,9 +1,9 @@
-import { ApplicationTable } from '@components/ApplicationTables';
 import { ApplicantView } from '@components/ApplicantView/user';
 import useLoginContext from '@components/LoginPage/useLoginContext';
 import apiClient from '@api/apiClient';
 import { useEffect, useState } from 'react';
 import { User } from '@components/types';
+
 const Root: React.FC = () => {
   const { token: accessToken } = useLoginContext();
   const [user, setUser] = useState<User>();
@@ -14,12 +14,12 @@ const Root: React.FC = () => {
     };
     getUser();
   }, [accessToken]);
-  // (user?.status === 'Admin' || user?.status === 'Recruiter')
+  // only applicants can see this now.
   if (user?.status === 'Applicant') {
     return <ApplicantView user={user} />;
-  } else {
-    return <ApplicationTable />;
   }
+
+  return null;
 };
 
 export default Root;
