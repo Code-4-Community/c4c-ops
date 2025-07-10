@@ -195,7 +195,11 @@ export class AuthService {
     const urlEncodedBody = new URLSearchParams(body);
 
     const res = await axios
-      .post(tokenExchangeEndpoint, urlEncodedBody)
+      .post(tokenExchangeEndpoint, urlEncodedBody, {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      })
       .catch((err) => {
         console.error(
           'Cognito Token Fetch Error:',

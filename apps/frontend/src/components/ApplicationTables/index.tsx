@@ -92,11 +92,8 @@ export function ApplicationTable() {
   };
 
   useEffect(() => {
-    if (isPageRendered.current) {
-      fetchData();
-      getFullName();
-    }
-    isPageRendered.current = true;
+    fetchData();
+    getFullName();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessToken]);
 
