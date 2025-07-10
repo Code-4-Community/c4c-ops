@@ -70,6 +70,11 @@ type User = {
   status: string;
 };
 
+enum Decision {
+  ACCEPT = 'ACCEPT',
+  REJECT = 'REJECT',
+}
+
 export {
   User,
   ApplicationRow,
@@ -80,4 +85,5 @@ export {
   Response,
   Review,
   Semester,
+  Decision,
 };

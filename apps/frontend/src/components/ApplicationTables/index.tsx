@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { DataGrid, GridRowSelectionModel } from '@mui/x-data-grid';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import {
   Container,
   Typography,
@@ -15,6 +16,7 @@ import { DoneOutline } from '@mui/icons-material';
 import { ApplicationRow, Application, Semester } from '../types';
 import apiClient from '@api/apiClient';
 import { applicationColumns } from './columns';
+import { DecisionModal } from './decisionModal';
 import useLoginContext from '@components/LoginPage/useLoginContext';
 import { ReviewPanel } from './reviewPanel';
 
@@ -45,7 +47,17 @@ export function ApplicationTable() {
   );
   const [selectedApplication, setSelectedApplication] =
     useState<Application | null>(null);
-  const [userStatus, setUserStatus] = useState<string>('');
+
+  const [openReviewModal, setOpenReviewModal] = useState(false);
+  const [openDecisionModal, setOpenDecisionModal] = useState(false);
+
+  const handleOpenReviewModal = () => {
+    setOpenReviewModal(true);
+  };
+
+  const handleOpenDecisionModal = () => {
+    setOpenDecisionModal(true);
+  };
 
   const fetchData = async () => {
     const data = await apiClient.getAllApplications(accessToken);
@@ -67,24 +79,6 @@ export function ApplicationTable() {
       alert('Failed to fetch application details.');
     }
   };
-
-  // const changeStage = async (
-  //   event: React.MouseEvent<HTMLButtonElement>,
-  //   userId: number,
-  // ) => {
-  //   console.log(`Attempting to change stage for userId: ${userId}`);
-  //   try {
-  //     const updatedApplication = await apiClient.changeStage(
-  //       accessToken,
-  //       userId,
-  //     );
-  //     console.log('Stage changed successfully:', updatedApplication.stage);
-  //     alert(`Stage updated to: ${updatedApplication.stage}`);
-  //   } catch (error) {
-  //     console.error('Error changing application stage:', error);
-  //     alert('Failed to change application stage.');
-  //   }
-  // };
 
   const getFullName = async () => {
     setFullName(await apiClient.getFullName(accessToken));
@@ -113,15 +107,43 @@ export function ApplicationTable() {
 
   return (
     <Container maxWidth="xl">
-      <Typography variant="h4" mb={1}>
-        Welcome back, {fullName ? fullName : 'User'}
-      </Typography>
-      <Typography variant="h6" mb={1}>
-        Current Recruitment Cycle: {getCurrentSemester()} {getCurrentYear()}
-      </Typography>
-      <Typography variant="body1" mb={3}>
-        Assigned For Review: Jane Smith, John Doe (Complete by 5/1/2024)
-      </Typography>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          flexDirection: 'row',
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            flexDirection: 'column',
+          }}
+        >
+          <Typography variant="h4" mb={1}>
+            Welcome back, {fullName ? fullName : 'User'}
+          </Typography>
+          <Typography variant="h6" mb={1}>
+            Current Recruitment Cycle: {getCurrentSemester()} {getCurrentYear()}
+          </Typography>
+          <Typography variant="body1" mb={3}>
+            Assigned For Review: Jane Smith, John Doe (Complete by 5/1/2024)
+          </Typography>
+        </div>
+        <Button
+          variant="contained"
+          color="primary"
+          size="small"
+          sx={{ alignSelf: 'center' }}
+          onClick={() => {
+            fetchData();
+          }}
+          startIcon={<RefreshIcon />}
+        >
+          Refresh
+        </Button>
+      </div>
       <DataGrid
         rows={data}
         columns={applicationColumns}
