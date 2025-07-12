@@ -1,3 +1,4 @@
+import { IsPositive, IsString, IsOptional, IsDate } from 'class-validator';
 import { Review } from '../../reviews/review.entity';
 import {
   ApplicationStage,
@@ -6,6 +7,25 @@ import {
   Response,
   Semester,
 } from '../types';
+
+export class AssignedRecruiterDTO {
+  @IsPositive()
+  id: number;
+
+  @IsString()
+  firstName: string;
+
+  @IsString()
+  lastName: string;
+
+  @IsString()
+  @IsOptional()
+  email?: string;
+
+  @IsDate()
+  @IsOptional()
+  assignedAt?: Date;
+}
 
 export class GetApplicationResponseDTO {
   id: number;
@@ -27,4 +47,6 @@ export class GetApplicationResponseDTO {
   reviews: Review[];
 
   numApps: number;
+
+  assignedRecruiters: AssignedRecruiterDTO[];
 }

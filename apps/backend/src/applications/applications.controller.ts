@@ -22,6 +22,8 @@ import { UserStatus } from '../users/types';
 import { Application } from './application.entity';
 import { GetAllApplicationResponseDTO } from './dto/get-all-application.response.dto';
 import { ApplicationStep } from './types';
+import { AssignRecruitersRequestDTO } from './dto/assign-recruiters.request.dto';
+import { GetAssignedRecruitersResponseDTO } from './dto/get-assigned-recruiters.response.dto';
 
 @Controller('apps')
 @UseInterceptors(CurrentUserInterceptor)
@@ -113,6 +115,53 @@ export class ApplicationsController {
       applicationStep = ApplicationStep.SUBMITTED;
     }
 
-    return app.toGetApplicationResponseDTO(apps.length, applicationStep);
+    // Get assigned recruiters for this application
+    const assignedRecruiters =
+      await this.applicationsService.getAssignedRecruiters(app.id, req.user);
+
+    return app.toGetApplicationResponseDTO(
+      apps.length,
+      applicationStep,
+      assignedRecruiters,
+    );
+  }
+
+  @Post('/:applicationId/assign-recruiters')
+  @UseGuards(AuthGuard('jwt'))
+  async assignRecruitersToApplication(
+    @Param('applicationId', ParseIntPipe) applicationId: number,
+    @Body() assignRecruitersDTO: AssignRecruitersRequestDTO,
+    @Request() req,
+  ): Promise<void> {
+    // Authorization check for admin only
+    if (req.user.status !== UserStatus.ADMIN) {
+      throw new UnauthorizedException(
+        'Only admins can assign recruiters to applications',
+      );
+    }
+
+    await this.applicationsService.assignRecruitersToApplication(
+      applicationId,
+      assignRecruitersDTO.recruiterIds,
+      req.user,
+    );
+  }
+
+  @Get('/:applicationId/assigned-recruiters')
+  @UseGuards(AuthGuard('jwt'))
+  async getAssignedRecruiters(
+    @Param('applicationId', ParseIntPipe) applicationId: number,
+    @Request() req,
+  ): Promise<GetAssignedRecruitersResponseDTO> {
+    const assignedRecruiters =
+      await this.applicationsService.getAssignedRecruiters(
+        applicationId,
+        req.user,
+      );
+
+    return {
+      applicationId,
+      assignedRecruiters,
+    };
   }
 }
