@@ -23,6 +23,8 @@ const mockApplicationsService = {
   findCurrent: jest.fn(),
   verifySignature: jest.fn(),
   submitApp: jest.fn(),
+  assignRecruitersToApplication: jest.fn(),
+  getAssignedRecruiters: jest.fn(),
 };
 
 const mockAuthService = {
@@ -193,6 +195,169 @@ describe('ApplicationsController', () => {
     });
   });
 
+  describe('assignRecruitersToApplication', () => {
+    const adminUser = userFactory({ id: 1, status: UserStatus.ADMIN });
+    const recruiterUser = userFactory({ id: 2, status: UserStatus.RECRUITER });
+    const memberUser = userFactory({ id: 3, status: UserStatus.MEMBER });
+
+    it('should allow admin to assign recruiters to application', async () => {
+      const req = { user: adminUser };
+      const recruiterIds = [2, 3];
+
+      mockApplicationsService.assignRecruitersToApplication.mockResolvedValue(
+        undefined,
+      );
+
+      await expect(
+        controller.assignRecruitersToApplication(1, { recruiterIds }, req),
+      ).resolves.not.toThrow();
+
+      expect(
+        mockApplicationsService.assignRecruitersToApplication,
+      ).toHaveBeenCalledWith(1, recruiterIds, adminUser);
+    });
+
+    it('should throw UnauthorizedException for non-admin users', async () => {
+      const req = { user: recruiterUser };
+      const recruiterIds = [2, 3];
+
+      await expect(
+        controller.assignRecruitersToApplication(1, { recruiterIds }, req),
+      ).rejects.toThrow(UnauthorizedException);
+
+      expect(
+        mockApplicationsService.assignRecruitersToApplication,
+      ).not.toHaveBeenCalled();
+    });
+
+    it('should throw UnauthorizedException for members', async () => {
+      const req = { user: memberUser };
+      const recruiterIds = [2, 3];
+
+      await expect(
+        controller.assignRecruitersToApplication(1, { recruiterIds }, req),
+      ).rejects.toThrow(UnauthorizedException);
+
+      expect(
+        mockApplicationsService.assignRecruitersToApplication,
+      ).not.toHaveBeenCalled();
+    });
+
+    it('should show error if assigning member to application', async () => {
+      const req = { user: adminUser };
+      const recruiterIds = [2, 3];
+      const serviceError = new BadRequestException('Application not found');
+
+      mockApplicationsService.assignRecruitersToApplication.mockRejectedValue(
+        serviceError,
+      );
+
+      await expect(
+        controller.assignRecruitersToApplication(1, { recruiterIds }, req),
+      ).rejects.toThrow(serviceError);
+    });
+  });
+
+  describe('getAssignedRecruiters', () => {
+    const adminUser = userFactory({ id: 1, status: UserStatus.ADMIN });
+    const recruiterUser = userFactory({ id: 2, status: UserStatus.RECRUITER });
+    const memberUser = userFactory({ id: 3, status: UserStatus.MEMBER });
+
+    const mockAssignedRecruiters = [
+      {
+        id: 2,
+        firstName: 'John',
+        lastName: 'Doe',
+        email: 'john@example.com',
+        assignedAt: new Date(),
+      },
+      {
+        id: 4,
+        firstName: 'Jane',
+        lastName: 'Smith',
+        email: 'jane@example.com',
+        assignedAt: new Date(),
+      },
+    ];
+
+    it('should return assigned recruiters for admin', async () => {
+      const req = { user: adminUser };
+
+      mockApplicationsService.getAssignedRecruiters.mockResolvedValue(
+        mockAssignedRecruiters,
+      );
+
+      const result = await controller.getAssignedRecruiters(1, req);
+
+      expect(result).toEqual({
+        applicationId: 1,
+        assignedRecruiters: mockAssignedRecruiters,
+      });
+      expect(
+        mockApplicationsService.getAssignedRecruiters,
+      ).toHaveBeenCalledWith(1, adminUser);
+    });
+
+    it('should return assigned recruiters for any user (no authorization check in controller)', async () => {
+      const req = { user: memberUser };
+
+      mockApplicationsService.getAssignedRecruiters.mockResolvedValue(
+        mockAssignedRecruiters,
+      );
+
+      const result = await controller.getAssignedRecruiters(1, req);
+
+      expect(result).toEqual({
+        applicationId: 1,
+        assignedRecruiters: mockAssignedRecruiters,
+      });
+      expect(
+        mockApplicationsService.getAssignedRecruiters,
+      ).toHaveBeenCalledWith(1, memberUser);
+    });
+
+    it('should return empty array when no recruiters assigned', async () => {
+      const req = { user: adminUser };
+
+      mockApplicationsService.getAssignedRecruiters.mockResolvedValue([]);
+
+      const result = await controller.getAssignedRecruiters(1, req);
+
+      expect(result).toEqual({
+        applicationId: 1,
+        assignedRecruiters: [],
+      });
+    });
+
+    it('should show error if application id is incorrect', async () => {
+      const req = { user: adminUser };
+      const serviceError = new BadRequestException('Application not found');
+
+      mockApplicationsService.getAssignedRecruiters.mockRejectedValue(
+        serviceError,
+      );
+
+      await expect(controller.getAssignedRecruiters(999, req)).rejects.toThrow(
+        serviceError,
+      );
+    });
+
+    it('should handle different application IDs correctly', async () => {
+      const req = { user: adminUser };
+
+      mockApplicationsService.getAssignedRecruiters.mockResolvedValue(
+        mockAssignedRecruiters,
+      );
+
+      const result = await controller.getAssignedRecruiters(123, req);
+
+      expect(result.applicationId).toBe(123);
+      expect(
+        mockApplicationsService.getAssignedRecruiters,
+      ).toHaveBeenCalledWith(123, adminUser);
+    });
+  });
+
   describe('getApplications', () => {
     const recruiterUser = userFactory({ id: 2, status: UserStatus.RECRUITER });
     const adminUser = userFactory({ id: 3, status: UserStatus.ADMIN });
@@ -263,6 +428,7 @@ describe('ApplicationsController', () => {
       semester: Semester.FALL,
       step: ApplicationStep.SUBMITTED,
       response: [],
+      assignedRecruiterIds: [],
       toGetApplicationResponseDTO: jest.fn().mockReturnValue({
         id: 1,
         stage: ApplicationStage.RESUME,
@@ -351,6 +517,7 @@ describe('ApplicationsController', () => {
             reviews: [{ id: 1, rating: 4, stage: ApplicationStage.RESUME }],
             numApps: 1,
           }),
+          assignedRecruiterIds: [],
           toGetAllApplicationResponseDTO: jest.fn(),
         };
 
@@ -391,6 +558,7 @@ describe('ApplicationsController', () => {
             reviews: [],
             numApps: 1,
           }),
+          assignedRecruiterIds: [],
           toGetAllApplicationResponseDTO: jest.fn(),
         };
 
@@ -442,6 +610,7 @@ describe('ApplicationsController', () => {
             ],
             numApps: 1,
           }),
+          assignedRecruiterIds: [],
           toGetAllApplicationResponseDTO: jest.fn(),
         };
 
@@ -517,6 +686,7 @@ describe('ApplicationsController', () => {
             reviews: [],
             numApps: 1,
           }),
+          assignedRecruiterIds: [],
           toGetAllApplicationResponseDTO: jest.fn(),
         };
 
@@ -640,6 +810,7 @@ describe('ApplicationsController', () => {
                 stage === ApplicationStage.RESUME ? [] : [{ id: 1, rating: 4 }],
               numApps: 1,
             }),
+            assignedRecruiterIds: [],
             toGetAllApplicationResponseDTO: jest.fn(),
           };
 
@@ -688,6 +859,7 @@ describe('ApplicationsController', () => {
               reviews: [{ id: 1, rating: 4 }],
               numApps: 1,
             }),
+            assignedRecruiterIds: [],
             toGetAllApplicationResponseDTO: jest.fn(),
           };
 
@@ -727,6 +899,7 @@ describe('ApplicationsController', () => {
             reviews: [{ id: 1, rating: 2 }],
             numApps: 1,
           }),
+          assignedRecruiterIds: [],
           toGetAllApplicationResponseDTO: jest.fn(),
         };
 
