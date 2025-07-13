@@ -167,9 +167,12 @@ export class ApplicationsService {
       );
     }
 
-    // Check permissions based on user role
-    if (!this.canViewAssignedRecruiters(application, currentUser)) {
-      return []; // Return empty array if user can't see assignments
+    // Check permissions based on user role, only show if admin or recruiter
+    if (
+      currentUser.status !== UserStatus.ADMIN &&
+      currentUser.status !== UserStatus.RECRUITER
+    ) {
+      return [];
     }
 
     // Get recruiter details
@@ -186,31 +189,6 @@ export class ApplicationsService {
       // TODO: currently showing email (for future communication), delete if not necessary
       email: recruiter.email,
     }));
-  }
-
-  /**
-   * Determines if a user can view assigned recruiters for an application.
-   *
-   * @param application the application to check
-   * @param currentUser the user requesting the information
-   * @returns { boolean } true if user can view assignments
-   */
-  private canViewAssignedRecruiters(
-    application: Application,
-    currentUser: User,
-  ): boolean {
-    // Admins can see all assignments
-    if (currentUser.status === UserStatus.ADMIN) {
-      return true;
-    }
-
-    // Recruiters can only see assignments if they are assigned to this application
-    if (currentUser.status === UserStatus.RECRUITER) {
-      return application.assignedRecruiterIds.includes(currentUser.id);
-    }
-
-    // Applicants and other roles cannot see assignments
-    return false;
   }
 
   /**
@@ -313,92 +291,17 @@ export class ApplicationsService {
 
     const allApplicationsDto = await Promise.all(
       applications.map(async (app) => {
-        // Initialize variables for storing mean ratings
-        let meanRatingAllReviews = null;
-        let meanRatingResume = null;
-        let meanRatingChallenge = null; // Default to null for DESIGNERS
-        let meanRatingTechnicalChallenge = null;
-        let meanRatingInterview = null;
-        let applicationStep = null;
-
-        // Calculate mean rating of all reviews
-        if (app.reviews.length > 0) {
-          meanRatingAllReviews =
-            app.reviews.reduce((acc, review) => acc + review.rating, 0) /
-            app.reviews.length;
-        }
-
-        // Filter reviews by stage and calculate mean ratings accordingly
-        const resumeReviews = app.reviews.filter(
-          (review) => review.stage === ApplicationStage.RESUME,
-        );
-        const challengeReviews = app.reviews.filter(
-          (review) =>
-            review.stage === ApplicationStage.TECHNICAL_CHALLENGE ||
-            review.stage === ApplicationStage.PM_CHALLENGE,
-        );
-        const technicalChallengeReviews = app.reviews.filter(
-          (review) => review.stage === ApplicationStage.TECHNICAL_CHALLENGE,
-        );
-        const interviewReviews = app.reviews.filter(
-          (review) => review.stage === ApplicationStage.INTERVIEW,
-        );
-
-        // Mean rating for RESUME stage
-        if (resumeReviews.length > 0) {
-          meanRatingResume =
-            resumeReviews.reduce((acc, review) => acc + review.rating, 0) /
-            resumeReviews.length;
-        }
-
-        // Mean rating for CHALLENGE stage (for DEVS and PMS)
-        if (challengeReviews.length > 0) {
-          meanRatingChallenge =
-            challengeReviews.reduce((acc, review) => acc + review.rating, 0) /
-            challengeReviews.length;
-        }
-
-        // Mean rating for TECHNICAL_CHALLENGE stage (specifically for DEVS)
-        if (technicalChallengeReviews.length > 0) {
-          meanRatingTechnicalChallenge =
-            technicalChallengeReviews.reduce(
-              (acc, review) => acc + review.rating,
-              0,
-            ) / technicalChallengeReviews.length;
-        }
-
-        // Mean rating for INTERVIEW stage
-        if (interviewReviews.length > 0) {
-          meanRatingInterview =
-            interviewReviews.reduce((acc, review) => acc + review.rating, 0) /
-            interviewReviews.length;
-        }
-
-        // Tthe application step
-        if (app.reviews.length > 0) {
-          applicationStep = ApplicationStep.REVIEWED;
-        } else {
-          applicationStep = ApplicationStep.SUBMITTED;
-        }
-
-        // Get assigned recruiters for this application
-        let assignedRecruiters: AssignedRecruiterDTO[] = [];
-        if (app.assignedRecruiterIds && app.assignedRecruiterIds.length > 0) {
-          const recruiters: User[] = await this.findRecruitersByIds(app.id);
-          assignedRecruiters = recruiters.map((recruiter) => ({
-            id: recruiter.id,
-            firstName: recruiter.firstName,
-            lastName: recruiter.lastName,
-            // email and assignedAt omitted for list view
-          }));
-        }
+        const ratings = this.calculateAllRatings(app.reviews);
+        const applicationStep = this.determineApplicationStep(app.reviews);
+        const assignedRecruiters =
+          await this.getAssignedRecruitersForApplication(app);
 
         return app.toGetAllApplicationResponseDTO(
-          meanRatingAllReviews,
-          meanRatingResume,
-          meanRatingChallenge,
-          meanRatingTechnicalChallenge,
-          meanRatingInterview,
+          ratings.meanRatingAllReviews,
+          ratings.meanRatingResume,
+          ratings.meanRatingChallenge,
+          ratings.meanRatingTechnicalChallenge,
+          ratings.meanRatingInterview,
           applicationStep,
           assignedRecruiters,
         );
@@ -419,5 +322,89 @@ export class ApplicationsService {
     }
 
     return currentApp;
+  }
+
+  /**
+   * Calculates mean rating for reviews filtered by stage
+   */
+  private calculateMeanRating(
+    reviews: any[],
+    stage?: ApplicationStage,
+  ): number | null {
+    const filteredReviews = stage
+      ? reviews.filter((review) => review.stage === stage)
+      : reviews;
+
+    if (filteredReviews.length === 0) {
+      return null;
+    }
+
+    return (
+      filteredReviews.reduce((acc, review) => acc + review.rating, 0) /
+      filteredReviews.length
+    );
+  }
+
+  /**
+   * Calculates mean rating for challenge stages (both technical and PM challenges)
+   */
+  private calculateChallengeMeanRating(reviews: any[]): number | null {
+    const challengeReviews = reviews.filter(
+      (review) =>
+        review.stage === ApplicationStage.TECHNICAL_CHALLENGE ||
+        review.stage === ApplicationStage.PM_CHALLENGE,
+    );
+
+    return this.calculateMeanRating(challengeReviews);
+  }
+
+  /**
+   * Determines application step based on reviews
+   */
+  private determineApplicationStep(reviews: any[]): ApplicationStep {
+    return reviews.length > 0
+      ? ApplicationStep.REVIEWED
+      : ApplicationStep.SUBMITTED;
+  }
+
+  /**
+   * Gets assigned recruiters for an application
+   */
+  private async getAssignedRecruitersForApplication(
+    app: Application,
+  ): Promise<AssignedRecruiterDTO[]> {
+    if (!app.assignedRecruiterIds || app.assignedRecruiterIds.length === 0) {
+      return [];
+    }
+
+    const recruiters: User[] = await this.findRecruitersByIds(app.id);
+    return recruiters.map((recruiter) => ({
+      id: recruiter.id,
+      firstName: recruiter.firstName,
+      lastName: recruiter.lastName,
+      // email and assignedAt omitted for list view
+    }));
+  }
+
+  /**
+   * Calculates all ratings for an application
+   */
+  private calculateAllRatings(reviews: any[]) {
+    return {
+      meanRatingAllReviews: this.calculateMeanRating(reviews),
+      meanRatingResume: this.calculateMeanRating(
+        reviews,
+        ApplicationStage.RESUME,
+      ),
+      meanRatingChallenge: this.calculateChallengeMeanRating(reviews),
+      meanRatingTechnicalChallenge: this.calculateMeanRating(
+        reviews,
+        ApplicationStage.TECHNICAL_CHALLENGE,
+      ),
+      meanRatingInterview: this.calculateMeanRating(
+        reviews,
+        ApplicationStage.INTERVIEW,
+      ),
+    };
   }
 }
