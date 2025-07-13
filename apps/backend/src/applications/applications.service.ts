@@ -4,7 +4,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { UsersService } from '../users/users.service';
 import { Application } from './application.entity';
 import {
@@ -17,7 +17,7 @@ import { Decision, Response } from './types';
 import * as crypto from 'crypto';
 import { User } from '../users/user.entity';
 import { UserStatus } from '../users/types';
-import { Position, ApplicationStage, ApplicationStep } from './types';
+import { Position, ApplicationStage, ApplicationStep, Semester } from './types';
 import { GetAllApplicationResponseDTO } from './dto/get-all-application.response.dto';
 import { AssignedRecruiterDTO } from './dto/get-application.response.dto';
 import { stagesMap } from './applications.constants';
@@ -285,12 +285,29 @@ export class ApplicationsService {
     return recruiters;
   }
 
-  async findAllCurrentApplications(): Promise<GetAllApplicationResponseDTO[]> {
+  async findAllCurrentApplications(
+    currentUser?: User,
+  ): Promise<GetAllApplicationResponseDTO[]> {
+    // Base query for current cycle applications
+    interface ApplicationWhereClause {
+      year: number;
+      semester: Semester;
+      assignedRecruiterIds?: ReturnType<typeof In>;
+    }
+
+    const baseWhere: ApplicationWhereClause = {
+      year: getCurrentYear(),
+      semester: getCurrentSemester(),
+    };
+
+    // If user is a recruiter, only show applications assigned to them by
+    // checking where assignedRecruiterIds includes the user's id
+    if (currentUser && currentUser.status === UserStatus.RECRUITER) {
+      baseWhere.assignedRecruiterIds = In([currentUser.id]);
+    }
+
     const applications = await this.applicationsRepository.find({
-      where: {
-        year: getCurrentYear(),
-        semester: getCurrentSemester(),
-      },
+      where: baseWhere,
       relations: ['user', 'reviews'],
     });
 

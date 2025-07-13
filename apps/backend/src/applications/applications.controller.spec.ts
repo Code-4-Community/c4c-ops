@@ -20,6 +20,7 @@ const mockApplicationsService = {
   processDecision: jest.fn(),
   findAllCurrentApplications: jest.fn(),
   findAll: jest.fn(),
+  findAllByRecruiter: jest.fn(),
   findCurrent: jest.fn(),
   verifySignature: jest.fn(),
   submitApp: jest.fn(),
@@ -260,7 +261,6 @@ describe('ApplicationsController', () => {
 
   describe('getAssignedRecruiters', () => {
     const adminUser = userFactory({ id: 1, status: UserStatus.ADMIN });
-    const recruiterUser = userFactory({ id: 2, status: UserStatus.RECRUITER });
     const memberUser = userFactory({ id: 3, status: UserStatus.MEMBER });
 
     const mockAssignedRecruiters = [
@@ -375,7 +375,7 @@ describe('ApplicationsController', () => {
       expect(result).toEqual(mockApplications);
       expect(
         mockApplicationsService.findAllCurrentApplications,
-      ).toHaveBeenCalled();
+      ).toHaveBeenCalledWith(recruiterUser);
     });
 
     it('should allow admins to get all applications', async () => {
@@ -390,7 +390,7 @@ describe('ApplicationsController', () => {
       expect(result).toEqual(mockApplications);
       expect(
         mockApplicationsService.findAllCurrentApplications,
-      ).toHaveBeenCalled();
+      ).toHaveBeenCalledWith(adminUser);
     });
 
     it('should throw UnauthorizedException for non-recruiter/admin users', async () => {
@@ -403,6 +403,34 @@ describe('ApplicationsController', () => {
       expect(
         mockApplicationsService.findAllCurrentApplications,
       ).not.toHaveBeenCalled();
+    });
+
+    it('should filter applications based on user role - recruiters see only assigned applications', async () => {
+      const req = { user: recruiterUser };
+      const mockApplications = [{ id: 1, stage: ApplicationStage.RESUME }];
+      mockApplicationsService.findAllCurrentApplications.mockResolvedValue(
+        mockApplications,
+      );
+
+      await controller.getApplications(req);
+
+      expect(
+        mockApplicationsService.findAllCurrentApplications,
+      ).toHaveBeenCalledWith(recruiterUser);
+    });
+
+    it('should filter applications based on user role - admins see all applications', async () => {
+      const req = { user: adminUser };
+      const mockApplications = [{ id: 1, stage: ApplicationStage.RESUME }];
+      mockApplicationsService.findAllCurrentApplications.mockResolvedValue(
+        mockApplications,
+      );
+
+      await controller.getApplications(req);
+
+      expect(
+        mockApplicationsService.findAllCurrentApplications,
+      ).toHaveBeenCalledWith(adminUser);
     });
   });
 
@@ -485,7 +513,6 @@ describe('ApplicationsController', () => {
   describe('Applicant Status Tracking', () => {
     const applicantUser = userFactory({ id: 1, status: UserStatus.APPLICANT });
     const recruiterUser = userFactory({ id: 2, status: UserStatus.RECRUITER });
-    const adminUser = userFactory({ id: 3, status: UserStatus.ADMIN });
     const memberUser = userFactory({ id: 4, status: UserStatus.MEMBER });
 
     describe('View Application Status', () => {
