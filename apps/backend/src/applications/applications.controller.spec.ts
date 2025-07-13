@@ -289,10 +289,7 @@ describe('ApplicationsController', () => {
 
       const result = await controller.getAssignedRecruiters(1, req);
 
-      expect(result).toEqual({
-        applicationId: 1,
-        assignedRecruiters: mockAssignedRecruiters,
-      });
+      expect(result).toEqual(mockAssignedRecruiters);
       expect(
         mockApplicationsService.getAssignedRecruiters,
       ).toHaveBeenCalledWith(1, adminUser);
@@ -307,10 +304,7 @@ describe('ApplicationsController', () => {
 
       const result = await controller.getAssignedRecruiters(1, req);
 
-      expect(result).toEqual({
-        applicationId: 1,
-        assignedRecruiters: mockAssignedRecruiters,
-      });
+      expect(result).toEqual(mockAssignedRecruiters);
       expect(
         mockApplicationsService.getAssignedRecruiters,
       ).toHaveBeenCalledWith(1, memberUser);
@@ -323,10 +317,7 @@ describe('ApplicationsController', () => {
 
       const result = await controller.getAssignedRecruiters(1, req);
 
-      expect(result).toEqual({
-        applicationId: 1,
-        assignedRecruiters: [],
-      });
+      expect(result).toEqual([]);
     });
 
     it('should show error if application id is incorrect', async () => {
@@ -351,7 +342,7 @@ describe('ApplicationsController', () => {
 
       const result = await controller.getAssignedRecruiters(123, req);
 
-      expect(result.applicationId).toBe(123);
+      expect(result).toEqual(mockAssignedRecruiters);
       expect(
         mockApplicationsService.getAssignedRecruiters,
       ).toHaveBeenCalledWith(123, adminUser);

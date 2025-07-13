@@ -16,14 +16,16 @@ import { Decision, Response } from './types';
 import { ApplicationsService } from './applications.service';
 import { CurrentUserInterceptor } from '../interceptors/current-user.interceptor';
 import { AuthGuard } from '@nestjs/passport';
-import { GetApplicationResponseDTO } from './dto/get-application.response.dto';
+import {
+  AssignedRecruiterDTO,
+  GetApplicationResponseDTO,
+} from './dto/get-application.response.dto';
 import { getAppForCurrentCycle } from './utils';
 import { UserStatus } from '../users/types';
 import { Application } from './application.entity';
 import { GetAllApplicationResponseDTO } from './dto/get-all-application.response.dto';
 import { ApplicationStep } from './types';
 import { AssignRecruitersRequestDTO } from './dto/assign-recruiters.request.dto';
-import { GetAssignedRecruitersResponseDTO } from './dto/get-assigned-recruiters.response.dto';
 
 @Controller('apps')
 @UseInterceptors(CurrentUserInterceptor)
@@ -149,10 +151,10 @@ export class ApplicationsController {
     );
   }
 
-  @Post('/:applicationId/assign-recruiters')
+  @Post('/assign-recruiters/:appId')
   @UseGuards(AuthGuard('jwt'))
   async assignRecruitersToApplication(
-    @Param('applicationId', ParseIntPipe) applicationId: number,
+    @Param('appId', ParseIntPipe) applicationId: number,
     @Body() assignRecruitersDTO: AssignRecruitersRequestDTO,
     @Request() req,
   ): Promise<void> {
@@ -170,21 +172,18 @@ export class ApplicationsController {
     );
   }
 
-  @Get('/:applicationId/assigned-recruiters')
+  @Get('/assigned-recruiters/:appId')
   @UseGuards(AuthGuard('jwt'))
   async getAssignedRecruiters(
-    @Param('applicationId', ParseIntPipe) applicationId: number,
+    @Param('appId', ParseIntPipe) applicationId: number,
     @Request() req,
-  ): Promise<GetAssignedRecruitersResponseDTO> {
+  ): Promise<AssignedRecruiterDTO[]> {
     const assignedRecruiters =
       await this.applicationsService.getAssignedRecruiters(
         applicationId,
         req.user,
       );
 
-    return {
-      applicationId,
-      assignedRecruiters,
-    };
+    return assignedRecruiters;
   }
 }
