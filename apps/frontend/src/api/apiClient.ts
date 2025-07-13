@@ -5,6 +5,7 @@ import type {
   ApplicationStage,
   Decision,
   User,
+  AssignedRecruiter,
 } from '@components/types';
 
 const defaultBaseUrl =
@@ -93,6 +94,49 @@ export class ApiClient {
         Authorization: `Bearer ${accessToken}`,
       },
     }) as Promise<void>;
+  }
+
+  public async assignRecruiters(
+    accessToken: string,
+    applicationId: number,
+    recruiterIds: number[],
+  ): Promise<void> {
+    return this.post(
+      `/api/apps/assign-recruiters/${applicationId}`,
+      {
+        recruiterIds,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+    ) as Promise<void>;
+  }
+
+  public async getAssignedRecruiters(
+    accessToken: string,
+    applicationId: number,
+  ): Promise<AssignedRecruiter[]> {
+    return this.get(`/api/apps/assigned-recruiters/${applicationId}`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    }) as Promise<AssignedRecruiter[]>;
+  }
+
+  /**
+   * Get all available recruiters
+   * Used for assigned-to functionality
+   *
+   * @param accessToken The access token of the user (will be checked if admin by backend)
+   * @returns All recruiters
+   * @throws UnauthorizedException if user is not an admin
+   */
+  public async getAllRecruiters(
+    accessToken: string,
+  ): Promise<AssignedRecruiter[]> {
+    return this.get('/api/users/recruiters', {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    }) as Promise<AssignedRecruiter[]>;
   }
 
   public async getUser(accessToken: string): Promise<User> {

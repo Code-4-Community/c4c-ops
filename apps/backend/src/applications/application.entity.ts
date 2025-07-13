@@ -15,7 +15,10 @@ import {
   ApplicationStage,
   ApplicationStep,
 } from './types';
-import { GetApplicationResponseDTO } from './dto/get-application.response.dto';
+import {
+  GetApplicationResponseDTO,
+  AssignedRecruiterDTO,
+} from './dto/get-application.response.dto';
 import { Review } from '../reviews/review.entity';
 import { GetAllApplicationResponseDTO } from './dto/get-all-application.response.dto';
 import { FileUpload } from '../file-upload/entities/file-upload.entity';
@@ -72,6 +75,10 @@ export class Application {
   @OneToMany(() => Review, (review) => review.application)
   reviews: Review[];
 
+  @Column('int', { array: true, default: [] })
+  @IsArray()
+  assignedRecruiterIds: number[];
+
   toGetAllApplicationResponseDTO(
     meanRatingAllReviews,
     meanRatingResume,
@@ -79,6 +86,7 @@ export class Application {
     meanRatingTechnicalChallenge,
     meanRatingInterview,
     applicationStep,
+    assignedRecruiters: AssignedRecruiterDTO[] = [],
   ): GetAllApplicationResponseDTO {
     return {
       userId: this.user.id,
@@ -93,12 +101,14 @@ export class Application {
       meanRatingChallenge,
       meanRatingTechnicalChallenge,
       meanRatingInterview,
+      assignedRecruiters,
     };
   }
 
   toGetApplicationResponseDTO(
     numApps: number,
     applicationStep,
+    assignedRecruiters: AssignedRecruiterDTO[] = [],
   ): GetApplicationResponseDTO {
     return {
       id: this.id,
@@ -111,6 +121,7 @@ export class Application {
       response: this.response,
       reviews: this.reviews,
       numApps,
+      assignedRecruiters,
     };
   }
 }

@@ -49,6 +49,25 @@ export class UsersService {
     return users;
   }
 
+  /**
+   * Finds a user by their id.
+   * TODO: currently used for getting the recruiter information can get all of users like this, if this is a security violation, maybe we can switch to
+   * @param id the id of the user.
+   * @returns the user.
+   */
+  async findUserById(id: number): Promise<User> {
+    const user: User = await this.usersRepository.findOne({
+      where: { id },
+      relations: ['applications'],
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+
+    return user;
+  }
+
   // TODO refactor method to not take in currentUser
   async findOne(currentUser: User, userId: number): Promise<User> {
     const user = await this.usersRepository.findOne({
