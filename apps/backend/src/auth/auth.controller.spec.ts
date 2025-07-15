@@ -1,8 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { omit } from 'lodash';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { userFactory } from '../testing/factories/user.factory';
 import { UsersService } from '../users/users.service';
 
 const mockAuthService: Partial<AuthService> = {

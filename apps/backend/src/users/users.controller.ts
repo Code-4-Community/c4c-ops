@@ -54,6 +54,11 @@ export class UsersController {
     return this.usersService.findAllRecruiters();
   }
 
+  @Get('/status')
+  getStatus(@Request() req): UserStatus {
+    return req.user.status;
+  }
+
   @Get('/:userId')
   async getUser(
     @Param('userId', ParseIntPipe) userId: number,

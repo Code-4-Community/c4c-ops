@@ -8,15 +8,15 @@ import {
   ListItem,
   ListItemText,
   ListItemIcon,
-  Button,
+  Box,
 } from '@mui/material';
 import { DoneOutline } from '@mui/icons-material';
 
 import { ApplicationRow, Application, Semester } from '../types';
 import apiClient from '@api/apiClient';
 import { applicationColumns } from './columns';
-import { ReviewModal } from './reviewModal';
 import useLoginContext from '@components/LoginPage/useLoginContext';
+import { ReviewPanel } from './reviewPanel';
 
 const TODAY = new Date();
 
@@ -45,12 +45,7 @@ export function ApplicationTable() {
   );
   const [selectedApplication, setSelectedApplication] =
     useState<Application | null>(null);
-
-  const [openReviewModal, setOpenReviewModal] = useState(false);
-
-  const handleOpenReviewModal = () => {
-    setOpenReviewModal(true);
-  };
+  const [userStatus, setUserStatus] = useState<string>('');
 
   const fetchData = async () => {
     const data = await apiClient.getAllApplications(accessToken);
@@ -75,6 +70,7 @@ export function ApplicationTable() {
 
   const getFullName = async () => {
     setFullName(await apiClient.getFullName(accessToken));
+    console.log(userStatus);
   };
 
   useEffect(() => {
@@ -91,6 +87,14 @@ export function ApplicationTable() {
       setSelectedUserRow(data[rowSelection[0] as number]);
     }
   }, [rowSelection, data]);
+
+  useEffect(() => {
+    const fetchStatus = async () => {
+      const status = await apiClient.getStatus(accessToken);
+      setUserStatus(status);
+    };
+    fetchStatus();
+  }, [accessToken]);
 
   return (
     <Container maxWidth="xl">
@@ -131,7 +135,7 @@ export function ApplicationTable() {
           <Typography variant="h6" mt={2}>
             Application Details
           </Typography>
-          <Stack spacing={2} direction="row" mt={1}>
+          <Stack spacing={2} direction="row" mt={1} flexWrap="wrap">
             <Typography variant="body1">
               Year: {selectedApplication.year}
             </Typography>
@@ -151,58 +155,39 @@ export function ApplicationTable() {
               Applications: {selectedApplication.numApps}
             </Typography>
           </Stack>
-          <Typography variant="body1" mt={1}>
-            Application Responses
-          </Typography>
-          <List disablePadding dense>
-            {selectedApplication.response.map((response, index) => (
-              <ListItem key={index}>
-                <ListItemIcon>
-                  <DoneOutline />
-                </ListItemIcon>
-                <ListItemText
-                  primary={`Question: ${response.question}`}
-                  secondary={`Answer: ${response.answer}`}
-                />
-              </ListItem>
-            ))}
-          </List>
 
-          {/* TODO refactor reviews into a separate component */}
-          <Stack>
-            <Stack>
-              Reviews:
-              {selectedApplication.reviews.map((review, index) => {
-                return (
-                  <Stack key={index} direction="row" spacing={1}>
-                    <Typography variant="body1">
-                      stage: {review.stage}
-                    </Typography>
-                    <Typography variant="body1">
-                      rating: {review.rating}
-                    </Typography>
-                    <Typography variant="body1">
-                      comment: {review.content}
-                    </Typography>
-                  </Stack>
-                );
-              })}
-            </Stack>
-            <Button
-              variant="contained"
-              size="small"
-              onClick={handleOpenReviewModal}
-            >
-              Start Review
-            </Button>
+          <Stack direction="row" spacing={4} mt={4} alignItems="flex-start">
+            {/* Left Panel: Application Responses */}
+            <Box flex={2}>
+              <Typography variant="body1" mt={2}>
+                Application Responses
+              </Typography>
+              <List disablePadding dense>
+                {selectedApplication.response.map((response, index) => (
+                  <ListItem key={index}>
+                    <ListItemIcon>
+                      <DoneOutline />
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={`Question: ${response.question}`}
+                      secondary={`Answer: ${response.answer}`}
+                    />
+                  </ListItem>
+                ))}
+              </List>
+            </Box>
+
+            {/* Right Panel: Review Input Form */}
+            <Box flex={1}>
+              <ReviewPanel
+                selectedUserRow={selectedUserRow}
+                selectedApplication={selectedApplication}
+                accessToken={accessToken}
+                currentUserFullName={fullName}
+                currentUserStatus={userStatus}
+              />
+            </Box>
           </Stack>
-          <ReviewModal
-            open={openReviewModal}
-            setOpen={setOpenReviewModal}
-            selectedUserRow={selectedUserRow}
-            selectedApplication={selectedApplication}
-            accessToken={accessToken}
-          />
         </>
       ) : null}
     </Container>

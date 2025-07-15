@@ -40,7 +40,7 @@ type Review = {
   id: number;
   createdAt: Date;
   updatedAt: Date;
-  reviewerId: number;
+  reviewerName: string;
   rating: number;
   stage: ApplicationStage;
   content: string;

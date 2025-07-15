@@ -66,15 +66,58 @@ export class ApiClient {
     })) as Promise<string>;
   }
 
-  public async submitReview(
+  public async submitReview(token: string, payload: SubmitReviewRequest) {
+    const res = await fetch('/api/reviews', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) throw new Error('Failed to submit review');
+
+    return res.json();
+  }
+
+  public async updateReview(
     accessToken: string,
-    reviewData: SubmitReviewRequest,
+    reviewId: number,
+    updateData: { rating: number; content: string; stage: ApplicationStage },
   ): Promise<void> {
-    return this.post('/api/reviews', reviewData, {
+    return this.put(`/api/reviews/${reviewId}`, updateData, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
     }) as Promise<void>;
+  }
+
+  async deleteReview(
+    token: string,
+    reviewId: number,
+  ): Promise<{ message: string }> {
+    const res = await fetch(`/api/reviews/${reviewId}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(error.message || 'Failed to delete review');
+    }
+
+    return res.json();
+  }
+
+  public async getStatus(accessToken: string): Promise<string> {
+    return (await this.get('/api/users/status', {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    })) as Promise<string>;
   }
 
   private async get(
@@ -106,6 +149,10 @@ export class ApiClient {
 
   private async delete(path: string): Promise<unknown> {
     return this.axiosInstance.delete(path).then((response) => response.data);
+  }
+
+  public async put<T>(url: string, data?: any, config?: any): Promise<T> {
+    return axios.put(url, data, config).then((res) => res.data);
   }
 }
 
