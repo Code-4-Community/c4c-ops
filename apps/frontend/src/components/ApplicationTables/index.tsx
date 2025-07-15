@@ -452,13 +452,6 @@ export function ApplicationTable() {
               </Button>
             )}
           </Stack>
-          <ReviewModal
-            open={openReviewModal}
-            setOpen={setOpenReviewModal}
-            selectedUserRow={selectedUserRow}
-            selectedApplication={selectedApplication}
-            accessToken={accessToken}
-          />
           <DecisionModal
             open={openDecisionModal}
             setOpen={setOpenDecisionModal}
