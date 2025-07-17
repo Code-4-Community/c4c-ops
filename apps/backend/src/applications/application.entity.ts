@@ -14,6 +14,7 @@ import {
   Position,
   ApplicationStage,
   ApplicationStep,
+  ReviewStatus,
 } from './types';
 import { GetApplicationResponseDTO } from './dto/get-application.response.dto';
 import { Review } from '../reviews/review.entity';
@@ -54,9 +55,16 @@ export class Application {
   @IsEnum(Position)
   position: Position;
 
-  @Column('varchar', { default: ApplicationStage.RESUME, nullable: false })
+  @Column('varchar', {
+    default: ApplicationStage.APP_RECEIVED,
+    nullable: false,
+  })
   @IsEnum(ApplicationStage)
   stage: ApplicationStage;
+
+  @Column('varchar', { default: ReviewStatus.UNASSIGNED, nullable: false })
+  @IsEnum(ReviewStatus)
+  review: ReviewStatus;
 
   @Column('varchar', { default: ApplicationStep.SUBMITTED, nullable: false })
   step: ApplicationStep;
@@ -87,6 +95,7 @@ export class Application {
       stage: this.stage,
       step: applicationStep,
       position: this.position,
+      review: this.review,
       createdAt: this.createdAt,
       meanRatingAllReviews,
       meanRatingResume,
@@ -108,6 +117,7 @@ export class Application {
       position: this.position,
       stage: this.stage,
       step: applicationStep,
+      review: this.review,
       response: this.response,
       reviews: this.reviews,
       numApps,

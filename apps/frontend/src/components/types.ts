@@ -1,10 +1,17 @@
 enum ApplicationStage {
-  RESUME = 'RESUME',
-  INTERVIEW = 'INTERVIEW',
+  APP_RECEIVED = 'Application Received',
+  PM_CHALLENGE = 'PM Challenge',
+  B_INTERVIEW = 'Behavioral Interview',
+  T_INTERVIEW = 'Technical Interview',
   ACCEPTED = 'ACCEPTED',
   REJECTED = 'REJECTED',
-  TECHNICAL_CHALLENGE = 'TECHNICAL_CHALLENGE',
-  PM_CHALLENGE = 'PM_CHALLENGE',
+}
+
+enum ReviewStatus {
+  UNASSIGNED = 'UNASSIGNED',
+  ASSIGNED = 'ASSIGNED',
+  REVIEWING = 'REVIEWING',
+  REVIEWED = 'REVIEWED',
 }
 
 enum ApplicationStep {
@@ -25,6 +32,7 @@ type ApplicationRow = {
   lastName: string;
   stage: ApplicationStage;
   step: ApplicationStep;
+  review: ReviewStatus;
   position: Position;
   createdAt: string;
   meanRatingAllStages: number;
@@ -59,6 +67,7 @@ type Application = {
   position: Position;
   stage: ApplicationStage;
   step: ApplicationStep;
+  review: ReviewStatus;
   response: Response[];
   numApps: number;
   reviews: Review[];
@@ -81,6 +90,7 @@ export {
   Application,
   ApplicationStage,
   ApplicationStep,
+  ReviewStatus,
   Position,
   Response,
   Review,

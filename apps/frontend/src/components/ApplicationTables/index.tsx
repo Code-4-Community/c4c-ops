@@ -189,6 +189,9 @@ export function ApplicationTable() {
               Status: {selectedApplication.step}
             </Typography>
             <Typography variant="body1">
+              Review: {selectedApplication.review}
+            </Typography>
+            <Typography variant="body1">
               Applications: {selectedApplication.numApps}
             </Typography>
           </Stack>
