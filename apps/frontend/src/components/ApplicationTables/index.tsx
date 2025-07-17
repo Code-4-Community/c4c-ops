@@ -96,7 +96,6 @@ export function ApplicationTable() {
   };
 
   useEffect(() => {
-    // if statement removed, was causing issues with frontend loading data
     fetchData();
     getFullName();
     // eslint-disable-next-line react-hooks/exhaustive-deps
