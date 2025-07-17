@@ -11,7 +11,13 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.enableCors();
+
+  // need to configure CORS to expose Content-Disposition header for file downloads
+  app.enableCors({
+    origin: ['http://localhost:4200', 'http://localhost:4201'],
+    credentials: true,
+    exposedHeaders: ['Content-Disposition', 'Content-Length', 'Content-Type'],
+  });
 
   const globalPrefix = 'api';
   app.setGlobalPrefix(globalPrefix);
