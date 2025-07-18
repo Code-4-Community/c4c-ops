@@ -35,14 +35,7 @@ import useLoginContext from '@components/LoginPage/useLoginContext';
 
 const TODAY = new Date();
 
-const STAGE_OPTIONS: ApplicationStage[] = [
-  ApplicationStage.RESUME,
-  ApplicationStage.INTERVIEW,
-  ApplicationStage.ACCEPTED,
-  ApplicationStage.REJECTED,
-  ApplicationStage.TECHNICAL_CHALLENGE,
-  ApplicationStage.PM_CHALLENGE,
-];
+const STAGE_OPTIONS: ApplicationStage[] = Object.values(ApplicationStage);
 
 const getCurrentSemester = (): Semester => {
   const month: number = TODAY.getMonth();
@@ -169,7 +162,7 @@ export function ApplicationTable() {
                     value={option}
                     sx={{ fontSize: '0.875rem' }}
                   >
-                    {option}
+                    {option.replace(/_/g, ' ')}
                   </MenuItem>
                 ))}
               </Select>
