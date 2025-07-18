@@ -112,14 +112,14 @@ export function ApplicationTable() {
 
   return (
     <Container maxWidth="xl">
-      <Stack direction="row" alignItems="center" spacing={2} my={3}>
+      <Stack direction="row" alignItems="center" spacing={2} mt={4} mb={8}>
         <img
           src="/c4clogo.png"
           alt="C4C Logo"
           style={{ width: 50, height: 40 }}
         />
         <Typography variant="h4" sx={{ fontWeight: 'bold', color: 'white' }}>
-          Database | Fall 2024 Recruitment Cycle
+          Database | {getCurrentSemester()} {getCurrentYear()} Recruitment Cycle
         </Typography>
       </Stack>
       <Typography variant="h4" mb={1}>
