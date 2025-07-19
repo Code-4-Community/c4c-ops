@@ -1,5 +1,5 @@
 import { IsDate, IsEnum, IsPositive, IsString } from 'class-validator';
-import { ApplicationStage, ApplicationStep, Position } from '../types';
+import { ApplicationStage, Position, ReviewStage } from '../types';
 
 export class GetAllApplicationResponseDTO {
   @IsPositive()
@@ -14,8 +14,8 @@ export class GetAllApplicationResponseDTO {
   @IsEnum(ApplicationStage)
   stage: ApplicationStage;
 
-  @IsEnum(ApplicationStep)
-  step: ApplicationStep;
+  @IsEnum(ReviewStage)
+  step: ReviewStage;
 
   @IsEnum(Position)
   position: Position;

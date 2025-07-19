@@ -16,7 +16,7 @@ import {
 import { Decision, Response } from './types';
 import * as crypto from 'crypto';
 import { User } from '../users/user.entity';
-import { Position, ApplicationStage, ApplicationStep } from './types';
+import { Position, ApplicationStage, ReviewStage } from './types';
 import { GetAllApplicationResponseDTO } from './dto/get-all-application.response.dto';
 import { stagesMap } from './applications.constants';
 
@@ -55,7 +55,7 @@ export class ApplicationsService {
       semester,
       position: Position.DEVELOPER, // TODO: Change this to be dynamic
       stage: ApplicationStage.RESUME,
-      step: ApplicationStep.SUBMITTED,
+      step: ReviewStage.SUBMITTED,
       response: application,
       reviews: [],
     });
@@ -150,7 +150,6 @@ export class ApplicationsService {
       let meanRatingChallenge = null; // Default to null for DESIGNERS
       let meanRatingTechnicalChallenge = null;
       let meanRatingInterview = null;
-      let applicationStep = null;
 
       // Calculate mean rating of all reviews
       if (app.reviews.length > 0) {
@@ -205,11 +204,11 @@ export class ApplicationsService {
           interviewReviews.length;
       }
 
-      // Tthe application step
+      let applicationStep: ReviewStage = null;
       if (app.reviews.length > 0) {
-        applicationStep = ApplicationStep.REVIEWED;
+        applicationStep = ReviewStage.REVIEWED;
       } else {
-        applicationStep = ApplicationStep.SUBMITTED;
+        applicationStep = ReviewStage.SUBMITTED;
       }
 
       return app.toGetAllApplicationResponseDTO(

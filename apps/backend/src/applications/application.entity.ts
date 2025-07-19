@@ -13,7 +13,7 @@ import {
   Semester,
   Position,
   ApplicationStage,
-  ApplicationStep,
+  ReviewStage,
 } from './types';
 import { GetApplicationResponseDTO } from './dto/get-application.response.dto';
 import { Review } from '../reviews/review.entity';
@@ -58,8 +58,8 @@ export class Application {
   @IsEnum(ApplicationStage)
   stage: ApplicationStage;
 
-  @Column('varchar', { default: ApplicationStep.SUBMITTED, nullable: false })
-  step: ApplicationStep;
+  @Column('varchar', { default: ReviewStage.SUBMITTED, nullable: false })
+  step: ReviewStage;
 
   @Column('jsonb')
   @IsArray()
@@ -78,14 +78,14 @@ export class Application {
     meanRatingChallenge,
     meanRatingTechnicalChallenge,
     meanRatingInterview,
-    applicationStep,
+    step: ReviewStage,
   ): GetAllApplicationResponseDTO {
     return {
       userId: this.user.id,
       firstName: this.user.firstName,
       lastName: this.user.lastName,
       stage: this.stage,
-      step: applicationStep,
+      step: step,
       position: this.position,
       createdAt: this.createdAt,
       meanRatingAllReviews,
@@ -98,7 +98,7 @@ export class Application {
 
   toGetApplicationResponseDTO(
     numApps: number,
-    applicationStep,
+    step: ReviewStage,
   ): GetApplicationResponseDTO {
     return {
       id: this.id,
@@ -107,7 +107,7 @@ export class Application {
       semester: this.semester,
       position: this.position,
       stage: this.stage,
-      step: applicationStep,
+      step: step,
       response: this.response,
       reviews: this.reviews,
       numApps,

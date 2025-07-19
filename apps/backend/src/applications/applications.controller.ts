@@ -12,7 +12,7 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { Decision, Response } from './types';
+import { Decision, Response, ReviewStage } from './types';
 import { ApplicationsService } from './applications.service';
 import { CurrentUserInterceptor } from '../interceptors/current-user.interceptor';
 import { AuthGuard } from '@nestjs/passport';
@@ -21,7 +21,6 @@ import { getAppForCurrentCycle } from './utils';
 import { UserStatus } from '../users/types';
 import { Application } from './application.entity';
 import { GetAllApplicationResponseDTO } from './dto/get-all-application.response.dto';
-import { ApplicationStep } from './types';
 
 @Controller('apps')
 @UseInterceptors(CurrentUserInterceptor)
@@ -104,13 +103,13 @@ export class ApplicationsController {
       );
     }
 
-    let applicationStep = null;
+    let applicationStep: ReviewStage = null;
 
     // Tthe application step
     if (app.reviews.length > 0) {
-      applicationStep = ApplicationStep.REVIEWED;
+      applicationStep = ReviewStage.REVIEWED;
     } else {
-      applicationStep = ApplicationStep.SUBMITTED;
+      applicationStep = ReviewStage.SUBMITTED;
     }
 
     return app.toGetApplicationResponseDTO(apps.length, applicationStep);

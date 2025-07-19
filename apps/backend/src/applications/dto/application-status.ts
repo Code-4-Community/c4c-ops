@@ -1,8 +1,8 @@
 import { stagesMap } from '../applications.constants';
-import { ApplicationStage, ApplicationStep, Position } from '../types';
+import { ApplicationStage, ReviewStage, Position } from '../types';
 
 export class ApplicationStatus {
-  constructor(private stage: ApplicationStage, private step: ApplicationStep) {}
+  constructor(private stage: ApplicationStage, private step: ReviewStage) {}
 
   public getNextStatus(position: Position): ApplicationStatus | null {
     if (
@@ -14,11 +14,11 @@ export class ApplicationStatus {
     }
 
     const nextStep =
-      this.step === ApplicationStep.SUBMITTED
-        ? ApplicationStep.REVIEWED
-        : ApplicationStep.SUBMITTED;
+      this.step === ReviewStage.SUBMITTED
+        ? ReviewStage.REVIEWED
+        : ReviewStage.SUBMITTED;
     const nextStage =
-      this.step === ApplicationStep.SUBMITTED
+      this.step === ReviewStage.SUBMITTED
         ? this.stage
         : stagesMap[position][stagesMap[position].indexOf(this.stage) + 1];
 

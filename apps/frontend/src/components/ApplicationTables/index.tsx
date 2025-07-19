@@ -142,10 +142,10 @@ export function ApplicationTable() {
               Position: {selectedApplication.position}
             </Typography>
             <Typography variant="body1">
-              Stage: {selectedApplication.stage}
+              App Stage: {selectedApplication.stage}
             </Typography>
             <Typography variant="body1">
-              Status: {selectedApplication.step}
+              Review Stage: {selectedApplication.step}
             </Typography>
             <Typography variant="body1">
               Applications: {selectedApplication.numApps}

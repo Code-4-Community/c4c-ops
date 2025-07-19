@@ -7,7 +7,7 @@ enum ApplicationStage {
   PM_CHALLENGE = 'PM_CHALLENGE',
 }
 
-enum ApplicationStep {
+enum ReviewStage {
   SUBMITTED = 'SUBMITTED',
   REVIEWED = 'REVIEWED',
 }
@@ -24,7 +24,7 @@ type ApplicationRow = {
   firstName: string;
   lastName: string;
   stage: ApplicationStage;
-  step: ApplicationStep;
+  step: ReviewStage;
   position: Position;
   createdAt: string;
   meanRatingAllStages: number;
@@ -58,7 +58,7 @@ type Application = {
   semester: Semester;
   position: Position;
   stage: ApplicationStage;
-  step: ApplicationStep;
+  step: ReviewStage;
   response: Response[];
   numApps: number;
   reviews: Review[];
@@ -68,7 +68,7 @@ export {
   ApplicationRow,
   Application,
   ApplicationStage,
-  ApplicationStep,
+  ReviewStage,
   Position,
   Response,
   Review,

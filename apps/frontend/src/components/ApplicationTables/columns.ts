@@ -11,12 +11,12 @@ export const applicationColumns = [
   },
   {
     field: 'stage',
-    headerName: 'Stage',
+    headerName: 'App Stage',
     width: 125,
   },
   {
     field: 'step',
-    headerName: 'Status',
+    headerName: 'Review Stage',
     width: 125,
   },
   {

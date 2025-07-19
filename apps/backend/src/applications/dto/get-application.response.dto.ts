@@ -1,9 +1,9 @@
 import { Review } from '../../reviews/review.entity';
 import {
   ApplicationStage,
-  ApplicationStep,
   Position,
   Response,
+  ReviewStage,
   Semester,
 } from '../types';
 
@@ -20,7 +20,7 @@ export class GetApplicationResponseDTO {
 
   stage: ApplicationStage;
 
-  step: ApplicationStep;
+  step: ReviewStage;
 
   response: Response[];
 

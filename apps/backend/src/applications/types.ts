@@ -20,7 +20,7 @@ export enum ApplicationStage {
   PM_CHALLENGE = 'PM_CHALLENGE',
 }
 
-export enum ApplicationStep {
+export enum ReviewStage {
   SUBMITTED = 'SUBMITTED',
   REVIEWED = 'REVIEWED',
 }
