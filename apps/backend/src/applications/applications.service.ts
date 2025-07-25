@@ -18,7 +18,7 @@ import * as crypto from 'crypto';
 import { User } from '../users/user.entity';
 import { Position, ApplicationStage, ApplicationStep } from './types';
 import { GetAllApplicationResponseDTO } from './dto/get-all-application.response.dto';
-import { stagesMap } from './applications.constants';
+//import { stagesMap } from './applications.constants';
 
 @Injectable()
 export class ApplicationsService {
@@ -54,7 +54,7 @@ export class ApplicationsService {
       year,
       semester,
       position: Position.DEVELOPER, // TODO: Change this to be dynamic
-      stage: ApplicationStage.RESUME,
+      stage: ApplicationStage.APP_RECEIVED,
       step: ApplicationStep.SUBMITTED,
       response: application,
       reviews: [],
@@ -112,14 +112,15 @@ export class ApplicationsService {
     let newStage: ApplicationStage;
     if (decision === Decision.REJECT) {
       newStage = ApplicationStage.REJECTED;
-    } else {
-      const stagesArr = stagesMap[application.position];
-      const stageIndex = stagesArr.indexOf(application.stage);
-      if (stageIndex === -1) {
-        return;
-      }
-      newStage = stagesArr[stageIndex + 1];
     }
+    // else {
+    // const stagesArr = stagesMap[application.position];
+    // const stageIndex = stagesArr.indexOf(application.stage);
+    // if (stageIndex === -1) {
+    //   return;
+    // }
+    // newStage = stagesArr[stageIndex + 1];
+    // }
     application.stage = newStage;
 
     //Save the updated stage
@@ -161,18 +162,18 @@ export class ApplicationsService {
 
       // Filter reviews by stage and calculate mean ratings accordingly
       const resumeReviews = app.reviews.filter(
-        (review) => review.stage === ApplicationStage.RESUME,
+        (review) => review.stage === ApplicationStage.APP_RECEIVED,
       );
       const challengeReviews = app.reviews.filter(
         (review) =>
-          review.stage === ApplicationStage.TECHNICAL_CHALLENGE ||
+          review.stage === ApplicationStage.T_INTERVIEW ||
           review.stage === ApplicationStage.PM_CHALLENGE,
       );
       const technicalChallengeReviews = app.reviews.filter(
-        (review) => review.stage === ApplicationStage.TECHNICAL_CHALLENGE,
+        (review) => review.stage === ApplicationStage.T_INTERVIEW,
       );
       const interviewReviews = app.reviews.filter(
-        (review) => review.stage === ApplicationStage.INTERVIEW,
+        (review) => review.stage === ApplicationStage.B_INTERVIEW,
       );
 
       // Mean rating for RESUME stage

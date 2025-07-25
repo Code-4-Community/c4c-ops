@@ -3,6 +3,7 @@ import type {
   Application,
   ApplicationRow,
   ApplicationStage,
+  Decision,
   User,
 } from '@components/types';
 
@@ -16,7 +17,9 @@ type SubmitReviewRequest = {
   content: string;
 };
 
-type DecisionRequest = { decision: 'ACCEPT' | 'REJECT' };
+type DecisionRequest = {
+  decision: 'ACCEPT' | 'REJECT';
+};
 
 export class ApiClient {
   private readonly axiosInstance: AxiosInstance;
@@ -67,6 +70,18 @@ export class ApiClient {
         Authorization: `Bearer ${accessToken}`,
       },
     })) as Promise<string>;
+  }
+
+  public async submitDecision(
+    accessToken: string,
+    applicationId: number,
+    decisionRequest: DecisionRequest,
+  ): Promise<void> {
+    return this.post(`/api/apps/decision/${applicationId}`, decisionRequest, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }) as Promise<void>;
   }
 
   public async submitReview(

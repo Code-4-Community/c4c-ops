@@ -4,9 +4,15 @@ import { useState } from 'react';
 import Root from '@containers/root';
 import NotFound from '@containers/404';
 import Test from '@containers/test';
+import Dashboard from '@containers/dashboard';
+import Applications from '@containers/applications';
+import Resources from '@containers/resources';
+import Settings from '@containers/settings';
 import LoginContext from '@components/LoginPage/LoginContext';
 import ProtectedRoutes from '@components/ProtectedRoutes';
 import LoginPage from '@components/LoginPage';
+import Navigation from '@components/Navigation';
+import AdminRoutes from '@components/AdminRoutes';
 
 export const App: React.FC = () => {
   const [token, setToken] = useState<string>('');
@@ -16,13 +22,46 @@ export const App: React.FC = () => {
         <Routes>
           <Route path="/login" element={<LoginPage />} />
 
-          {/* Protected Routes */}
           <Route element={<ProtectedRoutes token={token} />}>
-            <Route path="/" element={<Root />} />
+            <Route element={<AdminRoutes />}>
+              <Route
+                path="/"
+                element={
+                  <Navigation>
+                    <Dashboard />
+                  </Navigation>
+                }
+              />
+              <Route
+                path="/applications"
+                element={
+                  <Navigation>
+                    <Applications />
+                  </Navigation>
+                }
+              />
+              <Route
+                path="/resources"
+                element={
+                  <Navigation>
+                    <Resources />
+                  </Navigation>
+                }
+              />
+              <Route
+                path="/settings"
+                element={
+                  <Navigation>
+                    <Settings />
+                  </Navigation>
+                }
+              />
+            </Route>
+
+            <Route path="/applicant" element={<Root />} />
             <Route path="/test" element={<Test />} />
           </Route>
 
-          {/* 404 Route */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
