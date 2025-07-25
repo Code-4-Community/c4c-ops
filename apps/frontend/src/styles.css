@@ -1,1 +1,217 @@
-/* You can add global styles to this file, and also import other style files */
+html, body {
+  background-color: #181818;
+  color: white;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+}
+
+#root {
+  background-color: #181818;
+  min-height: 100vh;
+}
+
+.MuiContainer-root {
+  background-color: #181818 !important;
+}
+
+.MuiTypography-root {
+  color: white !important;
+}
+
+.MuiDataGrid-root {
+  background-color: #2a2a2a !important;
+  color: white !important;
+  border: 1px solid #404040 !important;
+}
+
+.MuiDataGrid-cell {
+  color: white !important;
+  border-bottom: 1px solid #404040 !important;
+}
+
+.MuiDataGrid-columnHeaders {
+  background-color: #333333 !important;
+  color: white !important;
+  border-bottom: 1px solid #404040 !important;
+}
+
+.MuiDataGrid-columnHeader {
+  color: white !important;
+}
+
+.MuiDataGrid-row {
+  background-color: #2a2a2a !important;
+}
+
+.MuiDataGrid-row:hover {
+  background-color: #404040 !important;
+}
+
+.MuiDataGrid-row.Mui-selected {
+  background-color: #6225b0 !important;
+}
+
+.MuiDataGrid-row.Mui-selected:hover {
+  background-color: #6225b0 !important;
+}
+
+.MuiDataGrid-footerContainer {
+  background-color: #333333 !important;
+  color: white !important;
+  border-top: 1px solid #404040 !important;
+}
+
+.MuiTablePagination-root {
+  color: white !important;
+}
+
+.MuiTablePagination-select {
+  color: white !important;
+}
+
+.MuiTablePagination-selectIcon {
+  color: white !important;
+}
+
+.MuiIconButton-root {
+  color: white !important;
+}
+
+.MuiFormControl-root {
+  background-color: transparent !important;
+}
+
+.MuiSelect-root {
+  color: white !important;
+}
+
+.MuiSelect-icon {
+  color: white !important;
+}
+
+.MuiMenuItem-root {
+  color: white !important;
+  background-color: #2a2a2a !important;
+}
+
+.MuiMenuItem-root:hover {
+  background-color: #6225b0 !important;
+}
+
+.MuiMenu-paper {
+  background-color: #2a2a2a !important;
+  border: 1px solid #404040 !important;
+}
+
+.MuiButton-root {
+  color: white !important;
+}
+
+.MuiButton-contained {
+  background-color: #6225b0 !important;
+  color: white !important;
+}
+
+.MuiButton-contained:hover {
+  background-color: #6225b0 !important;
+}
+
+.MuiButton-outlined {
+  border-color: #404040 !important;
+  color: white !important;
+}
+
+.MuiButton-outlined:hover {
+  border-color: #6225b0 !important;
+  background-color: rgba(106, 76, 147, 0.1) !important;
+}
+
+.MuiList-root {
+  background-color: #2a2a2a !important;
+}
+
+.MuiListItem-root {
+  color: white !important;
+}
+
+.MuiListItemText-primary {
+  color: white !important;
+}
+
+.MuiListItemText-secondary {
+  color: #cccccc !important;
+}
+
+.MuiListItemIcon-root {
+  color: white !important;
+}
+
+.MuiSnackbar-root {
+  z-index: 9999 !important;
+}
+
+.MuiAlert-root {
+  background-color: #2a2a2a !important;
+  color: white !important;
+  border: 1px solid #404040 !important;
+}
+
+.MuiAlert-standardSuccess {
+  background-color: #1b5e20 !important;
+  color: white !important;
+}
+
+.MuiAlert-standardError {
+  background-color: #c62828 !important;
+  color: white !important;
+}
+
+.MuiAlert-icon {
+  color: white !important;
+}
+
+.MuiStack-root {
+  background-color: transparent !important;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #2a2a2a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #606060;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #808080;
+}
+
+.MuiDataGrid-cell:focus {
+  outline: 2px solid #6225b0 !important;
+}
+
+.MuiDataGrid-columnHeader:focus {
+  outline: 2px solid #6225b0 !important;
+}
+
+::selection {
+  background-color: #6225b0 !important;
+  color: white !important;
+}
+
+::-moz-selection {
+  background-color: #6225b0 !important;
+  color: white !important;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #606060 #2a2a2a;
+}
