@@ -1,6 +1,10 @@
 import { useEffect, useState, useRef } from 'react';
-import { DataGrid, GridRowSelectionModel } from '@mui/x-data-grid';
-import RefreshIcon from '@mui/icons-material/Refresh';
+import {
+  DataGrid,
+  GridColDef,
+  GridRenderCellParams,
+  GridRowSelectionModel,
+} from '@mui/x-data-grid';
 import {
   Container,
   Typography,
@@ -10,17 +14,30 @@ import {
   ListItemText,
   ListItemIcon,
   Button,
+  FormControl,
+  Select,
+  SelectChangeEvent,
+  MenuItem,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import { DoneOutline } from '@mui/icons-material';
 
-import { ApplicationRow, Application, Semester } from '../types';
+import {
+  ApplicationRow,
+  Application,
+  Semester,
+  ApplicationStep,
+  ReviewStatus,
+} from '../types';
 import apiClient from '@api/apiClient';
 import { applicationColumns } from './columns';
-import { DecisionModal } from './decisionModal';
 import { ReviewModal } from './reviewModal';
 import useLoginContext from '@components/LoginPage/useLoginContext';
 
 const TODAY = new Date();
+
+const REVIEW_OPTIONS: ReviewStatus[] = Object.values(ReviewStatus);
 
 const getCurrentSemester = (): Semester => {
   const month: number = TODAY.getMonth();
@@ -49,14 +66,16 @@ export function ApplicationTable() {
     useState<Application | null>(null);
 
   const [openReviewModal, setOpenReviewModal] = useState(false);
-  const [openDecisionModal, setOpenDecisionModal] = useState(false);
+
+  const [toastOpen, setToastOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+
+  const handleToastClose = () => {
+    setToastOpen(false);
+  };
 
   const handleOpenReviewModal = () => {
     setOpenReviewModal(true);
-  };
-
-  const handleOpenDecisionModal = () => {
-    setOpenDecisionModal(true);
   };
 
   const fetchData = async () => {
@@ -80,13 +99,120 @@ export function ApplicationTable() {
     }
   };
 
+  const updateReviewStage = async (
+    userId: number,
+    newReviewStage: ReviewStatus,
+  ) => {
+    try {
+      // payload goes to apiClient and updates local state
+      await apiClient.updateReviewStage(accessToken, userId, newReviewStage);
+      setData((prevData) =>
+        prevData.map((row) =>
+          row.userId === userId ? { ...row, review: newReviewStage } : row,
+        ),
+      );
+      if (selectedUserRow?.userId === userId) {
+        setSelectedApplication((prev) =>
+          prev ? { ...prev, review: newReviewStage } : null,
+        );
+      }
+      setToastMessage(
+        `Review stage updated to ${newReviewStage} successfully!`,
+      );
+      setToastOpen(true);
+    } catch (error) {
+      setToastMessage('Failed to update Review stage. Please try again.');
+      setToastOpen(true);
+    }
+  };
+
   const getFullName = async () => {
     setFullName(await apiClient.getFullName(accessToken));
   };
 
+  const enhancedColumns: GridColDef[] = applicationColumns.map((col) => {
+    if (col.field === 'review') {
+      return {
+        ...col,
+        width: 240,
+        renderCell: (params: GridRenderCellParams<ApplicationRow>) => {
+          const handleReviewStageChange = async (event: SelectChangeEvent) => {
+            const newReviewStage = event.target.value as ReviewStatus;
+            console.log('Row:', params.row);
+            await updateReviewStage(params.row.userId, newReviewStage);
+          };
+
+          return (
+            <FormControl size="medium" fullWidth>
+              <Select
+                value={params.value || ''}
+                onChange={handleReviewStageChange}
+                placeholder={'Select'}
+                variant={'standard'}
+                sx={{
+                  fontSize: '0.875rem',
+                  color: 'white',
+                  '& .MuiInput-underline:before': {
+                    color: 'white',
+                    display: 'none',
+                  },
+                  '& .MuiInput-underline:after': {
+                    display: 'none',
+                  },
+                  '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
+                    display: 'none',
+                  },
+                }}
+              >
+                {REVIEW_OPTIONS.map((option) => (
+                  <MenuItem
+                    key={option}
+                    value={option}
+                    sx={{ fontSize: '0.875rem', color: 'white' }}
+                  >
+                    {option}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          );
+        },
+      };
+    } else if (col.field === 'assigned') {
+      return {
+        ...col,
+        renderCell: (params: GridRenderCellParams<ApplicationRow>) => {
+          return (
+            <FormControl size="medium" fullWidth>
+              <Select
+                value={params.value || 'Unassigned'}
+                placeholder={'Unassigned'}
+                variant={'standard'}
+                displayEmpty
+                sx={{
+                  fontSize: '0.875rem',
+                }}
+              >
+                {}
+                <MenuItem value="Unassigned" sx={{ fontSize: '0.875rem' }}>
+                  Unassigned
+                </MenuItem>
+                <MenuItem value="Jane Smith" sx={{ fontSize: '0.875rem' }}>
+                  Jane Smith
+                </MenuItem>
+              </Select>
+            </FormControl>
+          );
+        },
+      };
+    }
+    return col;
+  });
+
   useEffect(() => {
     fetchData();
     getFullName();
+    isPageRendered.current = true;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessToken]);
 
@@ -98,16 +224,6 @@ export function ApplicationTable() {
 
   return (
     <Container maxWidth="xl">
-      <Stack direction="row" alignItems="center" spacing={2} mt={4} mb={8}>
-        <img
-          src="/c4clogo.png"
-          alt="C4C Logo"
-          style={{ width: 50, height: 40 }}
-        />
-        <Typography variant="h4" sx={{ fontWeight: 'bold', color: 'white' }}>
-          Database | {getCurrentSemester()} {getCurrentYear()} Recruitment Cycle
-        </Typography>
-      </Stack>
       <Typography variant="h4" mb={1}>
         Welcome back, {fullName ? fullName : 'User'}
       </Typography>
@@ -119,7 +235,7 @@ export function ApplicationTable() {
       </Typography>
       <DataGrid
         rows={data}
-        columns={applicationColumns}
+        columns={enhancedColumns}
         initialState={{
           pagination: {
             paginationModel: { page: 0, pageSize: 5 },
@@ -160,9 +276,6 @@ export function ApplicationTable() {
             </Typography>
             <Typography variant="body1">
               Status: {selectedApplication.step}
-            </Typography>
-            <Typography variant="body1">
-              Review: {selectedApplication.review}
             </Typography>
             <Typography variant="body1">
               Applications: {selectedApplication.numApps}
@@ -212,12 +325,6 @@ export function ApplicationTable() {
             >
               Start Review
             </Button>
-
-            {selectedUserRow && (
-              <Button size="small" onClick={handleOpenDecisionModal}>
-                Move Stage
-              </Button>
-            )}
           </Stack>
           <ReviewModal
             open={openReviewModal}
@@ -226,15 +333,22 @@ export function ApplicationTable() {
             selectedApplication={selectedApplication}
             accessToken={accessToken}
           />
-          <DecisionModal
-            open={openDecisionModal}
-            setOpen={setOpenDecisionModal}
-            selectedUserRow={selectedUserRow}
-            selectedApplication={selectedApplication}
-            accessToken={accessToken}
-          />
         </>
       ) : null}
+      <Snackbar
+        open={toastOpen}
+        autoHideDuration={3000}
+        onClose={handleToastClose}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <Alert
+          onClose={handleToastClose}
+          severity={toastMessage.includes('Failed') ? 'error' : 'success'}
+          sx={{ width: '100%' }}
+        >
+          {toastMessage}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 }
