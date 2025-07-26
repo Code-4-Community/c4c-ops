@@ -11,8 +11,9 @@ import {
   BadRequestException,
   NotFoundException,
   UnauthorizedException,
+  Put,
 } from '@nestjs/common';
-import { Decision, Response } from './types';
+import { Decision, Response, ReviewStatus } from './types';
 import { ApplicationsService } from './applications.service';
 import { CurrentUserInterceptor } from '../interceptors/current-user.interceptor';
 import { AuthGuard } from '@nestjs/passport';
@@ -106,7 +107,7 @@ export class ApplicationsController {
 
     let applicationStep = null;
 
-    // Tthe application step
+    // The application step
     if (app.reviews.length > 0) {
       applicationStep = ApplicationStep.REVIEWED;
     } else {
@@ -114,5 +115,26 @@ export class ApplicationsController {
     }
 
     return app.toGetApplicationResponseDTO(apps.length, applicationStep);
+  }
+
+  @Put('/review/:userId')
+  @UseGuards(AuthGuard('jwt'))
+  async updateReviewStage(
+    @Param('userId', ParseIntPipe) userId: number,
+    @Body('review') review: ReviewStatus,
+    @Request() req,
+  ): Promise<Application> {
+    if (![UserStatus.ADMIN, UserStatus.RECRUITER].includes(req.user.status)) {
+      throw new UnauthorizedException();
+    }
+
+    const reviewStageEnum: ReviewStatus = ReviewStatus[review];
+    if (!reviewStageEnum) {
+      throw new BadRequestException('Invalid review stage value');
+    }
+    return await this.applicationsService.updateReviewStage(
+      userId,
+      reviewStageEnum,
+    );
   }
 }

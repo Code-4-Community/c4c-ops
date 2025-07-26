@@ -3,7 +3,9 @@ import type {
   Application,
   ApplicationRow,
   ApplicationStage,
+  ApplicationStep,
   Decision,
+  ReviewStatus,
   User,
 } from '@components/types';
 
@@ -84,6 +86,22 @@ export class ApiClient {
     }) as Promise<void>;
   }
 
+  public async updateReviewStage(
+    accessToken: string,
+    userId: number,
+    review: ReviewStatus,
+  ): Promise<Application> {
+    return this.put(
+      `/api/apps/review/${userId}`,
+      { review },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+    ) as Promise<Application>;
+  }
+
   public async submitReview(
     accessToken: string,
     reviewData: SubmitReviewRequest,
@@ -110,6 +128,17 @@ export class ApiClient {
   ): Promise<unknown> {
     return this.axiosInstance
       .get(path, headers)
+      .then((response) => response.data);
+  }
+
+  private async put(
+    path: string,
+    body: unknown,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    headers: AxiosRequestConfig<any> | undefined = undefined,
+  ): Promise<unknown> {
+    return this.axiosInstance
+      .put(path, body, headers)
       .then((response) => response.data);
   }
 
