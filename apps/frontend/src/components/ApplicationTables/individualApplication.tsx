@@ -12,6 +12,7 @@ import {
   MailOutline,
   DescriptionOutlined,
   NoteAltOutlined,
+  Close,
 } from '@mui/icons-material';
 
 type IndividualApplicationDetailsProps = {
@@ -25,7 +26,12 @@ const IndividualApplicationDetails: React.FC<
 > = ({ selectedApplication, selectedUserRow, accessToken }) => (
   <>
     <Stack direction="row" spacing={2} mt={2}>
-      <Stack direction="column" spacing={2} mt={2}>
+      <Stack
+        direction="column"
+        spacing={2}
+        mt={2}
+        sx={{ flex: 3, border: '1px solid #ccc', borderRadius: 1, p: 2 }}
+      >
         <Stack direction="row" alignItems="center" spacing={2} mt={4} mb={8}>
           <img
             src="/c4clogo.png"
@@ -92,55 +98,66 @@ const IndividualApplicationDetails: React.FC<
           ))}
         </List>
       </Stack>
-      <Stack direction="column" spacing={2} mt={2}>
-        <Typography variant="h5" mt={1} mb={2}>
-          Recruiter Review
-        </Typography>
-        <Stack direction="column" spacing={2}>
-          <Typography variant="body1">Rating:</Typography>
+      <Stack direction="column" spacing={2} mt={2} sx={{ flex: 1 }}>
+        <Stack direction="row" justifyContent="flex-end" mb={2}>
+          {/* TODO: Add functionality to turn the page back to the application table */}
           <Button variant="contained" size="small">
-            {/* {selectedApplication.rating} */}
-            {/* TODO: Give this button rating modal functionality */}
-            Rating Here
+            <Close />
           </Button>
         </Stack>
-        <Stack direction="column" spacing={2}>
-          <Typography variant="body1">Final Recommendation:</Typography>
-          <Button variant="contained" size="small">
-            {/* {selectedApplication.decision} */}
-            {/* TODO: Give this button decision modal functionality */}
-            Decision Here
-          </Button>
-        </Stack>
-        <Stack direction="column" spacing={2}>
-          <Typography variant="body1">Comments:</Typography>
-          <TextField
-            variant="outlined"
-            size="small"
-            fullWidth
-            multiline
-            rows={4}
-          />
-        </Stack>
-        {/* Add a horizontal bar here */}
-        <Stack>
-          Reviews:
-          {selectedApplication.reviews.map((review, index) => {
-            return (
-              <Stack key={index} direction="column" spacing={1}>
-                <Stack direction="row" justifyContent="space-between">
-                  <Typography variant="body1">Name:</Typography>
-                  <Typography variant="body1">Time/Date</Typography>
+        <Stack
+          direction="column"
+          sx={{ border: '1px solid #ccc', borderRadius: 1, p: 2 }}
+        >
+          <Typography variant="h5" mt={1} mb={2}>
+            Recruiter Review
+          </Typography>
+          <Stack direction="column" spacing={2}>
+            <Typography variant="body1">Rating:</Typography>
+            <Button variant="contained" size="small">
+              {/* {selectedApplication.rating} */}
+              {/* TODO: Give this button rating modal functionality */}
+              Rating Here
+            </Button>
+          </Stack>
+          <Stack direction="column" spacing={2}>
+            <Typography variant="body1">Final Recommendation:</Typography>
+            <Button variant="contained" size="small">
+              {/* {selectedApplication.decision} */}
+              {/* TODO: Give this button decision modal functionality */}
+              Decision Here
+            </Button>
+          </Stack>
+          <Stack direction="column" spacing={2}>
+            <Typography variant="body1">Comments:</Typography>
+            <TextField
+              variant="outlined"
+              size="small"
+              fullWidth
+              multiline
+              rows={4}
+            />
+          </Stack>
+          {/* Add a horizontal bar here */}
+          <Stack>
+            Reviews:
+            {selectedApplication.reviews.map((review, index) => {
+              return (
+                <Stack key={index} direction="column" spacing={1}>
+                  <Stack direction="row" justifyContent="space-between">
+                    <Typography variant="body1">Name:</Typography>
+                    <Typography variant="body1">Time/Date</Typography>
+                  </Stack>
+                  <Typography variant="body1">
+                    {review.rating}/{review.stage}
+                  </Typography>
+                  <Typography variant="body1">
+                    comment: {review.content}
+                  </Typography>
                 </Stack>
-                <Typography variant="body1">
-                  {review.rating}/{review.stage}
-                </Typography>
-                <Typography variant="body1">
-                  comment: {review.content}
-                </Typography>
-              </Stack>
-            );
-          })}
+              );
+            })}
+          </Stack>
         </Stack>
       </Stack>
     </Stack>
