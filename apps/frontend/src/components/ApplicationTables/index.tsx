@@ -6,6 +6,7 @@ import {
   GridRenderCellParams,
 } from '@mui/x-data-grid';
 import { Snackbar, Alert } from '@mui/material';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import {
   Container,
   Typography,
@@ -30,6 +31,7 @@ import {
 } from '../types';
 import apiClient from '@api/apiClient';
 import { applicationColumns } from './columns';
+import { DecisionModal } from './decisionModal';
 import { ReviewModal } from './reviewModal';
 import useLoginContext from '@components/LoginPage/useLoginContext';
 
@@ -71,9 +73,14 @@ export function ApplicationTable() {
   const handleToastClose = () => {
     setToastOpen(false);
   };
+  const [openDecisionModal, setOpenDecisionModal] = useState(false);
 
   const handleOpenReviewModal = () => {
     setOpenReviewModal(true);
+  };
+
+  const handleOpenDecisionModal = () => {
+    setOpenDecisionModal(true);
   };
 
   const fetchData = async () => {
@@ -204,7 +211,6 @@ export function ApplicationTable() {
   useEffect(() => {
     fetchData();
     getFullName();
-    isPageRendered.current = true;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessToken]);
 
@@ -216,6 +222,16 @@ export function ApplicationTable() {
 
   return (
     <Container maxWidth="xl">
+      <Stack direction="row" alignItems="center" spacing={2} mt={4} mb={8}>
+        <img
+          src="/c4clogo.png"
+          alt="C4C Logo"
+          style={{ width: 50, height: 40 }}
+        />
+        <Typography variant="h4" sx={{ fontWeight: 'bold', color: 'white' }}>
+          Database | {getCurrentSemester()} {getCurrentYear()} Recruitment Cycle
+        </Typography>
+      </Stack>
       <Typography variant="h4" mb={1}>
         Welcome back, {fullName ? fullName : 'User'}
       </Typography>
@@ -270,6 +286,9 @@ export function ApplicationTable() {
               Status: {selectedApplication.step}
             </Typography>
             <Typography variant="body1">
+              Review: {selectedApplication.review}
+            </Typography>
+            <Typography variant="body1">
               Applications: {selectedApplication.numApps}
             </Typography>
           </Stack>
@@ -319,9 +338,7 @@ export function ApplicationTable() {
             </Button>
 
             {selectedUserRow && (
-              <Button
-              // onClick={(event) => changeStage(event, selectedUserRow.userId)}
-              >
+              <Button size="small" onClick={handleOpenDecisionModal}>
                 Move Stage
               </Button>
             )}
@@ -329,6 +346,13 @@ export function ApplicationTable() {
           <ReviewModal
             open={openReviewModal}
             setOpen={setOpenReviewModal}
+            selectedUserRow={selectedUserRow}
+            selectedApplication={selectedApplication}
+            accessToken={accessToken}
+          />
+          <DecisionModal
+            open={openDecisionModal}
+            setOpen={setOpenDecisionModal}
             selectedUserRow={selectedUserRow}
             selectedApplication={selectedApplication}
             accessToken={accessToken}
