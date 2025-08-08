@@ -3,7 +3,6 @@ import type {
   Application,
   ApplicationRow,
   ApplicationStage,
-  Decision,
   User,
 } from '@components/types';
 
