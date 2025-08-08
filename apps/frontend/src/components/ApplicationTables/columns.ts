@@ -44,4 +44,21 @@ export const applicationColumns = [
     headerName: 'Rating Single Stage',
     width: 150,
   },
+  {
+    field: 'assignedRecruiters',
+    headerName: 'Assigned Recruiters',
+    width: 200,
+    renderCell: (params: any) => {
+      const recruiters = params.value as Array<{
+        firstName: string;
+        lastName: string;
+      }>;
+      if (!recruiters || recruiters.length === 0) {
+        return 'None assigned';
+      }
+      return recruiters
+        .map((recruiter) => `${recruiter.firstName} ${recruiter.lastName}`)
+        .join(', ');
+    },
+  },
 ];

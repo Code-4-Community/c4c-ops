@@ -17,6 +17,7 @@ import { ApplicationRow, Application, Semester } from '../types';
 import apiClient from '@api/apiClient';
 import { applicationColumns } from './columns';
 import { DecisionModal } from './decisionModal';
+import { AssignedRecruiters } from './AssignedRecruiters';
 import useLoginContext from '@components/LoginPage/useLoginContext';
 import { ReviewPanel } from './reviewPanel';
 
@@ -60,14 +61,7 @@ export function ApplicationTable() {
   };
 
   const fetchData = async () => {
-    const data = await apiClient.getAllApplications(accessToken);
-    // Each application needs an id for the DataGrid to work
-    if (data) {
-      data.forEach((row, index) => {
-        row.id = index;
-      });
-      setData(data);
-    }
+
   };
 
   const getApplication = async (userId: number) => {
@@ -82,7 +76,6 @@ export function ApplicationTable() {
 
   const getFullName = async () => {
     setFullName(await apiClient.getFullName(accessToken));
-    console.log(userStatus);
   };
 
   useEffect(() => {
@@ -99,8 +92,7 @@ export function ApplicationTable() {
 
   useEffect(() => {
     const fetchStatus = async () => {
-      const status = await apiClient.getStatus(accessToken);
-      setUserStatus(status);
+
     };
     fetchStatus();
   }, [accessToken]);
@@ -137,7 +129,12 @@ export function ApplicationTable() {
         pageSizeOptions={[5, 10]}
         onRowSelectionModelChange={(newRowSelectionModel) => {
           setRowSelection(newRowSelectionModel);
-          getApplication(data[newRowSelectionModel[0] as number].userId);
+          if (
+            newRowSelectionModel.length > 0 &&
+            data[newRowSelectionModel[0] as number]
+          ) {
+            getApplication(data[newRowSelectionModel[0] as number].userId);
+          }
         }}
         rowSelectionModel={rowSelection}
       />
@@ -151,6 +148,24 @@ export function ApplicationTable() {
       {/* TODO refactor application details into a separate component */}
       {selectedApplication ? (
         <>
+          <Typography variant="h6" mt={2} mb={1}>
+            Assigned Recruiters
+          </Typography>
+          <AssignedRecruiters
+            applicationId={selectedApplication.id}
+            assignedRecruiters={selectedApplication.assignedRecruiters}
+            onRecruitersChange={(recruiterIds) => {
+              // TODO: Delete
+              console.log('Recruiters changed:', recruiterIds);
+            }}
+            onRefreshData={() => {
+              // Refresh the data grid and application details
+              fetchData();
+              if (selectedUserRow) {
+                getApplication(selectedUserRow.userId);
+              }
+            }}
+          />
           <Typography variant="h6" mt={2}>
             Application Details
           </Typography>
@@ -201,13 +216,7 @@ export function ApplicationTable() {
 
             {/* Right Panel: Review Input Form */}
             <Box flex={1}>
-              <ReviewPanel
-                selectedUserRow={selectedUserRow}
-                selectedApplication={selectedApplication}
-                accessToken={accessToken}
-                currentUserFullName={fullName}
-                currentUserStatus={userStatus}
-              />
+
             </Box>
           </Stack>
         </>
