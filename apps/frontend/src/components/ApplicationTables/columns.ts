@@ -2,21 +2,26 @@ export const applicationColumns = [
   {
     field: 'firstName',
     headerName: 'First Name',
-    width: 150,
+    width: 125,
   },
   {
     field: 'lastName',
     headerName: 'Last Name',
-    width: 150,
+    width: 125,
   },
   {
     field: 'stage',
     headerName: 'Stage',
-    width: 125,
+    width: 150,
   },
   {
     field: 'step',
     headerName: 'Status',
+    width: 125,
+  },
+  {
+    field: 'review',
+    headerName: 'Review',
     width: 125,
   },
   {
@@ -27,7 +32,7 @@ export const applicationColumns = [
   {
     field: 'createdAt',
     headerName: 'Date',
-    width: 150,
+    width: 125,
   },
   {
     field: 'meanRatingAllStages',

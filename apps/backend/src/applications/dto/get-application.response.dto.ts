@@ -5,6 +5,7 @@ import {
   ApplicationStep,
   Position,
   Response,
+  ReviewStatus,
   Semester,
 } from '../types';
 
@@ -41,6 +42,8 @@ export class GetApplicationResponseDTO {
   stage: ApplicationStage;
 
   step: ApplicationStep;
+
+  review: ReviewStatus;
 
   response: Response[];
 

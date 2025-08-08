@@ -99,43 +99,25 @@ export function ApplicationTable() {
 
   return (
     <Container maxWidth="xl">
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          flexDirection: 'row',
-        }}
-      >
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            flexDirection: 'column',
-          }}
-        >
-          <Typography variant="h4" mb={1}>
-            Welcome back, {fullName ? fullName : 'User'}
-          </Typography>
-          <Typography variant="h6" mb={1}>
-            Current Recruitment Cycle: {getCurrentSemester()} {getCurrentYear()}
-          </Typography>
-          <Typography variant="body1" mb={3}>
-            Assigned For Review: Jane Smith, John Doe (Complete by 5/1/2024)
-          </Typography>
-        </div>
-        <Button
-          variant="contained"
-          color="primary"
-          size="small"
-          sx={{ alignSelf: 'center' }}
-          onClick={() => {
-            fetchData();
-          }}
-          startIcon={<RefreshIcon />}
-        >
-          Refresh
-        </Button>
-      </div>
+      <Stack direction="row" alignItems="center" spacing={2} mt={4} mb={8}>
+        <img
+          src="/c4clogo.png"
+          alt="C4C Logo"
+          style={{ width: 50, height: 40 }}
+        />
+        <Typography variant="h4" sx={{ fontWeight: 'bold', color: 'white' }}>
+          Database | {getCurrentSemester()} {getCurrentYear()} Recruitment Cycle
+        </Typography>
+      </Stack>
+      <Typography variant="h4" mb={1}>
+        Welcome back, {fullName ? fullName : 'User'}
+      </Typography>
+      <Typography variant="h6" mb={1}>
+        Current Recruitment Cycle: {getCurrentSemester()} {getCurrentYear()}
+      </Typography>
+      <Typography variant="body1" mb={3}>
+        Assigned For Review: Jane Smith, John Doe (Complete by 5/1/2024)
+      </Typography>
       <DataGrid
         rows={data}
         columns={applicationColumns}
@@ -202,6 +184,9 @@ export function ApplicationTable() {
             </Typography>
             <Typography variant="body1">
               Status: {selectedApplication.step}
+            </Typography>
+            <Typography variant="body1">
+              Review: {selectedApplication.review}
             </Typography>
             <Typography variant="body1">
               Applications: {selectedApplication.numApps}

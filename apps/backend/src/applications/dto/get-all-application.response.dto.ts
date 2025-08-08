@@ -6,7 +6,12 @@ import {
   IsArray,
   IsOptional,
 } from 'class-validator';
-import { ApplicationStage, ApplicationStep, Position } from '../types';
+import {
+  ApplicationStage,
+  ApplicationStep,
+  Position,
+  ReviewStatus,
+} from '../types';
 import { AssignedRecruiterDTO } from './get-application.response.dto';
 
 export class GetAllApplicationResponseDTO {
@@ -24,6 +29,9 @@ export class GetAllApplicationResponseDTO {
 
   @IsEnum(ApplicationStep)
   step: ApplicationStep;
+
+  @IsEnum(ReviewStatus)
+  review: ReviewStatus;
 
   @IsEnum(Position)
   position: Position;

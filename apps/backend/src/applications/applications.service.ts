@@ -20,7 +20,6 @@ import { UserStatus } from '../users/types';
 import { Position, ApplicationStage, ApplicationStep, Semester } from './types';
 import { GetAllApplicationResponseDTO } from './dto/get-all-application.response.dto';
 import { AssignedRecruiterDTO } from './dto/get-application.response.dto';
-import { stagesMap } from './applications.constants';
 
 @Injectable()
 export class ApplicationsService {
@@ -56,7 +55,7 @@ export class ApplicationsService {
       year,
       semester,
       position: Position.DEVELOPER, // TODO: Change this to be dynamic
-      stage: ApplicationStage.RESUME,
+      stage: ApplicationStage.APP_RECEIVED,
       step: ApplicationStep.SUBMITTED,
       response: application,
       reviews: [],
@@ -208,14 +207,15 @@ export class ApplicationsService {
     let newStage: ApplicationStage;
     if (decision === Decision.REJECT) {
       newStage = ApplicationStage.REJECTED;
-    } else {
-      const stagesArr = stagesMap[application.position];
-      const stageIndex = stagesArr.indexOf(application.stage);
-      if (stageIndex === -1) {
-        return;
-      }
-      newStage = stagesArr[stageIndex + 1];
     }
+    // else {
+    // const stagesArr = stagesMap[application.position];
+    // const stageIndex = stagesArr.indexOf(application.stage);
+    // if (stageIndex === -1) {
+    //   return;
+    // }
+    // newStage = stagesArr[stageIndex + 1];
+    // }
     application.stage = newStage;
 
     //Save the updated stage
@@ -351,7 +351,7 @@ export class ApplicationsService {
   private calculateChallengeMeanRating(reviews: any[]): number | null {
     const challengeReviews = reviews.filter(
       (review) =>
-        review.stage === ApplicationStage.TECHNICAL_CHALLENGE ||
+        review.stage === ApplicationStage.T_INTERVIEW ||
         review.stage === ApplicationStage.PM_CHALLENGE,
     );
 
@@ -394,16 +394,16 @@ export class ApplicationsService {
       meanRatingAllReviews: this.calculateMeanRating(reviews),
       meanRatingResume: this.calculateMeanRating(
         reviews,
-        ApplicationStage.RESUME,
+        ApplicationStage.APP_RECEIVED,
       ),
       meanRatingChallenge: this.calculateChallengeMeanRating(reviews),
       meanRatingTechnicalChallenge: this.calculateMeanRating(
         reviews,
-        ApplicationStage.TECHNICAL_CHALLENGE,
+        ApplicationStage.T_INTERVIEW,
       ),
       meanRatingInterview: this.calculateMeanRating(
         reviews,
-        ApplicationStage.INTERVIEW,
+        ApplicationStage.B_INTERVIEW,
       ),
     };
   }
