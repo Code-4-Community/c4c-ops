@@ -33,6 +33,7 @@ import apiClient from '@api/apiClient';
 import { applicationColumns } from './columns';
 import { DecisionModal } from './decisionModal';
 import { ReviewModal } from './reviewModal';
+import { AssignedRecruiters } from './AssignedRecruiters';
 import useLoginContext from '@components/LoginPage/useLoginContext';
 
 const TODAY = new Date();
@@ -361,6 +362,24 @@ export function ApplicationTable() {
 
       {selectedApplication ? (
         <>
+          <Typography variant="h6" mt={2} mb={1}>
+            Assigned Recruiters
+          </Typography>
+          <AssignedRecruiters
+            applicationId={selectedApplication.id}
+            assignedRecruiters={selectedApplication.assignedRecruiters}
+            onRecruitersChange={(recruiterIds) => {
+              // TODO: Delete
+              console.log('Recruiters changed:', recruiterIds);
+            }}
+            onRefreshData={() => {
+              // Refresh the data grid and application details
+              fetchData();
+              if (selectedUserRow) {
+                getApplication(selectedUserRow.userId);
+              }
+            }}
+          />
           <Typography variant="h6" mt={2}>
             Application Details
           </Typography>

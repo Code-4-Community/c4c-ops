@@ -42,6 +42,7 @@ const createMockApplication = (
   reviews: [],
   content: null,
   attachments: [],
+  assignedRecruiterIds: [],
   toGetApplicationResponseDTO: jest.fn(),
   toGetAllApplicationResponseDTO: jest.fn(),
   ...overrides,
