@@ -189,11 +189,8 @@ export class AuthService {
       client_id: CognitoAuthConfig.clientId,
       redirect_uri: `${process.env.NX_CLIENT_URL}/login`,
     };
-
     const tokenExchangeEndpoint = `https://${CognitoAuthConfig.clientName}.auth.${CognitoAuthConfig.region}.amazoncognito.com/oauth2/token`;
-
     const urlEncodedBody = new URLSearchParams(body);
-
     const res = await axios
       .post(tokenExchangeEndpoint, urlEncodedBody, {
         headers: {

@@ -1,10 +1,10 @@
 enum ApplicationStage {
-  APP_RECEIVED = 'Application Received',
-  PM_CHALLENGE = 'PM Challenge',
-  B_INTERVIEW = 'Behavioral Interview',
-  T_INTERVIEW = 'Technical Interview',
-  ACCEPTED = 'ACCEPTED',
-  REJECTED = 'REJECTED',
+  APP_RECEIVED,
+  PM_CHALLENGE,
+  B_INTERVIEW,
+  T_INTERVIEW,
+  ACCEPTED,
+  REJECTED,
 }
 
 enum ReviewStatus {

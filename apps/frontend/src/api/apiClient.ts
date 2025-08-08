@@ -3,7 +3,6 @@ import type {
   Application,
   ApplicationRow,
   ApplicationStage,
-  Decision,
   User,
   AssignedRecruiter,
 } from '@components/types';
@@ -147,6 +146,22 @@ export class ApiClient {
     }) as Promise<User>;
   }
 
+  public async updateStage(
+    accessToken: string,
+    userId: number,
+    stage: ApplicationStage,
+  ): Promise<Application> {
+    return this.put(
+      `/api/apps/stage/${userId}`,
+      { stage },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+    ) as Promise<Application>;
+  }
+
   private async get(
     path: string,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -165,6 +180,17 @@ export class ApiClient {
   ): Promise<unknown> {
     return this.axiosInstance
       .post(path, body, headers)
+      .then((response) => response.data);
+  }
+
+  private async put(
+    path: string,
+    body: unknown,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    headers: AxiosRequestConfig<any> | undefined = undefined,
+  ): Promise<unknown> {
+    return this.axiosInstance
+      .put(path, body, headers)
       .then((response) => response.data);
   }
 
