@@ -18,6 +18,7 @@ import apiClient from '@api/apiClient';
 import { applicationColumns } from './columns';
 import { DecisionModal } from './decisionModal';
 import { ReviewModal } from './reviewModal';
+import { AssignedRecruiters } from './AssignedRecruiters';
 import useLoginContext from '@components/LoginPage/useLoginContext';
 import IndividualApplicationDetails from './individualApplication';
 
@@ -129,7 +130,12 @@ export function ApplicationTable() {
         pageSizeOptions={[5, 10]}
         onRowSelectionModelChange={(newRowSelectionModel) => {
           setRowSelection(newRowSelectionModel);
-          getApplication(data[newRowSelectionModel[0] as number].userId);
+          if (
+            newRowSelectionModel.length > 0 &&
+            data[newRowSelectionModel[0] as number]
+          ) {
+            getApplication(data[newRowSelectionModel[0] as number].userId);
+          }
         }}
         rowSelectionModel={rowSelection}
       />
@@ -141,108 +147,119 @@ export function ApplicationTable() {
       </Typography>
 
       {/* TODO refactor application details into a separate component */}
-      {selectedApplication && selectedUserRow ? (
-        <IndividualApplicationDetails
-          selectedApplication={selectedApplication}
-          selectedUserRow={selectedUserRow as ApplicationRow}
-          accessToken={accessToken}
-        />
-      ) : // (
-      //   <>
-      //     <Typography variant="h6" mt={2}>
-      //       Application Details
-      //     </Typography>
-      //     <Stack spacing={2} direction="row" mt={1}>
-      //       <Typography variant="body1">
-      //         Year: {selectedApplication.year}
-      //       </Typography>
-      //       <Typography variant="body1">
-      //         Semester: {selectedApplication.semester}
-      //       </Typography>
-      //       <Typography variant="body1">
-      //         Position: {selectedApplication.position}
-      //       </Typography>
-      //       <Typography variant="body1">
-      //         Stage: {selectedApplication.stage}
-      //       </Typography>
-      //       <Typography variant="body1">
-      //         Status: {selectedApplication.step}
-      //       </Typography>
-      //       <Typography variant="body1">
-      //         Review: {selectedApplication.review}
-      //       </Typography>
-      //       <Typography variant="body1">
-      //         Applications: {selectedApplication.numApps}
-      //       </Typography>
-      //     </Stack>
-      //     <Typography variant="body1" mt={1}>
-      //       Application Responses
-      //     </Typography>
-      //     <List disablePadding dense>
-      //       {selectedApplication.response.map((response, index) => (
-      //         <ListItem key={index}>
-      //           <ListItemIcon>
-      //             <DoneOutline />
-      //           </ListItemIcon>
-      //           <ListItemText
-      //             primary={`Question: ${response.question}`}
-      //             secondary={`Answer: ${response.answer}`}
-      //           />
-      //         </ListItem>
-      //       ))}
-      //     </List>
+      {selectedApplication ? (
+        <>
+          <Typography variant="h6" mt={2} mb={1}>
+            Assigned Recruiters
+          </Typography>
+          <AssignedRecruiters
+            applicationId={selectedApplication.id}
+            assignedRecruiters={selectedApplication.assignedRecruiters}
+            onRecruitersChange={(recruiterIds) => {
+              // TODO: Delete
+              console.log('Recruiters changed:', recruiterIds);
+            }}
+            onRefreshData={() => {
+              // Refresh the data grid and application details
+              fetchData();
+              if (selectedUserRow) {
+                getApplication(selectedUserRow.userId);
+              }
+            }}
+          />
+          <Typography variant="h6" mt={2}>
+            Application Details
+          </Typography>
+          <Stack spacing={2} direction="row" mt={1}>
+            <Typography variant="body1">
+              Year: {selectedApplication.year}
+            </Typography>
+            <Typography variant="body1">
+              Semester: {selectedApplication.semester}
+            </Typography>
+            <Typography variant="body1">
+              Position: {selectedApplication.position}
+            </Typography>
+            <Typography variant="body1">
+              Stage: {selectedApplication.stage}
+            </Typography>
+            <Typography variant="body1">
+              Status: {selectedApplication.step}
+            </Typography>
+            <Typography variant="body1">
+              Review: {selectedApplication.review}
+            </Typography>
+            <Typography variant="body1">
+              Applications: {selectedApplication.numApps}
+            </Typography>
+          </Stack>
+          <Typography variant="body1" mt={1}>
+            Application Responses
+          </Typography>
+          <List disablePadding dense>
+            {selectedApplication.response.map((response, index) => (
+              <ListItem key={index}>
+                <ListItemIcon>
+                  <DoneOutline />
+                </ListItemIcon>
+                <ListItemText
+                  primary={`Question: ${response.question}`}
+                  secondary={`Answer: ${response.answer}`}
+                />
+              </ListItem>
+            ))}
+          </List>
 
-      //     {/* TODO refactor reviews into a separate component */}
-      //     <Stack>
-      //       <Stack>
-      //         Reviews:
-      //         {selectedApplication.reviews.map((review, index) => {
-      //           return (
-      //             <Stack key={index} direction="row" spacing={1}>
-      //               <Typography variant="body1">
-      //                 stage: {review.stage}
-      //               </Typography>
-      //               <Typography variant="body1">
-      //                 rating: {review.rating}
-      //               </Typography>
-      //               <Typography variant="body1">
-      //                 comment: {review.content}
-      //               </Typography>
-      //             </Stack>
-      //           );
-      //         })}
-      //       </Stack>
-      //       <Button
-      //         variant="contained"
-      //         size="small"
-      //         onClick={handleOpenReviewModal}
-      //       >
-      //         Start Review
-      //       </Button>
+          {/* TODO refactor reviews into a separate component */}
+          <Stack>
+            <Stack>
+              Reviews:
+              {selectedApplication.reviews.map((review, index) => {
+                return (
+                  <Stack key={index} direction="row" spacing={1}>
+                    <Typography variant="body1">
+                      stage: {review.stage}
+                    </Typography>
+                    <Typography variant="body1">
+                      rating: {review.rating}
+                    </Typography>
+                    <Typography variant="body1">
+                      comment: {review.content}
+                    </Typography>
+                  </Stack>
+                );
+              })}
+            </Stack>
+            <Button
+              variant="contained"
+              size="small"
+              onClick={handleOpenReviewModal}
+            >
+              Start Review
+            </Button>
 
-      //       {selectedUserRow && (
-      //         <Button size="small" onClick={handleOpenDecisionModal}>
-      //           Move Stage
-      //         </Button>
-      //       )}
-      //     </Stack>
-      //     <ReviewModal
-      //       open={openReviewModal}
-      //       setOpen={setOpenReviewModal}
-      //       selectedUserRow={selectedUserRow}
-      //       selectedApplication={selectedApplication}
-      //       accessToken={accessToken}
-      //     />
-      //     <DecisionModal
-      //       open={openDecisionModal}
-      //       setOpen={setOpenDecisionModal}
-      //       selectedUserRow={selectedUserRow}
-      //       selectedApplication={selectedApplication}
-      //       accessToken={accessToken}
-      //     />
-      //   </>
-      // )
-      null}
+            {selectedUserRow && (
+              <Button size="small" onClick={handleOpenDecisionModal}>
+                Move Stage
+              </Button>
+            )}
+          </Stack>
+          <ReviewModal
+            open={openReviewModal}
+            setOpen={setOpenReviewModal}
+            selectedUserRow={selectedUserRow}
+            selectedApplication={selectedApplication}
+            accessToken={accessToken}
+          />
+          <DecisionModal
+            open={openDecisionModal}
+            setOpen={setOpenDecisionModal}
+            selectedUserRow={selectedUserRow}
+            selectedApplication={selectedApplication}
+            accessToken={accessToken}
+          />
+        </>
+      ) : null}
     </Container>
   );
 }

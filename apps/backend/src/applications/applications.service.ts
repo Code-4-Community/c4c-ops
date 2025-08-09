@@ -4,7 +4,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { UsersService } from '../users/users.service';
 import { Application } from './application.entity';
 import {
@@ -16,9 +16,10 @@ import {
 import { Decision, Response } from './types';
 import * as crypto from 'crypto';
 import { User } from '../users/user.entity';
-import { Position, ApplicationStage, ApplicationStep } from './types';
+import { UserStatus } from '../users/types';
+import { Position, ApplicationStage, ApplicationStep, Semester } from './types';
 import { GetAllApplicationResponseDTO } from './dto/get-all-application.response.dto';
-//import { stagesMap } from './applications.constants';
+import { AssignedRecruiterDTO } from './dto/get-application.response.dto';
 
 @Injectable()
 export class ApplicationsService {
@@ -96,6 +97,100 @@ export class ApplicationsService {
   }
 
   /**
+   * Assigns recruiters to an application.
+   * Updates the assignedRecruiterIds field on the application.
+   *
+   * TODO: Currently has ability to unassign recruiters by not including them in the recruiterIds array
+   *
+   * @param applicationId the id of the application.
+   * @param recruiterIds array of recruiter user IDs to assign.
+   * @param currentUser the user performing the assignment (must be admin).
+   * @returns { void } only updates the assignedRecruiterIds field.
+   */
+  async assignRecruitersToApplication(
+    applicationId: number,
+    recruiterIds: number[],
+    currentUser: User,
+  ): Promise<void> {
+    // Verify user is admin
+    if (currentUser.status !== UserStatus.ADMIN) {
+      throw new UnauthorizedException(
+        'Only admins can assign recruiters to applications',
+      );
+    }
+
+    const recruiters: User[] = await this.findRecruitersByIds(applicationId);
+
+    // Verify all users are recruiters
+    for (const recruiter of recruiters) {
+      if (recruiter.status !== UserStatus.RECRUITER) {
+        throw new BadRequestException(
+          `User ${recruiter.id} is not a recruiter`,
+        );
+      }
+    }
+
+    const application: Application = await this.applicationsRepository.findOne({
+      where: { id: applicationId },
+    });
+
+    if (!application) {
+      throw new BadRequestException(
+        `Application with ID ${applicationId} not found`,
+      );
+    }
+
+    // Update the assignedRecruiterIds field
+    application.assignedRecruiterIds = recruiterIds;
+    await this.applicationsRepository.save(application);
+  }
+
+  /**
+   * Gets assigned recruiters for an application.
+   *
+   * @param applicationId the id of the application.
+   * @param currentUser the user requesting the information.
+   * @returns { AssignedRecruiterDTO[] } list of assigned recruiters.
+   */
+  async getAssignedRecruiters(
+    applicationId: number,
+    currentUser: User,
+  ): Promise<AssignedRecruiterDTO[]> {
+    const application = await this.applicationsRepository.findOne({
+      where: { id: applicationId },
+    });
+
+    if (!application) {
+      throw new BadRequestException(
+        `Application with ID ${applicationId} not found`,
+      );
+    }
+
+    // Check permissions based on user role, only show if admin or recruiter
+    if (
+      currentUser.status !== UserStatus.ADMIN &&
+      currentUser.status !== UserStatus.RECRUITER
+    ) {
+      return [];
+    }
+
+    // Get recruiter details
+    if (application.assignedRecruiterIds.length === 0) {
+      return [];
+    }
+
+    const recruiters: User[] = await this.findRecruitersByIds(application.id);
+
+    return recruiters.map((recruiter) => ({
+      id: recruiter.id,
+      firstName: recruiter.firstName,
+      lastName: recruiter.lastName,
+      // TODO: currently showing email (for future communication), delete if not necessary
+      email: recruiter.email,
+    }));
+  }
+
+  /**
    * Updates the application stage of the applicant.
    * Moves the stage to either the next stage or to rejected.
    *
@@ -135,93 +230,83 @@ export class ApplicationsService {
     return apps;
   }
 
-  async findAllCurrentApplications(): Promise<GetAllApplicationResponseDTO[]> {
+  /**
+   * Finds the recruiters assigned to an application.
+   *
+   * @param applicationId the id of the application.
+   * @returns { User[] } list of recruiters.
+   */
+  async findRecruitersByIds(applicationId: number): Promise<User[]> {
+    const application = await this.applicationsRepository.findOne({
+      where: { id: applicationId },
+    });
+
+    if (!application) {
+      throw new BadRequestException(
+        `Application with ID ${applicationId} not found`,
+      );
+    }
+
+    const recruiterIds: number[] = application.assignedRecruiterIds;
+
+    const recruiters: User[] = [];
+
+    for (const recruiterId of recruiterIds) {
+      const recruiter = await this.usersService.findUserById(recruiterId);
+      if (recruiter.status !== UserStatus.RECRUITER) {
+        throw new BadRequestException(`User ${recruiterId} is not a recruiter`);
+      }
+
+      recruiters.push(recruiter);
+    }
+
+    return recruiters;
+  }
+
+  async findAllCurrentApplications(
+    currentUser?: User,
+  ): Promise<GetAllApplicationResponseDTO[]> {
+    // Base query for current cycle applications
+    interface ApplicationWhereClause {
+      year: number;
+      semester: Semester;
+      assignedRecruiterIds?: ReturnType<typeof In>;
+    }
+
+    const baseWhere: ApplicationWhereClause = {
+      year: getCurrentYear(),
+      semester: getCurrentSemester(),
+    };
+
+    // If user is a recruiter, only show applications assigned to them by
+    // checking where assignedRecruiterIds includes the user's id
+    if (currentUser && currentUser.status === UserStatus.RECRUITER) {
+      baseWhere.assignedRecruiterIds = In([currentUser.id]);
+    }
+
     const applications = await this.applicationsRepository.find({
-      where: {
-        year: getCurrentYear(),
-        semester: getCurrentSemester(),
-      },
+      where: baseWhere,
       relations: ['user', 'reviews'],
     });
 
-    const allApplicationsDto = applications.map((app) => {
-      // Initialize variables for storing mean ratings
-      let meanRatingAllReviews = null;
-      let meanRatingResume = null;
-      let meanRatingChallenge = null; // Default to null for DESIGNERS
-      let meanRatingTechnicalChallenge = null;
-      let meanRatingInterview = null;
-      let applicationStep = null;
+    const allApplicationsDto = await Promise.all(
+      applications.map(async (app) => {
+        const ratings = this.calculateAllRatings(app.reviews);
+        const applicationStep = this.determineApplicationStep(app.reviews);
+        const assignedRecruiters =
+          await this.getAssignedRecruitersForApplication(app);
 
-      // Calculate mean rating of all reviews
-      if (app.reviews.length > 0) {
-        meanRatingAllReviews =
-          app.reviews.reduce((acc, review) => acc + review.rating, 0) /
-          app.reviews.length;
-      }
-
-      // Filter reviews by stage and calculate mean ratings accordingly
-      const resumeReviews = app.reviews.filter(
-        (review) => review.stage === ApplicationStage.APP_RECEIVED,
-      );
-      const challengeReviews = app.reviews.filter(
-        (review) =>
-          review.stage === ApplicationStage.T_INTERVIEW ||
-          review.stage === ApplicationStage.PM_CHALLENGE,
-      );
-      const technicalChallengeReviews = app.reviews.filter(
-        (review) => review.stage === ApplicationStage.T_INTERVIEW,
-      );
-      const interviewReviews = app.reviews.filter(
-        (review) => review.stage === ApplicationStage.B_INTERVIEW,
-      );
-
-      // Mean rating for RESUME stage
-      if (resumeReviews.length > 0) {
-        meanRatingResume =
-          resumeReviews.reduce((acc, review) => acc + review.rating, 0) /
-          resumeReviews.length;
-      }
-
-      // Mean rating for CHALLENGE stage (for DEVS and PMS)
-      if (challengeReviews.length > 0) {
-        meanRatingChallenge =
-          challengeReviews.reduce((acc, review) => acc + review.rating, 0) /
-          challengeReviews.length;
-      }
-
-      // Mean rating for TECHNICAL_CHALLENGE stage (specifically for DEVS)
-      if (technicalChallengeReviews.length > 0) {
-        meanRatingTechnicalChallenge =
-          technicalChallengeReviews.reduce(
-            (acc, review) => acc + review.rating,
-            0,
-          ) / technicalChallengeReviews.length;
-      }
-
-      // Mean rating for INTERVIEW stage
-      if (interviewReviews.length > 0) {
-        meanRatingInterview =
-          interviewReviews.reduce((acc, review) => acc + review.rating, 0) /
-          interviewReviews.length;
-      }
-
-      // Tthe application step
-      if (app.reviews.length > 0) {
-        applicationStep = ApplicationStep.REVIEWED;
-      } else {
-        applicationStep = ApplicationStep.SUBMITTED;
-      }
-
-      return app.toGetAllApplicationResponseDTO(
-        meanRatingAllReviews,
-        meanRatingResume,
-        meanRatingChallenge,
-        meanRatingTechnicalChallenge,
-        meanRatingInterview,
-        applicationStep,
-      );
-    });
+        return app.toGetAllApplicationResponseDTO(
+          ratings.meanRatingAllReviews,
+          ratings.meanRatingResume,
+          ratings.meanRatingChallenge,
+          ratings.meanRatingTechnicalChallenge,
+          ratings.meanRatingInterview,
+          applicationStep,
+          assignedRecruiters,
+        );
+      }),
+    );
 
     return allApplicationsDto;
   }
@@ -237,5 +322,89 @@ export class ApplicationsService {
     }
 
     return currentApp;
+  }
+
+  /**
+   * Calculates mean rating for reviews filtered by stage
+   */
+  private calculateMeanRating(
+    reviews: any[],
+    stage?: ApplicationStage,
+  ): number | null {
+    const filteredReviews = stage
+      ? reviews.filter((review) => review.stage === stage)
+      : reviews;
+
+    if (filteredReviews.length === 0) {
+      return null;
+    }
+
+    return (
+      filteredReviews.reduce((acc, review) => acc + review.rating, 0) /
+      filteredReviews.length
+    );
+  }
+
+  /**
+   * Calculates mean rating for challenge stages (both technical and PM challenges)
+   */
+  private calculateChallengeMeanRating(reviews: any[]): number | null {
+    const challengeReviews = reviews.filter(
+      (review) =>
+        review.stage === ApplicationStage.T_INTERVIEW ||
+        review.stage === ApplicationStage.PM_CHALLENGE,
+    );
+
+    return this.calculateMeanRating(challengeReviews);
+  }
+
+  /**
+   * Determines application step based on reviews
+   */
+  private determineApplicationStep(reviews: any[]): ApplicationStep {
+    return reviews.length > 0
+      ? ApplicationStep.REVIEWED
+      : ApplicationStep.SUBMITTED;
+  }
+
+  /**
+   * Gets assigned recruiters for an application
+   */
+  private async getAssignedRecruitersForApplication(
+    app: Application,
+  ): Promise<AssignedRecruiterDTO[]> {
+    if (!app.assignedRecruiterIds || app.assignedRecruiterIds.length === 0) {
+      return [];
+    }
+
+    const recruiters: User[] = await this.findRecruitersByIds(app.id);
+    return recruiters.map((recruiter) => ({
+      id: recruiter.id,
+      firstName: recruiter.firstName,
+      lastName: recruiter.lastName,
+      // email and assignedAt omitted for list view
+    }));
+  }
+
+  /**
+   * Calculates all ratings for an application
+   */
+  private calculateAllRatings(reviews: any[]) {
+    return {
+      meanRatingAllReviews: this.calculateMeanRating(reviews),
+      meanRatingResume: this.calculateMeanRating(
+        reviews,
+        ApplicationStage.APP_RECEIVED,
+      ),
+      meanRatingChallenge: this.calculateChallengeMeanRating(reviews),
+      meanRatingTechnicalChallenge: this.calculateMeanRating(
+        reviews,
+        ApplicationStage.T_INTERVIEW,
+      ),
+      meanRatingInterview: this.calculateMeanRating(
+        reviews,
+        ApplicationStage.B_INTERVIEW,
+      ),
+    };
   }
 }

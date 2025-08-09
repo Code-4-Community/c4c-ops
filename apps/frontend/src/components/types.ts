@@ -34,6 +34,7 @@ type ApplicationRow = {
   step: ApplicationStep;
   review: ReviewStatus;
   position: Position;
+  assignedRecruiters: AssignedRecruiter[];
   createdAt: string;
   meanRatingAllStages: number;
   meanRatingSingleStages: number;
@@ -71,12 +72,21 @@ type Application = {
   response: Response[];
   numApps: number;
   reviews: Review[];
+  assignedRecruiters: AssignedRecruiter[];
 };
 
 // TODO: should match backend type
 type User = {
   id: number;
   status: string;
+};
+
+type AssignedRecruiter = {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email?: string;
+  assignedAt?: Date;
 };
 
 enum Decision {
@@ -96,4 +106,5 @@ export {
   Review,
   Semester,
   Decision,
+  AssignedRecruiter,
 };
