@@ -11,7 +11,7 @@ import {
   FormControl,
   FormLabel,
   Divider,
-  Rating,
+  Card,
 } from '@mui/material';
 import { useState, useEffect } from 'react';
 import {
@@ -27,6 +27,7 @@ import {
   DescriptionOutlined,
   NoteAltOutlined,
   Close,
+  StickyNote2Outlined,
 } from '@mui/icons-material';
 import apiClient from '@api/apiClient';
 import { Decision } from '@components/types';
@@ -181,51 +182,70 @@ const IndividualApplicationDetails = ({
   return (
     <Stack direction="column">
       {/* Top section with the user's name and links + app stage, assigned to, review step*/}
-      <Stack
-        direction="row"
-        justifyContent="space-between"
-        alignItems="flex-start"
-      >
+      <Stack direction="row" justifyContent="space-between" alignItems="center">
         {/* Logo + Name + information*/}
         <Stack direction="column">
-          <Stack direction="row" alignItems="center">
+          <Stack direction="row" alignItems="center" spacing={2}>
             <img
               src="/c4clogo.png"
               alt="C4C Logo"
               style={{ width: 50, height: 40 }}
             />
             <Typography
-              variant="h4"
+              variant="h5"
               sx={{ fontWeight: 'bold', color: 'white' }}
             >
               {selectedUser.firstName} {selectedUser.lastName} |{' '}
-              {selectedUser.role?.[0] || 'No Position'}
+              {selectedApplication.position || 'No Position'}
             </Typography>
           </Stack>
           <Typography
             variant="subtitle1"
-            sx={{ display: 'flex', flexDirection: 'row', gap: 1 }}
+            sx={{
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 1,
+              color: '#ccc !important',
+            }}
           >
             {/* Make this with the correct links/information */}
-            <MailOutline /> Email
-            <NoteAltOutlined /> Overview
-            <DescriptionOutlined /> Application
+            <MailOutline sx={{ color: '#ccc' }} /> Email
+            <NoteAltOutlined sx={{ color: '#ccc' }} /> Overview
+            <DescriptionOutlined sx={{ color: '#ccc' }} /> Application
+            <StickyNote2Outlined sx={{ color: '#ccc' }} /> Interview Notes
           </Typography>
         </Stack>
         <Button variant="text" size="small" onClick={handleClose}>
           <Close />
         </Button>
       </Stack>
-      <Stack direction="column">
-        <Stack direction="row">
-          <Typography variant="body1">Application Stage: </Typography>
-          <Select size="small" value={selectedApplication.stage}>
+      <Stack direction="column" spacing={2} my={2} sx={{ width: '50%' }}>
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+        >
+          <Typography variant="body1">App Stage: </Typography>
+          <Select
+            size="small"
+            value={selectedApplication.stage}
+            sx={{
+              color: 'white',
+              backgroundColor: 'gray',
+              minWidth: '75%',
+            }}
+          >
             <MenuItem value={selectedApplication.stage}>
               {selectedApplication.stage}
             </MenuItem>
           </Select>
         </Stack>
-        <Stack direction="row">
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+        >
           <Typography variant="body1">Assigned To: </Typography>
           {/* TODO: Give this button assigned to functionality (account for authorization somehow) */}
           <Select
@@ -233,8 +253,13 @@ const IndividualApplicationDetails = ({
             value={selectedApplication.assignedRecruiters.map(
               (recruiter) => recruiter.firstName + ' ' + recruiter.lastName,
             )}
+            sx={{
+              color: 'white',
+              backgroundColor: 'gray',
+              minWidth: '75%',
+            }}
           >
-            {selectedApplication.assignedRecruiters.map((recruiter) => (
+            {allRecruiters.map((recruiter) => (
               <MenuItem
                 key={recruiter.id}
                 value={recruiter.firstName + ' ' + recruiter.lastName}
@@ -244,47 +269,62 @@ const IndividualApplicationDetails = ({
             ))}
           </Select>
         </Stack>
-        <Stack direction="row">
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+        >
           <Typography variant="body1">Review Step: </Typography>
-          <Select size="small" value={selectedApplication.step}>
+          <Select
+            size="small"
+            value={selectedApplication.step}
+            sx={{
+              color: 'white',
+              backgroundColor: 'gray',
+              minWidth: '75%',
+            }}
+          >
             <MenuItem value={selectedApplication.step}>
               {selectedApplication.step}
             </MenuItem>
           </Select>
         </Stack>
       </Stack>
-      <Stack direction="row">
+      <Stack direction="row" spacing={2}>
         <Stack
           direction="column"
-          sx={{ flex: 3, border: '1px solid #6225b0', borderRadius: 1, p: 2 }}
+          sx={{ flex: 2, border: '1px solid #6225b0', borderRadius: 1, p: 2 }}
         >
-          <Typography variant="h5">Application Response</Typography>
-          <List>
-            {selectedApplication.response.map((response, index) => (
-              <ListItem key={index}>
-                <Stack direction="column">
-                  <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
-                    {index + 1}. {response.question}
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      color: 'text.secondary',
-                    }}
-                  >
-                    {response.answer}
-                  </Typography>
-                </Stack>
-              </ListItem>
-            ))}
-          </List>
+          <Typography variant="h5" textAlign="center">
+            Application Response
+          </Typography>
+          <Divider sx={{ my: 2, borderColor: '#ccc' }} />
+          {selectedApplication.response.map((response, index) => (
+            <Stack direction="column">
+              <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
+                {index + 1}. {response.question}
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: 'text.secondary',
+                }}
+              >
+                {response.answer}
+              </Typography>
+              <Divider sx={{ my: 2, borderColor: '#ccc' }} />
+            </Stack>
+          ))}
         </Stack>
         <Stack direction="column" sx={{ flex: 1 }}>
           <Stack
             direction="column"
             sx={{ border: '1px solid #6225b0', borderRadius: 1, p: 2 }}
           >
-            <Typography variant="h5">Recruiter Review</Typography>
+            <Typography variant="h5" textAlign="center">
+              Recruiter Review
+            </Typography>
+            <Divider sx={{ my: 2, borderColor: '#ccc' }} />
             <Box
               component="form"
               onSubmit={handleFormSubmit}
@@ -292,23 +332,20 @@ const IndividualApplicationDetails = ({
             >
               <FormControl size="small">
                 <FormLabel sx={{ color: '#ccc' }}>Rating</FormLabel>
-                {reviewRating.map((rating, index) => (
-                  <Stack
-                    direction="row"
-                    alignItems="center"
-                    spacing={2}
-                    mb={2}
-                    key={index}
-                  >
-                    <Typography variant="body1">Rating {index + 1}:</Typography>
-                    <Rating
-                      name={`review-rating-${index}`}
-                      value={rating}
-                      onChange={(_, value) => handleRatingChange(index, value)}
-                      precision={1}
-                    />
-                  </Stack>
-                ))}
+                <Select
+                  // TODO: Add functionality to change rating, no longer use rating
+                  // onChange={(e) => handleRatingChange(index, e.target.value)}
+                  sx={{
+                    color: 'white',
+                    border: '1px solid white',
+                  }}
+                >
+                  <MenuItem value={1}>1</MenuItem>
+                  <MenuItem value={2}>2</MenuItem>
+                  <MenuItem value={3}>3</MenuItem>
+                  <MenuItem value={4}>4</MenuItem>
+                  <MenuItem value={5}>5</MenuItem>
+                </Select>
               </FormControl>
 
               <FormControl size="small">
@@ -320,6 +357,10 @@ const IndividualApplicationDetails = ({
                   onChange={(e) =>
                     handleDecisionChange(e.target.value as Decision)
                   }
+                  sx={{
+                    color: 'white',
+                    border: '1px solid white',
+                  }}
                 >
                   <MenuItem value={Decision.ACCEPT}>Accept</MenuItem>
                   <MenuItem value={Decision.REJECT}>Reject</MenuItem>
@@ -342,37 +383,60 @@ const IndividualApplicationDetails = ({
                   }}
                 />
               </FormControl>
-
-              <Button variant="contained" size="small" type="submit">
+              <Button
+                variant="contained"
+                size="small"
+                type="submit"
+                sx={{
+                  alignSelf: 'flex-end',
+                  width: 'fit-content',
+                  minWidth: '100px',
+                }}
+              >
                 Submit
               </Button>
             </Box>
             <Divider sx={{ my: 2, borderColor: '#ccc' }} />
             <Stack>
               <Typography variant="h6">Reviews</Typography>
-              {selectedApplication.reviews.map((review, index) => {
-                return (
-                  <Stack key={index} direction="column">
-                    <Stack direction="row" justifyContent="space-between">
-                      <Typography variant="body1">
-                        Name: {reviewerNames[review.reviewerId] || 'Loading...'}
-                      </Typography>
-                      <Typography variant="body1">Time/Date</Typography>
+              {selectedApplication.reviews.length > 0 ? (
+                selectedApplication.reviews.map((review, index) => {
+                  return (
+                    <Stack key={index} direction="column">
+                      <Stack direction="row" justifyContent="space-between">
+                        <Typography variant="body2">
+                          Name:{' '}
+                          {reviewerNames[review.reviewerId] || 'Loading...'}
+                        </Typography>
+                        <Typography variant="body2">
+                          {new Date(review.createdAt).toLocaleDateString()} |{' '}
+                          {new Date(review.createdAt).toLocaleTimeString(
+                            'en-US',
+                            { hour12: false },
+                          )}
+                        </Typography>
+                      </Stack>
+                      <Card
+                        sx={{
+                          backgroundColor: 'gray',
+                          borderRadius: 1,
+                        }}
+                      >
+                        <Stack direction="column">
+                          <Typography variant="body2">
+                            {review.rating}/{review.stage}
+                          </Typography>
+                          <Typography variant="body2">
+                            Comment: {review.content}
+                          </Typography>
+                        </Stack>
+                      </Card>
                     </Stack>
-                    <Stack
-                      direction="column"
-                      sx={{ backgroundColor: '#2a2a2a', borderRadius: 1, p: 1 }}
-                    >
-                      <Typography variant="body1">
-                        {review.rating}/{review.stage}
-                      </Typography>
-                      <Typography variant="body1">
-                        Comment: {review.content}
-                      </Typography>
-                    </Stack>
-                  </Stack>
-                );
-              })}
+                  );
+                })
+              ) : (
+                <Typography variant="body2">No reviews yet</Typography>
+              )}
             </Stack>
           </Stack>
         </Stack>
