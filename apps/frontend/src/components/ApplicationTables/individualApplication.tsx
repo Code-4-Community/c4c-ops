@@ -31,6 +31,7 @@ import {
 } from '@mui/icons-material';
 import apiClient from '@api/apiClient';
 import { Decision } from '@components/types';
+import { AssignedRecruiters } from './AssignedRecruiters';
 
 type IndividualApplicationDetailsProps = {
   selectedApplication: Application;
@@ -247,27 +248,18 @@ const IndividualApplicationDetails = ({
           alignItems="center"
         >
           <Typography variant="body1">Assigned To: </Typography>
-          {/* TODO: Give this button assigned to functionality (account for authorization somehow) */}
-          <Select
-            size="small"
-            value={selectedApplication.assignedRecruiters.map(
-              (recruiter) => recruiter.firstName + ' ' + recruiter.lastName,
-            )}
-            sx={{
-              color: 'white',
-              backgroundColor: 'gray',
-              minWidth: '75%',
-            }}
-          >
-            {allRecruiters.map((recruiter) => (
-              <MenuItem
-                key={recruiter.id}
-                value={recruiter.firstName + ' ' + recruiter.lastName}
-              >
-                {recruiter.firstName} {recruiter.lastName}
-              </MenuItem>
-            ))}
-          </Select>
+          <Stack direction="row" alignItems="center" sx={{ minWidth: '75%' }}>
+            <AssignedRecruiters
+              applicationId={selectedApplication.id}
+              assignedRecruiters={selectedApplication.assignedRecruiters}
+              onRecruitersChange={(recruiterIds) => {
+                const selectedRecruiters = allRecruiters.filter((recruiter) =>
+                  recruiterIds.includes(recruiter.id),
+                );
+                setAssignedRecruiters(selectedRecruiters);
+              }}
+            />
+          </Stack>
         </Stack>
         <Stack
           direction="row"

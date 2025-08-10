@@ -18,12 +18,12 @@ const IndividualApplication: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // Fetches application and user information to be passed into IndividualApplicationDetails
     const fetchData = async () => {
       if (!userId || isNaN(userId) || !accessToken) {
         setIsLoading(false);
         return;
       }
-
       try {
         const [application, user] = await Promise.all([
           apiClient.getApplication(accessToken, userId),
