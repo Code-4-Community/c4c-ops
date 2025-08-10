@@ -14,7 +14,13 @@ import {
   Rating,
 } from '@mui/material';
 import { useState, useEffect } from 'react';
-import { Application, ApplicationRow, AssignedRecruiter } from '../types';
+import {
+  Application,
+  ApplicationRow,
+  AssignedRecruiter,
+  Position,
+  User,
+} from '../types';
 import { useNavigate } from 'react-router-dom';
 import {
   MailOutline,
@@ -27,12 +33,16 @@ import { Decision } from '@components/types';
 
 type IndividualApplicationDetailsProps = {
   selectedApplication: Application;
-  selectedUserRow: ApplicationRow;
+  selectedUser: User;
   accessToken: string;
 };
 
 interface ReviewData {
   numReviews: number;
+}
+
+interface ReviewerInfo {
+  [key: number]: string;
 }
 
 const reviewData: ReviewData = {
@@ -41,7 +51,7 @@ const reviewData: ReviewData = {
 
 const IndividualApplicationDetails = ({
   selectedApplication,
-  selectedUserRow,
+  selectedUser,
   accessToken,
 }: IndividualApplicationDetailsProps) => {
   const [assignedRecruiters, setAssignedRecruiters] = useState<
@@ -51,11 +61,13 @@ const IndividualApplicationDetails = ({
   const [selectedRecruiterIds, setSelectedRecruiterIds] = useState<number[]>(
     [],
   );
+
   const [reviewRating, setReviewRating] = useState<number[]>(
     Array(reviewData.numReviews).fill(0),
   );
   const [reviewComment, setReviewComment] = useState('');
   const [decision, setDecision] = useState<Decision | ''>('');
+  const [reviewerNames, setReviewerNames] = useState<ReviewerInfo>({});
 
   const navigate = useNavigate();
 
@@ -86,7 +98,7 @@ const IndividualApplicationDetails = ({
       .join(', ');
 
     if (
-      !selectedUserRow ||
+      !selectedUser ||
       reviewRating.some((rating) => rating === 0) ||
       !reviewComment ||
       !decision
@@ -98,14 +110,14 @@ const IndividualApplicationDetails = ({
     try {
       // Submit review
       await apiClient.submitReview(accessToken, {
-        applicantId: selectedUserRow.userId,
+        applicantId: selectedUser.id,
         stage: selectedApplication.stage,
         rating: Number(averageRating.toFixed(1)),
         content: `${reviewComment} | ${concatenatedComments}`,
       });
 
       // Submit decision
-      await apiClient.submitDecision(accessToken, selectedUserRow.userId, {
+      await apiClient.submitDecision(accessToken, selectedUser.id, {
         decision: decision,
       });
 
@@ -142,6 +154,30 @@ const IndividualApplicationDetails = ({
     fetchAllRecruiters();
   }, [accessToken]);
 
+  // Fetch reviewer names
+  useEffect(() => {
+    const fetchReviewerNames = async () => {
+      const names: ReviewerInfo = {};
+      for (const review of selectedApplication.reviews) {
+        try {
+          const user = await apiClient.getUserById(
+            accessToken,
+            review.reviewerId,
+          );
+          names[review.reviewerId] = `${user.firstName} ${user.lastName}`;
+        } catch (error) {
+          console.error('Error fetching reviewer name:', error);
+          names[review.reviewerId] = 'Unknown User';
+        }
+      }
+      setReviewerNames(names);
+    };
+
+    if (selectedApplication.reviews.length > 0) {
+      fetchReviewerNames();
+    }
+  }, [selectedApplication.reviews, accessToken]);
+
   return (
     <Stack direction="column">
       {/* Top section with the user's name and links + app stage, assigned to, review step*/}
@@ -162,8 +198,8 @@ const IndividualApplicationDetails = ({
               variant="h4"
               sx={{ fontWeight: 'bold', color: 'white' }}
             >
-              {selectedUserRow.firstName} {selectedUserRow.lastName} |{' '}
-              {selectedUserRow.position}
+              {selectedUser.firstName} {selectedUser.lastName} |{' '}
+              {selectedUser.role?.[0] || 'No Position'}
             </Typography>
           </Stack>
           <Typography
@@ -318,7 +354,9 @@ const IndividualApplicationDetails = ({
                 return (
                   <Stack key={index} direction="column">
                     <Stack direction="row" justifyContent="space-between">
-                      <Typography variant="body1">Name:</Typography>
+                      <Typography variant="body1">
+                        Name: {reviewerNames[review.reviewerId] || 'Loading...'}
+                      </Typography>
                       <Typography variant="body1">Time/Date</Typography>
                     </Stack>
                     <Stack

@@ -20,6 +20,7 @@ enum ApplicationStep {
 }
 
 enum Position {
+  TECH_LEAD = 'TECH_LEAD',
   DEVELOPER = 'DEVELOPER',
   PM = 'PRODUCT_MANAGER',
   DESIGNER = 'DESIGNER',
@@ -78,7 +79,16 @@ type Application = {
 // TODO: should match backend type
 type User = {
   id: number;
-  status: string;
+  // TODO: Maybe make UserStatus enum that matches backend
+  status: string | null;
+  firstName: string;
+  lastName: string;
+  email: string;
+  profilePicture: string | null;
+  linkedin: string | null;
+  github: string | null;
+  // team: Team | null;
+  role: Position[] | null;
 };
 
 type AssignedRecruiter = {

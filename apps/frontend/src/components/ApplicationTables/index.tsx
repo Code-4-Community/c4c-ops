@@ -36,12 +36,7 @@ export function ApplicationTable() {
       accessToken,
       params.row.userId,
     );
-    navigate(`/applications/${params.row.userId}`, {
-      state: {
-        userRow: params.row,
-        application,
-      },
-    });
+    navigate(`/applications/${params.row.userId}`);
   };
 
   const fetchData = async () => {

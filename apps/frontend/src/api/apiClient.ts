@@ -44,6 +44,14 @@ export class ApiClient {
     return token as string;
   }
 
+  public async getUserById(accessToken: string, userId: number): Promise<User> {
+    return this.get(`/api/users/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }) as Promise<User>;
+  }
+
   public async getAllApplications(
     accessToken: string,
   ): Promise<ApplicationRow[]> {
