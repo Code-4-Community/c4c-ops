@@ -1,26 +1,12 @@
-import { useEffect, useState, useRef } from 'react';
-import { DataGrid, GridRowSelectionModel } from '@mui/x-data-grid';
-import RefreshIcon from '@mui/icons-material/Refresh';
-import {
-  Container,
-  Typography,
-  Stack,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemIcon,
-  Button,
-} from '@mui/material';
-import { DoneOutline } from '@mui/icons-material';
+import { useEffect, useState } from 'react';
+import { DataGrid } from '@mui/x-data-grid';
+import { useNavigate } from 'react-router-dom';
+import { Container, Typography, Stack } from '@mui/material';
 
-import { ApplicationRow, Application, Semester } from '../types';
+import { ApplicationRow, Semester } from '../types';
 import apiClient from '@api/apiClient';
 import { applicationColumns } from './columns';
-import { DecisionModal } from './decisionModal';
-import { ReviewModal } from './reviewModal';
-import { AssignedRecruiters } from './AssignedRecruiters';
 import useLoginContext from '@components/LoginPage/useLoginContext';
-import IndividualApplicationDetails from './individualApplication';
 
 const TODAY = new Date();
 
@@ -37,28 +23,25 @@ const getCurrentYear = (): number => {
 };
 
 export function ApplicationTable() {
-  const isPageRendered = useRef<boolean>(false);
+  const navigate = useNavigate();
 
   const { token: accessToken } = useLoginContext();
   // TODO implement auto token refresh
   const [data, setData] = useState<ApplicationRow[]>([]);
   const [fullName, setFullName] = useState<string>('');
-  const [rowSelection, setRowSelection] = useState<GridRowSelectionModel>([]);
-  const [selectedUserRow, setSelectedUserRow] = useState<ApplicationRow | null>(
-    null,
-  );
-  const [selectedApplication, setSelectedApplication] =
-    useState<Application | null>(null);
 
-  const [openReviewModal, setOpenReviewModal] = useState(false);
-  const [openDecisionModal, setOpenDecisionModal] = useState(false);
-
-  const handleOpenReviewModal = () => {
-    setOpenReviewModal(true);
-  };
-
-  const handleOpenDecisionModal = () => {
-    setOpenDecisionModal(true);
+  const handleRowClick = async (params: { row: ApplicationRow }) => {
+    // SHOULD ONLY BE ACCESSIBLE TO ADMIN AND RECRUITER (IF THEY ARE ASSIGNED TO THE APPLICATION)
+    const application = await apiClient.getApplication(
+      accessToken,
+      params.row.userId,
+    );
+    navigate(`/applications/${params.row.userId}`, {
+      state: {
+        userRow: params.row,
+        application,
+      },
+    });
   };
 
   const fetchData = async () => {
@@ -72,16 +55,6 @@ export function ApplicationTable() {
     }
   };
 
-  const getApplication = async (userId: number) => {
-    try {
-      const application = await apiClient.getApplication(accessToken, userId);
-      setSelectedApplication(application);
-    } catch (error) {
-      console.error('Error fetching application:', error);
-      alert('Failed to fetch application details.');
-    }
-  };
-
   const getFullName = async () => {
     setFullName(await apiClient.getFullName(accessToken));
   };
@@ -91,12 +64,6 @@ export function ApplicationTable() {
     getFullName();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessToken]);
-
-  useEffect(() => {
-    if (rowSelection.length > 0) {
-      setSelectedUserRow(data[rowSelection[0] as number]);
-    }
-  }, [rowSelection, data]);
 
   return (
     <Container maxWidth="xl">
@@ -128,138 +95,9 @@ export function ApplicationTable() {
           },
         }}
         pageSizeOptions={[5, 10]}
-        onRowSelectionModelChange={(newRowSelectionModel) => {
-          setRowSelection(newRowSelectionModel);
-          if (
-            newRowSelectionModel.length > 0 &&
-            data[newRowSelectionModel[0] as number]
-          ) {
-            getApplication(data[newRowSelectionModel[0] as number].userId);
-          }
-        }}
-        rowSelectionModel={rowSelection}
+        onRowClick={handleRowClick}
+        sx={{ cursor: 'pointer' }}
       />
-
-      <Typography variant="h6" mt={3}>
-        {selectedUserRow
-          ? `Selected Applicant: ${selectedUserRow.firstName} ${selectedUserRow.lastName}`
-          : 'No Applicant Selected'}
-      </Typography>
-
-      {/* TODO refactor application details into a separate component */}
-      {selectedApplication ? (
-        <>
-          <Typography variant="h6" mt={2} mb={1}>
-            Assigned Recruiters
-          </Typography>
-          <AssignedRecruiters
-            applicationId={selectedApplication.id}
-            assignedRecruiters={selectedApplication.assignedRecruiters}
-            onRecruitersChange={(recruiterIds) => {
-              // TODO: Delete
-              console.log('Recruiters changed:', recruiterIds);
-            }}
-            onRefreshData={() => {
-              // Refresh the data grid and application details
-              fetchData();
-              if (selectedUserRow) {
-                getApplication(selectedUserRow.userId);
-              }
-            }}
-          />
-          <Typography variant="h6" mt={2}>
-            Application Details
-          </Typography>
-          <Stack spacing={2} direction="row" mt={1}>
-            <Typography variant="body1">
-              Year: {selectedApplication.year}
-            </Typography>
-            <Typography variant="body1">
-              Semester: {selectedApplication.semester}
-            </Typography>
-            <Typography variant="body1">
-              Position: {selectedApplication.position}
-            </Typography>
-            <Typography variant="body1">
-              Stage: {selectedApplication.stage}
-            </Typography>
-            <Typography variant="body1">
-              Status: {selectedApplication.step}
-            </Typography>
-            <Typography variant="body1">
-              Review: {selectedApplication.review}
-            </Typography>
-            <Typography variant="body1">
-              Applications: {selectedApplication.numApps}
-            </Typography>
-          </Stack>
-          <Typography variant="body1" mt={1}>
-            Application Responses
-          </Typography>
-          <List disablePadding dense>
-            {selectedApplication.response.map((response, index) => (
-              <ListItem key={index}>
-                <ListItemIcon>
-                  <DoneOutline />
-                </ListItemIcon>
-                <ListItemText
-                  primary={`Question: ${response.question}`}
-                  secondary={`Answer: ${response.answer}`}
-                />
-              </ListItem>
-            ))}
-          </List>
-
-          {/* TODO refactor reviews into a separate component */}
-          <Stack>
-            <Stack>
-              Reviews:
-              {selectedApplication.reviews.map((review, index) => {
-                return (
-                  <Stack key={index} direction="row" spacing={1}>
-                    <Typography variant="body1">
-                      stage: {review.stage}
-                    </Typography>
-                    <Typography variant="body1">
-                      rating: {review.rating}
-                    </Typography>
-                    <Typography variant="body1">
-                      comment: {review.content}
-                    </Typography>
-                  </Stack>
-                );
-              })}
-            </Stack>
-            <Button
-              variant="contained"
-              size="small"
-              onClick={handleOpenReviewModal}
-            >
-              Start Review
-            </Button>
-
-            {selectedUserRow && (
-              <Button size="small" onClick={handleOpenDecisionModal}>
-                Move Stage
-              </Button>
-            )}
-          </Stack>
-          <ReviewModal
-            open={openReviewModal}
-            setOpen={setOpenReviewModal}
-            selectedUserRow={selectedUserRow}
-            selectedApplication={selectedApplication}
-            accessToken={accessToken}
-          />
-          <DecisionModal
-            open={openDecisionModal}
-            setOpen={setOpenDecisionModal}
-            selectedUserRow={selectedUserRow}
-            selectedApplication={selectedApplication}
-            accessToken={accessToken}
-          />
-        </>
-      ) : null}
     </Container>
   );
 }

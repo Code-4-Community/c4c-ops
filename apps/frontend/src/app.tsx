@@ -6,6 +6,7 @@ import NotFound from '@containers/404';
 import Test from '@containers/test';
 import Dashboard from '@containers/dashboard';
 import Applications from '@containers/applications';
+import IndividualApplication from '@containers/individualApplication';
 import Resources from '@containers/resources';
 import Settings from '@containers/settings';
 import LoginContext from '@components/LoginPage/LoginContext';
@@ -37,6 +38,14 @@ export const App: React.FC = () => {
                 element={
                   <Navigation>
                     <Applications />
+                  </Navigation>
+                }
+              />
+              <Route
+                path="/applications/:userId"
+                element={
+                  <Navigation>
+                    <IndividualApplication />
                   </Navigation>
                 }
               />
