@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { DataGrid, GridRowSelectionModel } from '@mui/x-data-grid';
+import { DataGrid, GridRowSelectionModel, GridColDef } from '@mui/x-data-grid';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import {
   Container,
@@ -12,7 +12,6 @@ import {
   Box,
 } from '@mui/material';
 import { DoneOutline } from '@mui/icons-material';
-
 import { ApplicationRow, Application, Semester } from '../types';
 import apiClient from '@api/apiClient';
 import { applicationColumns } from './columns';
@@ -120,13 +119,13 @@ export function ApplicationTable() {
       </Typography>
       <DataGrid
         rows={data}
-        columns={applicationColumns}
+        columns={applicationColumns as GridColDef[]}
         initialState={{
           pagination: {
-            paginationModel: { page: 0, pageSize: 5 },
+            paginationModel: { page: 0, pageSize: 10 },
           },
         }}
-        pageSizeOptions={[5, 10]}
+        pageSizeOptions={[5, 10, 25]}
         onRowSelectionModelChange={(newRowSelectionModel) => {
           setRowSelection(newRowSelectionModel);
           if (
@@ -138,10 +137,9 @@ export function ApplicationTable() {
         }}
         rowSelectionModel={rowSelection}
       />
-
       <Typography variant="h6" mt={3}>
         {selectedUserRow
-          ? `Selected Applicant: ${selectedUserRow.firstName} ${selectedUserRow.lastName}`
+          ? `Selected Applicant: ${selectedUserRow.name}`
           : 'No Applicant Selected'}
       </Typography>
 
