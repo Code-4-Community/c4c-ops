@@ -4,6 +4,7 @@ import type {
   ApplicationRow,
   ApplicationStage,
   User,
+  BackendApplicationDTO,
   AssignedRecruiter,
 } from '@components/types';
 
@@ -46,11 +47,34 @@ export class ApiClient {
   public async getAllApplications(
     accessToken: string,
   ): Promise<ApplicationRow[]> {
-    return (await this.get('/api/apps', {
+    const rawData = (await this.get('/api/apps', {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
-    })) as Promise<ApplicationRow[]>;
+    })) as BackendApplicationDTO[];
+
+    return rawData.map((app, index) => ({
+      id: index,
+      userId: app.userId,
+      name: app.firstName + ' ' + app.lastName,
+      position: app.position,
+      stage: app.stage,
+      // If no reviews/ratings, set to null, else display
+      rating:
+        app.meanRatingAllReviews && app.meanRatingAllReviews > 0
+          ? app.meanRatingAllReviews
+          : null,
+      createdAt: app.createdAt,
+      // TODO: CHANGE ONCE THERE IS A BACKEND ENDPOINT FOR REVIEWED STAGE
+      reviewed: app.meanRatingAllReviews ? 'Reviewed' : 'Unassigned',
+      assignedTo: [],
+      // Include detailed ratings for dropdown
+      meanRatingAllReviews: app.meanRatingAllReviews,
+      meanRatingResume: app.meanRatingResume,
+      meanRatingChallenge: app.meanRatingChallenge,
+      meanRatingTechnicalChallenge: app.meanRatingTechnicalChallenge,
+      meanRatingInterview: app.meanRatingInterview,
+    }));
   }
 
   public async getApplication(
@@ -160,6 +184,14 @@ export class ApiClient {
         },
       },
     ) as Promise<Application>;
+  }
+
+  public async getUserById(accessToken: string, userId: number): Promise<User> {
+    return this.get(`/api/users/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }) as Promise<User>;
   }
 
   private async get(

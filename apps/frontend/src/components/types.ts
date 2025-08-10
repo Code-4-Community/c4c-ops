@@ -28,6 +28,22 @@ enum Position {
 type ApplicationRow = {
   id: number;
   userId: number;
+  name: string;
+  position: Position;
+  reviewed: string;
+  assignedTo: string[];
+  stage: ApplicationStage;
+  rating: number | null;
+  createdAt: Date;
+  meanRatingAllReviews: number | null;
+  meanRatingResume: number | null;
+  meanRatingChallenge: number | null;
+  meanRatingTechnicalChallenge: number | null;
+  meanRatingInterview: number | null;
+};
+
+type BackendApplicationDTO = {
+  userId: number;
   firstName: string;
   lastName: string;
   stage: ApplicationStage;
@@ -35,9 +51,12 @@ type ApplicationRow = {
   review: ReviewStatus;
   position: Position;
   assignedRecruiters: AssignedRecruiter[];
-  createdAt: string;
-  meanRatingAllStages: number;
-  meanRatingSingleStages: number;
+  createdAt: Date;
+  meanRatingAllReviews: number | null;
+  meanRatingResume: number | null;
+  meanRatingChallenge: number | null;
+  meanRatingTechnicalChallenge: number | null;
+  meanRatingInterview: number | null;
 };
 
 type Response = {
@@ -79,6 +98,14 @@ type Application = {
 type User = {
   id: number;
   status: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  profilePicture: string | null;
+  linkedin: string | null;
+  github: string | null;
+  team: string | null;
+  role: string[] | null;
 };
 
 type AssignedRecruiter = {
@@ -105,6 +132,7 @@ export {
   Response,
   Review,
   Semester,
+  BackendApplicationDTO,
   Decision,
   AssignedRecruiter,
 };

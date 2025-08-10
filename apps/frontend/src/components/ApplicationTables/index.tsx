@@ -6,7 +6,6 @@ import {
   GridRenderCellParams,
 } from '@mui/x-data-grid';
 import { Snackbar, Alert } from '@mui/material';
-import RefreshIcon from '@mui/icons-material/Refresh';
 import {
   Container,
   Typography,
@@ -22,7 +21,6 @@ import {
   SelectChangeEvent,
 } from '@mui/material';
 import { DoneOutline } from '@mui/icons-material';
-
 import {
   ApplicationRow,
   Application,
@@ -341,22 +339,21 @@ export function ApplicationTable() {
       </Typography>
       <DataGrid
         rows={data}
-        columns={enhancedColumns}
+        columns={enhancedColumns as GridColDef[]}
         initialState={{
           pagination: {
-            paginationModel: { page: 0, pageSize: 5 },
+            paginationModel: { page: 0, pageSize: 10 },
           },
         }}
-        pageSizeOptions={[5, 10]}
+        pageSizeOptions={[5, 10, 25]}
         onRowSelectionModelChange={(newRowSelectionModel) => {
           setRowSelection(newRowSelectionModel);
         }}
         rowSelectionModel={rowSelection}
       />
-
       <Typography variant="h6" mt={3}>
         {selectedUserRow
-          ? `Selected Applicant: ${selectedUserRow.firstName} ${selectedUserRow.lastName}`
+          ? `Selected Applicant: ${selectedUserRow.name}`
           : 'No Applicant Selected'}
       </Typography>
 
