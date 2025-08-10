@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { DataGrid, GridRowSelectionModel, GridColDef } from '@mui/x-data-grid';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import {
   Container,
   Typography,
@@ -14,7 +15,9 @@ import { DoneOutline } from '@mui/icons-material';
 import { ApplicationRow, Application, Semester } from '../types';
 import apiClient from '@api/apiClient';
 import { applicationColumns } from './columns';
+import { DecisionModal } from './decisionModal';
 import { ReviewModal } from './reviewModal';
+import { AssignedRecruiters } from './AssignedRecruiters';
 import useLoginContext from '@components/LoginPage/useLoginContext';
 
 const TODAY = new Date();
@@ -46,9 +49,14 @@ export function ApplicationTable() {
     useState<Application | null>(null);
 
   const [openReviewModal, setOpenReviewModal] = useState(false);
+  const [openDecisionModal, setOpenDecisionModal] = useState(false);
 
   const handleOpenReviewModal = () => {
     setOpenReviewModal(true);
+  };
+
+  const handleOpenDecisionModal = () => {
+    setOpenDecisionModal(true);
   };
 
   const fetchData = async () => {
@@ -72,34 +80,13 @@ export function ApplicationTable() {
     }
   };
 
-  // const changeStage = async (
-  //   event: React.MouseEvent<HTMLButtonElement>,
-  //   userId: number,
-  // ) => {
-  //   console.log(`Attempting to change stage for userId: ${userId}`);
-  //   try {
-  //     const updatedApplication = await apiClient.changeStage(
-  //       accessToken,
-  //       userId,
-  //     );
-  //     console.log('Stage changed successfully:', updatedApplication.stage);
-  //     alert(`Stage updated to: ${updatedApplication.stage}`);
-  //   } catch (error) {
-  //     console.error('Error changing application stage:', error);
-  //     alert('Failed to change application stage.');
-  //   }
-  // };
-
   const getFullName = async () => {
     setFullName(await apiClient.getFullName(accessToken));
   };
 
   useEffect(() => {
-    if (isPageRendered.current) {
-      fetchData();
-      getFullName();
-    }
-    isPageRendered.current = true;
+    fetchData();
+    getFullName();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessToken]);
 
@@ -111,6 +98,16 @@ export function ApplicationTable() {
 
   return (
     <Container maxWidth="xl">
+      <Stack direction="row" alignItems="center" spacing={2} mt={4} mb={8}>
+        <img
+          src="/c4clogo.png"
+          alt="C4C Logo"
+          style={{ width: 50, height: 40 }}
+        />
+        <Typography variant="h4" sx={{ fontWeight: 'bold', color: 'white' }}>
+          Database | {getCurrentSemester()} {getCurrentYear()} Recruitment Cycle
+        </Typography>
+      </Stack>
       <Typography variant="h4" mb={1}>
         Welcome back, {fullName ? fullName : 'User'}
       </Typography>
@@ -131,7 +128,12 @@ export function ApplicationTable() {
         pageSizeOptions={[5, 10, 25]}
         onRowSelectionModelChange={(newRowSelectionModel) => {
           setRowSelection(newRowSelectionModel);
-          getApplication(data[newRowSelectionModel[0] as number].userId);
+          if (
+            newRowSelectionModel.length > 0 &&
+            data[newRowSelectionModel[0] as number]
+          ) {
+            getApplication(data[newRowSelectionModel[0] as number].userId);
+          }
         }}
         rowSelectionModel={rowSelection}
       />
@@ -144,6 +146,24 @@ export function ApplicationTable() {
       {/* TODO refactor application details into a separate component */}
       {selectedApplication ? (
         <>
+          <Typography variant="h6" mt={2} mb={1}>
+            Assigned Recruiters
+          </Typography>
+          <AssignedRecruiters
+            applicationId={selectedApplication.id}
+            assignedRecruiters={selectedApplication.assignedRecruiters}
+            onRecruitersChange={(recruiterIds) => {
+              // TODO: Delete
+              console.log('Recruiters changed:', recruiterIds);
+            }}
+            onRefreshData={() => {
+              // Refresh the data grid and application details
+              fetchData();
+              if (selectedUserRow) {
+                getApplication(selectedUserRow.userId);
+              }
+            }}
+          />
           <Typography variant="h6" mt={2}>
             Application Details
           </Typography>
@@ -162,6 +182,9 @@ export function ApplicationTable() {
             </Typography>
             <Typography variant="body1">
               Status: {selectedApplication.step}
+            </Typography>
+            <Typography variant="body1">
+              Review: {selectedApplication.review}
             </Typography>
             <Typography variant="body1">
               Applications: {selectedApplication.numApps}
@@ -213,9 +236,7 @@ export function ApplicationTable() {
             </Button>
 
             {selectedUserRow && (
-              <Button
-              // onClick={(event) => changeStage(event, selectedUserRow.userId)}
-              >
+              <Button size="small" onClick={handleOpenDecisionModal}>
                 Move Stage
               </Button>
             )}
@@ -223,6 +244,13 @@ export function ApplicationTable() {
           <ReviewModal
             open={openReviewModal}
             setOpen={setOpenReviewModal}
+            selectedUserRow={selectedUserRow}
+            selectedApplication={selectedApplication}
+            accessToken={accessToken}
+          />
+          <DecisionModal
+            open={openDecisionModal}
+            setOpen={setOpenDecisionModal}
             selectedUserRow={selectedUserRow}
             selectedApplication={selectedApplication}
             accessToken={accessToken}

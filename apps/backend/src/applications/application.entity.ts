@@ -14,8 +14,12 @@ import {
   Position,
   ApplicationStage,
   ApplicationStep,
+  ReviewStatus,
 } from './types';
-import { GetApplicationResponseDTO } from './dto/get-application.response.dto';
+import {
+  GetApplicationResponseDTO,
+  AssignedRecruiterDTO,
+} from './dto/get-application.response.dto';
 import { Review } from '../reviews/review.entity';
 import { GetAllApplicationResponseDTO } from './dto/get-all-application.response.dto';
 import { FileUpload } from '../file-upload/entities/file-upload.entity';
@@ -54,9 +58,16 @@ export class Application {
   @IsEnum(Position)
   position: Position;
 
-  @Column('varchar', { default: ApplicationStage.RESUME, nullable: false })
+  @Column('varchar', {
+    default: ApplicationStage.APP_RECEIVED,
+    nullable: false,
+  })
   @IsEnum(ApplicationStage)
   stage: ApplicationStage;
+
+  @Column('varchar', { default: ReviewStatus.UNASSIGNED, nullable: false })
+  @IsEnum(ReviewStatus)
+  review: ReviewStatus;
 
   @Column('varchar', { default: ApplicationStep.SUBMITTED, nullable: false })
   step: ApplicationStep;
@@ -66,11 +77,15 @@ export class Application {
   @IsObject({ each: true })
   response: Response[];
 
-  @Column('varchar', { array: true, default: {} })
+  // @Column('varchar', { array: true, default: {} })
   @IsArray()
   @IsObject({ each: true })
   @OneToMany(() => Review, (review) => review.application)
   reviews: Review[];
+
+  @Column('int', { array: true, default: [] })
+  @IsArray()
+  assignedRecruiterIds: number[];
 
   toGetAllApplicationResponseDTO(
     meanRatingAllReviews,
@@ -79,6 +94,7 @@ export class Application {
     meanRatingTechnicalChallenge,
     meanRatingInterview,
     applicationStep,
+    assignedRecruiters: AssignedRecruiterDTO[] = [],
   ): GetAllApplicationResponseDTO {
     return {
       userId: this.user.id,
@@ -87,18 +103,21 @@ export class Application {
       stage: this.stage,
       step: applicationStep,
       position: this.position,
+      review: this.review,
       createdAt: this.createdAt,
       meanRatingAllReviews,
       meanRatingResume,
       meanRatingChallenge,
       meanRatingTechnicalChallenge,
       meanRatingInterview,
+      assignedRecruiters,
     };
   }
 
   toGetApplicationResponseDTO(
     numApps: number,
     applicationStep,
+    assignedRecruiters: AssignedRecruiterDTO[] = [],
   ): GetApplicationResponseDTO {
     return {
       id: this.id,
@@ -108,9 +127,11 @@ export class Application {
       position: this.position,
       stage: this.stage,
       step: applicationStep,
+      review: this.review,
       response: this.response,
       reviews: this.reviews,
       numApps,
+      assignedRecruiters,
     };
   }
 }
