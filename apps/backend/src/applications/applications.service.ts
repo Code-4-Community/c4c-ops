@@ -222,6 +222,32 @@ export class ApplicationsService {
     await this.applicationsRepository.save(application);
   }
 
+  /**
+   * Updates the stage of the application for a given user.
+   */
+  async updateStage(
+    userId: number,
+    newStage: ApplicationStage,
+  ): Promise<Application> {
+    const updateResult = await this.applicationsRepository
+      .createQueryBuilder()
+      .update(Application)
+      .set({ stage: newStage })
+      .where('user.id = :userId', { userId })
+      .execute();
+
+    if (updateResult.affected === 0) {
+      throw new BadRequestException(`Application for user ${userId} not found`);
+    }
+
+    const application = await this.applicationsRepository.findOne({
+      where: { user: { id: userId } },
+      relations: ['user', 'reviews'],
+    });
+
+    return application;
+  }
+
   async findAll(userId: number): Promise<Application[]> {
     const apps = await this.applicationsRepository.find({
       where: { user: { id: userId } },

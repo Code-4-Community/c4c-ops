@@ -11,8 +11,9 @@ import {
   BadRequestException,
   NotFoundException,
   UnauthorizedException,
+  Put,
 } from '@nestjs/common';
-import { Decision, Response } from './types';
+import { ApplicationStage, Decision, Response } from './types';
 import { ApplicationsService } from './applications.service';
 import { CurrentUserInterceptor } from '../interceptors/current-user.interceptor';
 import { AuthGuard } from '@nestjs/passport';
@@ -185,5 +186,23 @@ export class ApplicationsController {
       );
 
     return assignedRecruiters;
+  }
+
+  @Put('/stage/:userId')
+  @UseGuards(AuthGuard('jwt'))
+  async updateStage(
+    @Param('userId', ParseIntPipe) userId: number,
+    @Body('stage') stage: ApplicationStage,
+    @Request() req,
+  ): Promise<Application> {
+    if (![UserStatus.ADMIN, UserStatus.RECRUITER].includes(req.user.status)) {
+      throw new UnauthorizedException();
+    }
+
+    const stageEnum: ApplicationStage = ApplicationStage[stage];
+    if (!stageEnum) {
+      throw new BadRequestException('Invalid stage value');
+    }
+    return await this.applicationsService.updateStage(userId, stageEnum);
   }
 }
