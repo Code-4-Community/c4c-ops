@@ -64,11 +64,9 @@ const IndividualApplicationDetails = ({
     [],
   );
 
-  const [reviewRating, setReviewRating] = useState<number[]>(
-    Array(reviewData.numReviews).fill(0),
-  );
+  const [reviewRating, setReviewRating] = useState<number | null>(null);
   const [reviewComment, setReviewComment] = useState('');
-  const [decision, setDecision] = useState<Decision | ''>('');
+  const [decision, setDecision] = useState<Decision | null>(null);
   const [reviewerNames, setReviewerNames] = useState<ReviewerInfo>({});
 
   const navigate = useNavigate();
@@ -77,61 +75,49 @@ const IndividualApplicationDetails = ({
     navigate('/applications');
   };
 
-  const handleRatingChange = (index: number, value: number | null) => {
-    const newRatings = [...reviewRating];
-    newRatings[index] = value || 0;
-    setReviewRating(newRatings);
+  const handleRatingChange = (value: string) => {
+    setReviewRating(value === '' ? null : Number(value));
   };
 
-  const handleDecisionChange = (newDecision: Decision) => {
+  const handleDecisionChange = (newDecision: Decision | null) => {
     setDecision(newDecision);
   };
 
   const handleFormSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    const totalRatings = reviewRating.reduce((sum, rating) => sum + rating, 0);
-    const averageRating = Number(
-      (totalRatings / reviewRating.length).toFixed(1),
-    );
-
-    const concatenatedComments = reviewRating
-      .map((rating, index) => `Review ${index + 1}: ${rating}`)
-      .join(', ');
-
-    if (
-      !selectedUser ||
-      reviewRating.some((rating) => rating === 0) ||
-      !reviewComment ||
-      !decision
-    ) {
-      alert('Please provide all ratings, a comment, and a decision.');
+    if (!selectedUser || ((!reviewRating || !reviewComment) && !decision)) {
+      alert('Please provide both a rating and comment, or a decision.');
       return;
     }
 
     try {
       // Submit review
-      await apiClient.submitReview(accessToken, {
-        applicantId: selectedUser.id,
-        stage: selectedApplication.stage,
-        rating: Number(averageRating.toFixed(1)),
-        content: `${reviewComment} | ${concatenatedComments}`,
-      });
+      if (reviewRating && reviewComment) {
+        await apiClient.submitReview(accessToken, {
+          applicantId: selectedUser.id,
+          stage: selectedApplication.stage,
+          rating: reviewRating,
+          content: reviewComment,
+        });
+      }
 
       // Submit decision
-      await apiClient.submitDecision(accessToken, selectedUser.id, {
-        decision: decision,
-      });
+      if (decision) {
+        await apiClient.submitDecision(accessToken, selectedUser.id, {
+          decision: decision,
+        });
+      }
 
-      alert('Review and decision submitted successfully!');
+      alert('Submitted successfully!');
 
       // Reset form
-      setReviewRating(Array(reviewData.numReviews).fill(0));
+      setReviewRating(null);
       setReviewComment('');
-      setDecision('');
+      setDecision(null);
     } catch (error) {
-      console.error('Error submitting review and decision:', error);
-      alert('Failed to submit review and decision.');
+      console.error('Error submitting review or decision:', error);
+      alert('Failed to submit review or decision.');
     }
   };
 
@@ -325,13 +311,14 @@ const IndividualApplicationDetails = ({
               <FormControl size="small">
                 <FormLabel sx={{ color: '#ccc' }}>Rating</FormLabel>
                 <Select
-                  // TODO: Add functionality to change rating, no longer use rating
-                  // onChange={(e) => handleRatingChange(index, e.target.value)}
+                  value={reviewRating?.toString() || ''}
+                  onChange={(e) => handleRatingChange(e.target.value)}
                   sx={{
                     color: 'white',
                     border: '1px solid white',
                   }}
                 >
+                  <MenuItem value="">N/A</MenuItem>
                   <MenuItem value={1}>1</MenuItem>
                   <MenuItem value={2}>2</MenuItem>
                   <MenuItem value={3}>3</MenuItem>
@@ -347,13 +334,18 @@ const IndividualApplicationDetails = ({
                 <Select
                   value={decision || ''}
                   onChange={(e) =>
-                    handleDecisionChange(e.target.value as Decision)
+                    handleDecisionChange(
+                      e.target.value === 'N/A'
+                        ? null
+                        : (e.target.value as Decision),
+                    )
                   }
                   sx={{
                     color: 'white',
                     border: '1px solid white',
                   }}
                 >
+                  <MenuItem value="N/A">N/A</MenuItem>
                   <MenuItem value={Decision.ACCEPT}>Accept</MenuItem>
                   <MenuItem value={Decision.REJECT}>Reject</MenuItem>
                 </Select>
@@ -371,7 +363,7 @@ const IndividualApplicationDetails = ({
                   onChange={(e) => setReviewComment(e.target.value)}
                   sx={{
                     border: '1px solid #ccc',
-                    color: '#ccc',
+                    color: '#white',
                   }}
                 />
               </FormControl>
