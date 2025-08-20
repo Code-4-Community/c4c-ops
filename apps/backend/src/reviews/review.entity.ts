@@ -19,7 +19,7 @@ export class Review {
 
   // TODO should be a many-to-many on Users
   @Column({ nullable: false })
-  reviewerId: number;
+  reviewerName: string;
 
   @Column({ type: 'double precision', nullable: false })
   rating: number;
