@@ -28,7 +28,7 @@ import {
   ApplicationStage,
 } from '../types';
 import apiClient from '@api/apiClient';
-import { applicationColumns } from './columns';
+import { applicationColumn } from './columns';
 import { DecisionModal } from './decisionModal';
 import { ReviewModal } from './reviewModal';
 import { AssignedRecruiters } from './AssignedRecruiters';
@@ -193,7 +193,7 @@ export function ApplicationTable() {
     }
   };
 
-  const enhancedColumns: GridColDef[] = applicationColumns.map((col) => {
+  const enhancedColumns: GridColDef[] = applicationColumn.map((col) => {
     if (col.field === 'stage') {
       return {
         ...col,

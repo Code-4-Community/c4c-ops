@@ -4,7 +4,7 @@ import { GridColumnHeaderParams, GridRenderCellParams } from '@mui/x-data-grid';
 import { REVIEWED_STATUSES, STAGE_STATUSES } from './constants';
 import { RatingCell } from './RatingCell';
 
-export const applicationColumns = [
+export const applicationColumn = [
   {
     field: 'name',
     headerName: 'Name',
