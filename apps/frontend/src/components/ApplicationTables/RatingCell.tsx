@@ -36,7 +36,7 @@ export const RatingCell = ({ value, row }: RatingCellProps) => {
         // Fetch reviewer information for each review
         const reviewersMap = new Map<number, User>();
         const uniqueReviewerIds = [
-          ...new Set(application.reviews.map((review) => review.reviewerId)),
+          ...new Set(application.reviews.map((review) => review.id)),
         ];
 
         for (const reviewerId of uniqueReviewerIds) {

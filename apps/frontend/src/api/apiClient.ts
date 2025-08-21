@@ -4,7 +4,6 @@ import type {
   ApplicationRow,
   ApplicationStage,
   User,
-  BackendApplicationDTO,
   AssignedRecruiter,
 } from '@components/types';
 
@@ -47,34 +46,43 @@ export class ApiClient {
   public async getAllApplications(
     accessToken: string,
   ): Promise<ApplicationRow[]> {
-    const rawData = (await this.get('/api/apps', {
+    return (await this.get('/api/apps', {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
-    })) as BackendApplicationDTO[];
+    })) as Promise<ApplicationRow[]>;
+  }
 
-    return rawData.map((app, index) => ({
-      id: index,
-      userId: app.userId,
-      name: app.firstName + ' ' + app.lastName,
-      position: app.position,
-      stage: app.stage,
-      // If no reviews/ratings, set to null, else display
-      rating:
-        app.meanRatingAllReviews && app.meanRatingAllReviews > 0
-          ? app.meanRatingAllReviews
-          : null,
-      createdAt: app.createdAt,
-      // TODO: CHANGE ONCE THERE IS A BACKEND ENDPOINT FOR REVIEWED STAGE
-      reviewed: app.meanRatingAllReviews ? 'Reviewed' : 'Unassigned',
-      assignedTo: [],
-      // Include detailed ratings for dropdown
-      meanRatingAllReviews: app.meanRatingAllReviews,
-      meanRatingResume: app.meanRatingResume,
-      meanRatingChallenge: app.meanRatingChallenge,
-      meanRatingTechnicalChallenge: app.meanRatingTechnicalChallenge,
-      meanRatingInterview: app.meanRatingInterview,
-    }));
+  /**
+   * Get all available recruiters
+   * Used for assigned-to functionality
+   *
+   * @param accessToken The access token of the user (will be checked if admin by backend)
+   * @returns All recruiters
+   * @throws UnauthorizedException if user is not an admin
+   */
+  public async getAllRecruiters(
+    accessToken: string,
+  ): Promise<AssignedRecruiter[]> {
+    return this.get('/api/users/recruiters', {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    }) as Promise<AssignedRecruiter[]>;
+  }
+
+  public async getUser(accessToken: string): Promise<User> {
+    return this.get('/api/users/', {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }) as Promise<User>;
+  }
+
+  public async getUserById(accessToken: string, userId: number): Promise<User> {
+    return this.get(`/api/users/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }) as Promise<User>;
   }
 
   public async getApplication(
@@ -108,15 +116,19 @@ export class ApiClient {
     }) as Promise<void>;
   }
 
-  public async submitReview(
-    accessToken: string,
-    reviewData: SubmitReviewRequest,
-  ): Promise<void> {
-    return this.post('/api/reviews', reviewData, {
+  public async submitReview(token: string, payload: SubmitReviewRequest) {
+    const res = await fetch('/api/reviews', {
+      method: 'POST',
       headers: {
-        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
       },
-    }) as Promise<void>;
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) throw new Error('Failed to submit review');
+
+    return res.json();
   }
 
   public async assignRecruiters(
@@ -137,61 +149,43 @@ export class ApiClient {
     ) as Promise<void>;
   }
 
-  public async getAssignedRecruiters(
+  public async updateReview(
     accessToken: string,
-    applicationId: number,
-  ): Promise<AssignedRecruiter[]> {
-    return this.get(`/api/apps/assigned-recruiters/${applicationId}`, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    }) as Promise<AssignedRecruiter[]>;
-  }
-
-  /**
-   * Get all available recruiters
-   * Used for assigned-to functionality
-   *
-   * @param accessToken The access token of the user (will be checked if admin by backend)
-   * @returns All recruiters
-   * @throws UnauthorizedException if user is not an admin
-   */
-  public async getAllRecruiters(
-    accessToken: string,
-  ): Promise<AssignedRecruiter[]> {
-    return this.get('/api/users/recruiters', {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    }) as Promise<AssignedRecruiter[]>;
-  }
-
-  public async getUser(accessToken: string): Promise<User> {
-    return this.get('/api/users/', {
+    reviewId: number,
+    updateData: { rating: number; content: string; stage: ApplicationStage },
+  ): Promise<void> {
+    return this.put(`/api/reviews/${reviewId}`, updateData, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
-    }) as Promise<User>;
+    }) as Promise<void>;
   }
 
-  public async updateStage(
-    accessToken: string,
-    userId: number,
-    stage: ApplicationStage,
-  ): Promise<Application> {
-    return this.put(
-      `/api/apps/stage/${userId}`,
-      { stage },
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
+  async deleteReview(
+    token: string,
+    reviewId: number,
+  ): Promise<{ message: string }> {
+    const res = await fetch(`/api/reviews/${reviewId}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`,
       },
-    ) as Promise<Application>;
+    });
+
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(error.message || 'Failed to delete review');
+    }
+
+    return res.json();
   }
 
-  public async getUserById(accessToken: string, userId: number): Promise<User> {
-    return this.get(`/api/users/${userId}`, {
+  public async getStatus(accessToken: string): Promise<string> {
+    return (await this.get('/api/users/status', {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
-    }) as Promise<User>;
+    })) as Promise<string>;
   }
 
   private async get(
@@ -215,28 +209,6 @@ export class ApiClient {
       .then((response) => response.data);
   }
 
-  private async put(
-    path: string,
-    body: unknown,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    headers: AxiosRequestConfig<any> | undefined = undefined,
-  ): Promise<unknown> {
-    return this.axiosInstance
-      .put(path, body, headers)
-      .then((response) => response.data);
-  }
-
-  private async postTwo(
-    path: string,
-    body: DecisionRequest,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    headers: AxiosRequestConfig<any> | undefined = undefined,
-  ): Promise<unknown> {
-    return this.axiosInstance
-      .post(path, body, headers)
-      .then((response) => response.data);
-  }
-
   private async patch(path: string, body: unknown): Promise<unknown> {
     return this.axiosInstance
       .patch(path, body)
@@ -245,6 +217,10 @@ export class ApiClient {
 
   private async delete(path: string): Promise<unknown> {
     return this.axiosInstance.delete(path).then((response) => response.data);
+  }
+
+  public async put<T>(url: string, data?: any, config?: any): Promise<T> {
+    return axios.put(url, data, config).then((res) => res.data);
   }
 }
 

@@ -93,7 +93,7 @@ export const RatingPopup = ({
                   }}
                 >
                   <Chip
-                    label={getReviewerName(review.reviewerId)}
+                    label={getReviewerName(review.id)}
                     size="small"
                     variant="outlined"
                     sx={{ fontSize: '0.75rem' }}

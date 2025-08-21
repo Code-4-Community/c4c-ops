@@ -1,17 +1,10 @@
 enum ApplicationStage {
-  APP_RECEIVED,
-  PM_CHALLENGE,
-  B_INTERVIEW,
-  T_INTERVIEW,
-  ACCEPTED,
-  REJECTED,
-}
-
-enum ReviewStatus {
-  UNASSIGNED = 'UNASSIGNED',
-  ASSIGNED = 'ASSIGNED',
-  REVIEWING = 'REVIEWING',
-  REVIEWED = 'REVIEWED',
+  RESUME = 'RESUME',
+  INTERVIEW = 'INTERVIEW',
+  ACCEPTED = 'ACCEPTED',
+  REJECTED = 'REJECTED',
+  TECHNICAL_CHALLENGE = 'TECHNICAL_CHALLENGE',
+  PM_CHALLENGE = 'PM_CHALLENGE',
 }
 
 enum ApplicationStep {
@@ -25,76 +18,6 @@ enum Position {
   DESIGNER = 'DESIGNER',
 }
 
-type ApplicationRow = {
-  id: number;
-  userId: number;
-  name: string;
-  position: Position;
-  reviewed: string;
-  assignedTo: string[];
-  stage: ApplicationStage;
-  rating: number | null;
-  createdAt: Date;
-  meanRatingAllReviews: number | null;
-  meanRatingResume: number | null;
-  meanRatingChallenge: number | null;
-  meanRatingTechnicalChallenge: number | null;
-  meanRatingInterview: number | null;
-};
-
-type BackendApplicationDTO = {
-  userId: number;
-  firstName: string;
-  lastName: string;
-  stage: ApplicationStage;
-  step: ApplicationStep;
-  review: ReviewStatus;
-  position: Position;
-  assignedRecruiters: AssignedRecruiter[];
-  createdAt: Date;
-  meanRatingAllReviews: number | null;
-  meanRatingResume: number | null;
-  meanRatingChallenge: number | null;
-  meanRatingTechnicalChallenge: number | null;
-  meanRatingInterview: number | null;
-};
-
-type Response = {
-  question: string;
-  answer: string;
-};
-
-type Review = {
-  id: number;
-  createdAt: Date;
-  updatedAt: Date;
-  reviewerId: number;
-  rating: number;
-  stage: ApplicationStage;
-  content: string;
-};
-
-enum Semester {
-  FALL = 'FALL',
-  SPRING = 'SPRING',
-}
-
-type Application = {
-  id: number;
-  createdAt: Date;
-  year: number;
-  semester: Semester;
-  position: Position;
-  stage: ApplicationStage;
-  step: ApplicationStep;
-  review: ReviewStatus;
-  response: Response[];
-  numApps: number;
-  reviews: Review[];
-  assignedRecruiters: AssignedRecruiter[];
-};
-
-// TODO: should match backend type
 type User = {
   id: number;
   status: string;
@@ -121,18 +44,62 @@ enum Decision {
   REJECT = 'REJECT',
 }
 
+type ApplicationRow = {
+  id: number;
+  userId: number;
+  firstName: string;
+  lastName: string;
+  stage: ApplicationStage;
+  step: ApplicationStep;
+  position: Position;
+  createdAt: string;
+  meanRatingAllStages: number;
+  meanRatingSingleStages: number;
+};
+
+type Response = {
+  question: string;
+  answer: string;
+};
+
+type Review = {
+  id: number;
+  createdAt: Date;
+  updatedAt: Date;
+  reviewerName: string;
+  rating: number;
+  stage: ApplicationStage;
+  content: string;
+};
+
+enum Semester {
+  FALL = 'FALL',
+  SPRING = 'SPRING',
+}
+
+type Application = {
+  id: number;
+  createdAt: Date;
+  year: number;
+  semester: Semester;
+  position: Position;
+  stage: ApplicationStage;
+  step: ApplicationStep;
+  response: Response[];
+  numApps: number;
+  reviews: Review[];
+};
+
 export {
-  User,
   ApplicationRow,
   Application,
   ApplicationStage,
   ApplicationStep,
-  ReviewStatus,
   Position,
   Response,
   Review,
   Semester,
-  BackendApplicationDTO,
-  Decision,
+  User,
   AssignedRecruiter,
+  Decision,
 };
