@@ -18,6 +18,10 @@ const Applications: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    getUser();
+  }, []);
+
   if (!currentUser) return <div>Loading...</div>;
 
   return (

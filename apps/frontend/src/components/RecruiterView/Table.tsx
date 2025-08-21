@@ -101,27 +101,27 @@ export function RecruiterTable() {
           color: 'white',
           '& .MuiDataGrid-columnHeaders': {
             backgroundColor: '#1E1E1E',
-            borderBottom: 'none !important',
+            borderBottom: 'none',
             color: '#BDBDBD',
             fontSize: '0.85rem',
             boxShadow: 'none',
           },
           '& .MuiDataGrid-columnHeader': {
-            borderRight: 'none !important',
+            borderRight: 'none',
             boxShadow: 'none',
           },
           '& .MuiDataGrid-columnHeaderTitle': {
             fontWeight: 'bold',
           },
           '& .MuiDataGrid-cell': {
-            borderBottom: 'none !important',
-            borderRight: 'none !important',
+            borderBottom: 'none',
+            borderRight: 'none',
             color: 'white',
             boxShadow: 'none',
-            outline: 'none !important',
+            outline: 'none',
           },
           '& .MuiDataGrid-row': {
-            borderBottom: 'none !important',
+            borderBottom: 'none',
             boxShadow: 'none',
           },
           '& .MuiDataGrid-row.Mui-selected': {
@@ -132,18 +132,18 @@ export function RecruiterTable() {
           },
           '& .MuiDataGrid-footerContainer': {
             backgroundColor: '#1E1E1E',
-            borderTop: 'none !important',
+            borderTop: 'none',
             color: '#BDBDBD',
             boxShadow: 'none',
           },
           '& .MuiDataGrid-toolbarContainer': {
-            borderBottom: 'none !important',
+            borderBottom: 'none',
             boxShadow: 'none',
           },
           '& .MuiDataGrid-cell:focus, & .MuiDataGrid-columnHeader:focus': {
-            outline: 'none !important',
-            border: 'none !important',
-            boxShadow: 'none !important',
+            outline: 'none',
+            border: 'none',
+            boxShadow: 'none',
           },
         }}
         initialState={{
