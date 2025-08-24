@@ -359,9 +359,6 @@ export function ApplicationTable() {
 
       {selectedApplication ? (
         <>
-          <Typography variant="h6" mt={2} mb={1}>
-            Assigned Recruiters
-          </Typography>
           <AssignedRecruiters
             applicationId={selectedApplication.id}
             assignedRecruiters={selectedApplication.assignedRecruiters}
