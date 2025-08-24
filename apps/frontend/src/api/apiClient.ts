@@ -195,7 +195,7 @@ export class ApiClient {
     formData.append('file', file);
 
     return this.axiosInstance
-      .post(`/file-upload/${applicationId}`, formData, {
+      .post(`/api/file-upload/${applicationId}`, formData, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
           'Content-Type': 'multipart/form-data',

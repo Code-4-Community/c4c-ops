@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Typography, Button } from '@mui/material';
+import { Box, Typography, Button, Snackbar, Alert } from '@mui/material';
 import apiClient from '@api/apiClient';
 
 interface FileUploadBoxProps {
@@ -15,6 +15,9 @@ const FileUploadBox: React.FC<FileUploadBoxProps> = ({
   const [uploading, setUploading] = useState(false);
   const [toastOpen, setToastOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+  const [toastSeverity, setToastSeverity] = useState<
+    'success' | 'error' | 'info'
+  >('info');
 
   const handleToastClose = () => {
     setToastOpen(false);
@@ -23,6 +26,9 @@ const FileUploadBox: React.FC<FileUploadBoxProps> = ({
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       setSelectedFile(event.target.files[0]);
+      setToastMessage(`Selected: ${event.target.files[0].name}`);
+      setToastSeverity('info');
+      setToastOpen(true);
     }
   };
 
@@ -31,6 +37,7 @@ const FileUploadBox: React.FC<FileUploadBoxProps> = ({
     if (event.dataTransfer.files && event.dataTransfer.files[0]) {
       setSelectedFile(event.dataTransfer.files[0]);
       setToastMessage(`Selected: ${event.dataTransfer.files[0].name}`);
+      setToastSeverity('info');
       setToastOpen(true);
     }
   };
@@ -49,6 +56,7 @@ const FileUploadBox: React.FC<FileUploadBoxProps> = ({
 
       if (!applicationId) {
         setToastMessage('Application ID not found. Cannot upload file.');
+        setToastSeverity('error');
         setToastOpen(true);
         return;
       }
@@ -56,9 +64,12 @@ const FileUploadBox: React.FC<FileUploadBoxProps> = ({
       await apiClient.uploadFile(accessToken, applicationId, selectedFile);
 
       setToastMessage(`Uploaded: ${selectedFile.name}`);
+      setToastSeverity('success');
       setSelectedFile(null); // File is no longer staged after upload
+      setToastOpen(true);
     } catch (error: any) {
       console.error('Upload failed:', error);
+      setToastSeverity('error');
       setToastMessage('Upload failed. Please try again.');
     } finally {
       setUploading(false);
@@ -68,14 +79,18 @@ const FileUploadBox: React.FC<FileUploadBoxProps> = ({
   return (
     <Box
       sx={{
-        backgroundColor: '#1e1e1e',
+        backgroundColor: '#403f3f',
         borderRadius: 2,
         p: 3,
         mt: 4,
         textAlign: 'center',
+        width: 717,
       }}
     >
-      <Typography variant="body1" sx={{ color: 'white', mb: 2 }}>
+      <Typography
+        variant="body1"
+        sx={{ color: 'white', mb: 2, textAlign: 'left' }}
+      >
         Drop and upload selected files
       </Typography>
 
@@ -101,7 +116,7 @@ const FileUploadBox: React.FC<FileUploadBoxProps> = ({
             component="span"
             sx={{
               color: 'white',
-              backgroundColor: '#2a2a2a',
+              backgroundColor: '#403f3f',
               border: '1px solid #555',
               '&:hover': { backgroundColor: '#d81b60', borderColor: '#d81b60' },
             }}
@@ -116,6 +131,36 @@ const FileUploadBox: React.FC<FileUploadBoxProps> = ({
           Selected: {selectedFile.name}
         </Typography>
       )}
+
+      {selectedFile && (
+        <Button
+          variant="contained"
+          disabled={uploading}
+          onClick={handleSubmit}
+          sx={{
+            backgroundColor: '#d81b60',
+            '&:hover': { backgroundColor: '#ad1457' },
+            mt: 2,
+          }}
+        >
+          {uploading ? 'Uploading...' : 'Submit'}
+        </Button>
+      )}
+
+      <Snackbar
+        open={toastOpen}
+        autoHideDuration={4000}
+        onClose={handleToastClose}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert
+          onClose={handleToastClose}
+          severity={toastSeverity}
+          sx={{ width: '100%' }}
+        >
+          {toastMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };
