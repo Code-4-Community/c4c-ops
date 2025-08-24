@@ -41,9 +41,7 @@ export class FileUploadService {
     }
 
     // Check if the application exists
-    const application = await this.applicationsService.findCurrent(
-      applicationId,
-    );
+    const application = await this.applicationsService.findOne(applicationId);
     if (!application) {
       throw new NotFoundException('Application not found');
     }
