@@ -13,16 +13,6 @@ import {
   IconButton,
   Chip,
 } from '@mui/material';
-import {
-  Visibility as PreviewIcon,
-  Close as CloseIcon,
-  GetApp as DownloadIcon,
-  Description as FileTextIcon,
-  Image as ImageIcon,
-  InsertDriveFile as FileIcon,
-  Folder as FolderIcon,
-  Article as WordIcon,
-} from '@mui/icons-material';
 import apiClient from '@api/apiClient';
 import useLoginContext from '@components/LoginPage/useLoginContext';
 import { Application } from '@components/types';
@@ -33,7 +23,16 @@ import {
   ThankYouText,
   DescriptionText,
 } from '../components/ApplicantView/ApplicantStatus/items';
-import { access } from 'fs';
+import {
+  Visibility as PreviewIcon,
+  Close as CloseIcon,
+  GetApp as DownloadIcon,
+  Description as FileTextIcon,
+  Image as ImageIcon,
+  InsertDriveFile as FileIcon,
+  Folder as FolderIcon,
+  Article as WordIcon,
+} from '@mui/icons-material';
 
 interface FileUpload {
   id: number;
@@ -324,264 +323,6 @@ const Resources: React.FC = () => {
         >
           Resources
         </Typography>
-
-        {!loading && app && (
-          <StyledPaper elevation={3}>
-            <Typography
-              variant="body1"
-              sx={{ color: 'white', mb: 2, fontSize: '1.1rem' }}
-            >
-              Application Stage:
-            </Typography>
-
-            <StageButton>{formatStage(app.stage)}</StageButton>
-
-            <Typography
-              variant="body1"
-              sx={{ color: 'white', mb: 2, fontSize: '1.1rem' }}
-            >
-              Application Status:
-            </Typography>
-
-            <StatusButton>{formatReviewStatus(app.review)}</StatusButton>
-
-            <ThankYouText variant="body1">Thank you for applying!</ThankYouText>
-
-            <DescriptionText variant="body2">
-              Our team is working diligently to review your applications. Please
-              look out for emails from C4C for updates.
-            </DescriptionText>
-          </StyledPaper>
-        )}
-
-        {/* Files Section */}
-        <Box sx={{ mt: 4 }}>
-          <Typography
-            variant="h5"
-            component="h2"
-            gutterBottom
-            sx={{
-              color: 'white',
-              mb: 3,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 1,
-            }}
-          >
-            <FolderIcon sx={{ fontSize: 28, color: '#4FC3F7' }} />
-            Your Uploaded Files
-          </Typography>
-
-          {filesLoading ? (
-            <StyledPaper elevation={3}>
-              <Typography
-                variant="body1"
-                sx={{ color: 'white', textAlign: 'center' }}
-              >
-                Loading your files...
-              </Typography>
-            </StyledPaper>
-          ) : files.length === 0 ? (
-            <StyledPaper elevation={3}>
-              <Typography
-                variant="body1"
-                sx={{ color: 'white', textAlign: 'center' }}
-              >
-                No files uploaded yet.
-              </Typography>
-            </StyledPaper>
-          ) : (
-            <Grid container spacing={3}>
-              {files.map((file) => (
-                <Grid item xs={12} md={6} lg={4} key={file.id}>
-                  <Card
-                    sx={{
-                      backgroundColor: '#3A3A3A',
-                      border: '1px solid #4A4A4A',
-                      transition: 'all 0.3s ease',
-                      '&:hover': {
-                        backgroundColor: '#4A4A4A',
-                      },
-                    }}
-                  >
-                    <CardContent>
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 2,
-                          mb: 2,
-                        }}
-                      >
-                        <Typography
-                          variant="h6"
-                          sx={{
-                            color: 'white',
-                            fontWeight: 'bold',
-                            fontSize: '1rem',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
-                            flex: 1,
-                          }}
-                        >
-                          {file.filename}
-                        </Typography>
-                      </Box>
-
-                      {file.mimetype === 'application/pdf' &&
-                        file.file_data && (
-                          <Box sx={{ mb: 2 }}>
-                            <Box
-                              sx={{
-                                width: '100%',
-                                height: 300,
-                                border: '1px solid #4A4A4A',
-                                borderRadius: 1,
-                                overflow: 'hidden',
-                                backgroundColor: '#1A1A1A',
-                              }}
-                            >
-                              <iframe
-                                src={createPdfDataUrl(file)}
-                                width="100%"
-                                height="100%"
-                                style={{ border: 'none' }}
-                                title={`Preview of ${file.filename}`}
-                                onError={() => {
-                                  console.error('PDF preview failed');
-                                }}
-                              />
-                            </Box>
-                          </Box>
-                        )}
-
-                      {file.mimetype === 'application/msword' && (
-                        <Box
-                          sx={{
-                            p: 2,
-                            mb: 2,
-                            backgroundColor: '#1A2A4A',
-                            border: '1px solid #2196F3',
-                            borderRadius: 1,
-                          }}
-                        >
-                          <Box
-                            sx={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: 1,
-                              mb: 1,
-                            }}
-                          >
-                            <WordIcon sx={{ fontSize: 16, color: '#2196F3' }} />
-                            <Typography
-                              variant="body2"
-                              sx={{ color: '#2196F3', fontWeight: 'bold' }}
-                            >
-                              Word Document
-                            </Typography>
-                          </Box>
-                          <Typography
-                            variant="caption"
-                            sx={{ color: '#BBDEFB' }}
-                          >
-                            Click preview to view options for this document
-                          </Typography>
-                        </Box>
-                      )}
-
-                      {(file.mimetype === 'image/jpeg' ||
-                        file.mimetype === 'image/png') &&
-                        file.file_data && (
-                          <Box sx={{ mb: 2 }}>
-                            <Typography
-                              variant="body2"
-                              sx={{ color: '#B0B0B0', mb: 1 }}
-                            >
-                              Image Preview:
-                            </Typography>
-                            <Box
-                              sx={{
-                                display: 'flex',
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                minHeight: 200,
-                                backgroundColor: '#2A2A2A',
-                                borderRadius: 1,
-                                border: '1px solid #4A4A4A',
-                                overflow: 'hidden',
-                              }}
-                            >
-                              <Box
-                                component="img"
-                                src={createFileDataUrl(file)}
-                                alt={file.filename}
-                                sx={{
-                                  maxWidth: '100%',
-                                  maxHeight: 200,
-                                  height: 'auto',
-                                  objectFit: 'contain',
-                                }}
-                                onError={(e) => {
-                                  const target = e.target as HTMLImageElement;
-                                  target.style.display = 'none';
-                                  const parent = target.parentElement;
-                                  if (parent) {
-                                    parent.innerHTML =
-                                      '<div style="color: #F44336; text-align: center; padding: 20px;">Failed to load image preview</div>';
-                                  }
-                                }}
-                              />
-                            </Box>
-                          </Box>
-                        )}
-
-                      <Button
-                        variant="contained"
-                        startIcon={<PreviewIcon />}
-                        onClick={() => handlePreviewFile(file)}
-                        fullWidth
-                        sx={{
-                          backgroundColor: '#2196F3',
-                          color: 'white',
-                          '&:hover': {
-                            backgroundColor: '#1976D2',
-                          },
-                          fontWeight: 'bold',
-                        }}
-                      >
-                        Preview
-                      </Button>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
-          )}
-        </Box>
-
-        {!loading && !app && (
-          <StyledPaper elevation={3}>
-            <Typography
-              variant="body1"
-              sx={{ color: 'white', textAlign: 'center' }}
-            >
-              No application found.
-            </Typography>
-          </StyledPaper>
-        )}
-
-        {loading && (
-          <StyledPaper elevation={3}>
-            <Typography
-              variant="body1"
-              sx={{ color: 'white', textAlign: 'center' }}
-            >
-              Loading application details...
-            </Typography>
-          </StyledPaper>
-        )}
       </Box>
 
       <Dialog

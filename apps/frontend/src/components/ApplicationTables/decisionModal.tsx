@@ -5,20 +5,13 @@ import {
   DialogActions,
   Stack,
   Typography,
-  Rating,
-  TextField,
   Button,
   MenuItem,
   Select,
 } from '@mui/material';
 import { useState } from 'react';
 import apiClient from '@api/apiClient';
-import {
-  Application,
-  ApplicationRow,
-  ApplicationStage,
-  Decision,
-} from '../types';
+import { Application, ApplicationRow, Decision } from '../types';
 
 interface DecisionModalProps {
   open: boolean;
