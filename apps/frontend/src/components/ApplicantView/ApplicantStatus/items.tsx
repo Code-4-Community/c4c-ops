@@ -28,7 +28,7 @@ export const StatusButton = styled(Box)(({ theme }) => ({
   padding: theme.spacing(1.5, 3),
   borderRadius: theme.spacing(0.5),
   textAlign: 'left',
-  fontWeight: 900,
+  fontWeight: 'bold',
   fontSize: '1.1rem',
   marginBottom: theme.spacing(3),
   width: '45%',

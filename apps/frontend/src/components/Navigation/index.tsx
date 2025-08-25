@@ -172,7 +172,7 @@ export const Navigation: React.FC<NavigationProps> = ({ children }) => {
             left: 0,
             right: 0,
             zIndex: theme.zIndex.appBar,
-            backgroundColor: theme.palette.background.paper,
+            backgroundColor: theme.palette.background.default,
             borderBottom: `1px solid ${theme.palette.divider}`,
             height: 64,
             display: 'flex',
@@ -213,7 +213,7 @@ export const Navigation: React.FC<NavigationProps> = ({ children }) => {
               : DRAWER_WIDTH,
             boxSizing: 'border-box',
             borderRight: `1px solid ${theme.palette.divider}`,
-            backgroundColor: theme.palette.background.paper,
+            backgroundColor: theme.palette.action.focus,
             transition: theme.transitions.create('width', {
               easing: theme.transitions.easing.sharp,
               duration: theme.transitions.duration.enteringScreen,
