@@ -56,8 +56,35 @@ const getCurrentYear = (): number => {
   return TODAY.getFullYear();
 };
 
+// Improved formatting function that handles various cases
+const formatText = (text: string): string => {
+  if (!text) return '';
+
+  // Handle special cases first
+  const specialCases: { [key: string]: string } = {
+    ACCEPTED: 'Accepted',
+    REJECTED: 'Rejected',
+    APP_RECEIVED: 'Application Received',
+    PM_CHALLENGE: 'PM Challenge',
+    B_INTERVIEW: 'Behavioral Interview',
+    T_INTERVIEW: 'Technical Interview',
+  };
+
+  if (specialCases[text.toUpperCase()]) {
+    return specialCases[text.toUpperCase()];
+  }
+
+  // For other text, convert to title case
+  return text
+    .toLowerCase()
+    .split(' ')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
+
+// Keep the original formatStageName for backward compatibility
 const formatStageName = (stage: string): string => {
-  return stage.charAt(0).toUpperCase() + stage.slice(1).toLowerCase();
+  return formatText(stage);
 };
 
 const mapStageStringToEnumKey = (stageString: string): string => {
@@ -79,8 +106,8 @@ const mapEnumKeyToStageValue = (enumKey: string): string => {
     PM_CHALLENGE: 'PM Challenge',
     B_INTERVIEW: 'Behavioral Interview',
     T_INTERVIEW: 'Technical Interview',
-    ACCEPTED: 'ACCEPTED',
-    REJECTED: 'REJECTED',
+    ACCEPTED: 'Accepted',
+    REJECTED: 'Rejected',
   };
 
   return keyToValueMap[enumKey] || 'Application Received';
@@ -172,7 +199,9 @@ export function ApplicationTable() {
         );
       }
 
-      setToastMessage(`Stage updated to ${newStage} successfully!`);
+      setToastMessage(
+        `Stage updated to ${formatStageName(newStage)} successfully!`,
+      );
       setToastOpen(true);
     } catch (error) {
       console.error('Error updating stage:', error);
@@ -251,7 +280,7 @@ export function ApplicationTable() {
                       value={currentStageKey}
                       sx={{ fontSize: '0.875rem' }}
                     >
-                      {currentStageKey}
+                      {formatStageName(currentStageKey)}
                     </MenuItem>
                   )}
                 {STAGE_KEYS.map((stageKey) => (
@@ -260,7 +289,7 @@ export function ApplicationTable() {
                     value={stageKey}
                     sx={{ fontSize: '0.875rem' }}
                   >
-                    {stageKey}
+                    {formatStageName(mapEnumKeyToStageValue(stageKey))}
                   </MenuItem>
                 ))}
               </Select>
@@ -385,19 +414,19 @@ export function ApplicationTable() {
               Year: {selectedApplication.year}
             </Typography>
             <Typography variant="body1">
-              Semester: {selectedApplication.semester}
+              Semester: {formatText(selectedApplication.semester)}
             </Typography>
             <Typography variant="body1">
-              Position: {selectedApplication.position}
+              Position: {formatText(selectedApplication.position)}
             </Typography>
             <Typography variant="body1">
-              Stage: {selectedApplication.stage}
+              Stage: {formatText(selectedApplication.stage.toString())}
             </Typography>
             <Typography variant="body1">
-              Status: {selectedApplication.step}
+              Status: {formatText(selectedApplication.step)}
             </Typography>
             <Typography variant="body1">
-              Review: {selectedApplication.review}
+              Review: {formatText(selectedApplication.review)}
             </Typography>
             <Typography variant="body1">
               Applications: {selectedApplication.numApps}
@@ -427,13 +456,13 @@ export function ApplicationTable() {
                 return (
                   <Stack key={index} direction="row" spacing={1}>
                     <Typography variant="body1">
-                      stage: {review.stage}
+                      Stage: {formatText(review.stage.toString())}
                     </Typography>
                     <Typography variant="body1">
-                      rating: {review.rating}
+                      Rating: {review.rating}
                     </Typography>
                     <Typography variant="body1">
-                      comment: {review.content}
+                      Comment: {review.content}
                     </Typography>
                   </Stack>
                 );

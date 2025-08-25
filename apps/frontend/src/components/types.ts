@@ -75,8 +75,8 @@ type Review = {
 };
 
 enum Semester {
-  FALL = 'FALL',
-  SPRING = 'SPRING',
+  FALL = 'Fall',
+  SPRING = 'Spring',
 }
 
 type Application = {
