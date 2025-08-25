@@ -103,6 +103,14 @@ export class ApiClient {
     }) as Promise<User>;
   }
 
+  public async getFiles(userId: number, accessToken: string): Promise<any> {
+    return this.get(`/api/file-upload/user/${userId}?includeFileData=true`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }) as Promise<any>;
+  }
+
   private async get(
     path: string,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

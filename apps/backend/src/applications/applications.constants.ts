@@ -1,5 +1,3 @@
-import { ApplicationStage, Position } from './types';
-
 // const DEV_STAGES = [
 //   ApplicationStage.RESUME,
 //   ApplicationStage.TECHNICAL_CHALLENGE,

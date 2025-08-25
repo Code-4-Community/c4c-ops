@@ -5,6 +5,9 @@ import {
   BadRequestException,
   UseInterceptors,
   UploadedFile,
+  Query,
+  Get,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FileUploadService } from './file-upload.service';
@@ -25,5 +28,14 @@ export class FileUploadController {
     }
     console.log('Received file in controller:', file);
     return this.fileUploadService.handleFileUpload(file, applicationId);
+  }
+
+  @Get('user/:userId')
+  async getUserFiles(
+    @Param('userId', ParseIntPipe) userId: number,
+    @Query('includeFileData') includeFileData?: string,
+  ) {
+    const includeData = includeFileData === 'true';
+    return this.fileUploadService.getUserFiles(userId, includeData);
   }
 }

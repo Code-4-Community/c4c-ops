@@ -62,4 +62,58 @@ export class FileUploadService {
     console.log('File uploaded:', uploadedFile);
     return { message: 'File uploaded successfully', fileId: uploadedFile.id };
   }
+
+  /**
+   * Get all uploaded files by user ID
+   * @param userId - The ID of the user
+   * @param includeFileData - Whether to include the actual file buffer data (default: false)
+   * @returns Array of file upload records for the user
+   */
+  async getUserFiles(userId: number, includeFileData = false) {
+    try {
+      const queryBuilder = this.fileRepository
+        .createQueryBuilder('file')
+        .leftJoin('file.application', 'application')
+        .where('application.user = :userId', { userId });
+
+      // Conditionally select file_data based on includeFileData parameter
+      if (!includeFileData) {
+        queryBuilder.select([
+          'file.id',
+          'file.filename',
+          'file.mimetype',
+          'file.size',
+          'application.id',
+        ]);
+      } else {
+        queryBuilder.addSelect('file.file_data');
+      }
+
+      const files = await queryBuilder.getMany();
+
+      if (!files || files.length === 0) {
+        return {
+          message: 'No files found for this user',
+          files: [],
+          total: 0,
+        };
+      }
+
+      return {
+        message: 'Files retrieved successfully',
+        files: files.map((file) => ({
+          id: file.id,
+          filename: file.filename,
+          mimetype: file.mimetype,
+          size: file.size,
+          ...(includeFileData && { file_data: file.file_data }),
+          applicationId: file.application?.id,
+        })),
+        total: files.length,
+      };
+    } catch (error) {
+      console.error('Error retrieving user files:', error);
+      throw new BadRequestException('Failed to retrieve user files');
+    }
+  }
 }
