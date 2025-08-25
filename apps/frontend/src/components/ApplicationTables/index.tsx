@@ -56,11 +56,9 @@ const getCurrentYear = (): number => {
   return TODAY.getFullYear();
 };
 
-// Improved formatting function that handles various cases
 const formatText = (text: string): string => {
   if (!text) return '';
 
-  // Handle special cases first
   const specialCases: { [key: string]: string } = {
     ACCEPTED: 'Accepted',
     REJECTED: 'Rejected',
@@ -74,7 +72,6 @@ const formatText = (text: string): string => {
     return specialCases[text.toUpperCase()];
   }
 
-  // For other text, convert to title case
   return text
     .toLowerCase()
     .split(' ')
@@ -82,7 +79,6 @@ const formatText = (text: string): string => {
     .join(' ');
 };
 
-// Keep the original formatStageName for backward compatibility
 const formatStageName = (stage: string): string => {
   return formatText(stage);
 };
