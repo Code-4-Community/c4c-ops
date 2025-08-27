@@ -325,15 +325,16 @@ export function ApplicationTable() {
 
   return (
     <Container maxWidth="xl">
-      <Typography variant="h4" mb={1}>
-        Welcome back, {fullName ? fullName : 'User'}
-      </Typography>
-      <Typography variant="h6" mb={1}>
-        Current Recruitment Cycle: {getCurrentSemester()} {getCurrentYear()}
-      </Typography>
-      <Typography variant="body1" mb={3}>
-        Assigned For Review: Jane Smith, John Doe (Complete by 5/1/2024)
-      </Typography>
+      <Stack direction="row" alignItems="center" spacing={2} mt={4} mb={8}>
+        <img
+          src="/c4c-square.svg"
+          alt="C4C Logo"
+          style={{ width: 50, height: 40 }}
+        />
+        <Typography variant="h4" sx={{ fontWeight: 'bold', color: 'white' }}>
+          Database | {getCurrentSemester()} {getCurrentYear()} Recruitment Cycle
+        </Typography>
+      </Stack>
       <DataGrid
         rows={data}
         columns={enhancedColumns as GridColDef[]}
