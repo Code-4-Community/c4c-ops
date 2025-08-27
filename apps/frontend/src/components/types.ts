@@ -20,7 +20,7 @@ enum Position {
   DESIGNER = 'DESIGNER',
 }
 
-enum ApplicationStep {
+enum ReviewStage {
   SUBMITTED = 'SUBMITTED',
   REVIEWED = 'REVIEWED',
 }
@@ -86,7 +86,7 @@ type Application = {
   semester: Semester;
   position: Position;
   stage: ApplicationStage;
-  step: ApplicationStep;
+  step: ReviewStage;
   review: ReviewStatus;
   response: Response[];
   numApps: number;
@@ -126,7 +126,7 @@ export {
   ApplicationRow,
   Application,
   ApplicationStage,
-  ApplicationStep,
+  ReviewStage,
   ReviewStatus,
   Position,
   Response,
