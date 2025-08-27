@@ -14,15 +14,15 @@ enum ReviewStatus {
   REVIEWED = 'REVIEWED',
 }
 
-enum ApplicationStep {
-  SUBMITTED = 'SUBMITTED',
-  REVIEWED = 'REVIEWED',
-}
-
 enum Position {
   DEVELOPER = 'DEVELOPER',
   PM = 'PRODUCT_MANAGER',
   DESIGNER = 'DESIGNER',
+}
+
+enum ApplicationStep {
+  SUBMITTED = 'SUBMITTED',
+  REVIEWED = 'REVIEWED',
 }
 
 type ApplicationRow = {
@@ -32,8 +32,8 @@ type ApplicationRow = {
   position: Position;
   reviewed: string;
   assignedTo: string[];
-  stage: ApplicationStage;
   step: ApplicationStep;
+  stage: ApplicationStage;
   rating: number | null;
   createdAt: Date;
   meanRatingAllReviews: number | null;
