@@ -58,7 +58,7 @@ export const applicationColumns = [
   },
   {
     field: 'stage',
-    headerName: 'Stage',
+    headerName: 'App Stage',
     flex: 1,
     headerAlign: 'left' as const,
     type: 'singleSelect',
@@ -67,7 +67,7 @@ export const applicationColumns = [
     renderHeader: (params: GridColumnHeaderParams) => {
       return (
         <strong style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-          {'Stage '}
+          {'App Stage '}
           <FilterList sx={{ fontSize: 16 }} />
         </strong>
       );

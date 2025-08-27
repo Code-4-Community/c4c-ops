@@ -7,12 +7,6 @@ enum ApplicationStage {
   REJECTED,
 }
 
-enum ApplicationStep {
-  SUBMITTED = 'SUBMITTED',
-  REVIEWED = 'REVIEWED',
-}
-
-//
 enum ReviewStatus {
   UNASSIGNED = 'UNASSIGNED',
   ASSIGNED = 'ASSIGNED',
@@ -24,6 +18,11 @@ enum Position {
   DEVELOPER = 'DEVELOPER',
   PM = 'PRODUCT_MANAGER',
   DESIGNER = 'DESIGNER',
+}
+
+enum ApplicationStep {
+  SUBMITTED = 'SUBMITTED',
+  REVIEWED = 'REVIEWED',
 }
 
 type ApplicationRow = {
@@ -49,7 +48,6 @@ type BackendApplicationDTO = {
   firstName: string;
   lastName: string;
   stage: ApplicationStage;
-  step: ApplicationStep;
   review: ReviewStatus;
   position: Position;
   assignedRecruiters: AssignedRecruiter[];

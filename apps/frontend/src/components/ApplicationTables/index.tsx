@@ -208,8 +208,9 @@ export function ApplicationTable() {
             await updateStage(params.row.userId, selectedKey);
           };
 
-          // @ts-expect-error todo
-          const currentStageKey = mapStageStringToEnumKey(params.row.stage);
+          const currentStageKey = mapStageStringToEnumKey(
+            String(params.row.stage),
+          );
 
           console.log('Original stage from backend:', params.row.stage);
           console.log('Mapped stage key for dropdown:', currentStageKey);
@@ -391,10 +392,10 @@ export function ApplicationTable() {
               Position: {selectedApplication.position}
             </Typography>
             <Typography variant="body1">
-              Stage: {selectedApplication.stage}
+              App Stage: {selectedApplication.stage}
             </Typography>
             <Typography variant="body1">
-              Status: {selectedApplication.step}
+              Review Stage: {selectedApplication.step}
             </Typography>
             <Typography variant="body1">
               Review: {selectedApplication.review}

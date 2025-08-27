@@ -13,7 +13,7 @@ import {
   Semester,
   Position,
   ApplicationStage,
-  ApplicationStep,
+  ReviewStage,
   ReviewStatus,
 } from './types';
 import {
@@ -69,8 +69,8 @@ export class Application {
   @IsEnum(ReviewStatus)
   review: ReviewStatus;
 
-  @Column('varchar', { default: ApplicationStep.SUBMITTED, nullable: false })
-  step: ApplicationStep;
+  @Column('varchar', { default: ReviewStage.SUBMITTED, nullable: false })
+  step: ReviewStage;
 
   @Column('jsonb')
   @IsArray()
@@ -93,7 +93,7 @@ export class Application {
     meanRatingChallenge,
     meanRatingTechnicalChallenge,
     meanRatingInterview,
-    applicationStep,
+    step: ReviewStage,
     assignedRecruiters: AssignedRecruiterDTO[] = [],
   ): GetAllApplicationResponseDTO {
     return {
@@ -101,7 +101,7 @@ export class Application {
       firstName: this.user.firstName,
       lastName: this.user.lastName,
       stage: this.stage,
-      step: applicationStep,
+      step: step,
       position: this.position,
       review: this.review,
       createdAt: this.createdAt,
@@ -116,7 +116,7 @@ export class Application {
 
   toGetApplicationResponseDTO(
     numApps: number,
-    applicationStep,
+    step: ReviewStage,
     assignedRecruiters: AssignedRecruiterDTO[] = [],
   ): GetApplicationResponseDTO {
     return {
@@ -126,7 +126,7 @@ export class Application {
       semester: this.semester,
       position: this.position,
       stage: this.stage,
-      step: applicationStep,
+      step: step,
       review: this.review,
       response: this.response,
       reviews: this.reviews,

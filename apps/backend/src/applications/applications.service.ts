@@ -17,7 +17,7 @@ import { Decision, Response } from './types';
 import * as crypto from 'crypto';
 import { User } from '../users/user.entity';
 import { UserStatus } from '../users/types';
-import { Position, ApplicationStage, ApplicationStep, Semester } from './types';
+import { Position, ApplicationStage, ReviewStage, Semester } from './types';
 import { GetAllApplicationResponseDTO } from './dto/get-all-application.response.dto';
 import { AssignedRecruiterDTO } from './dto/get-application.response.dto';
 
@@ -56,7 +56,7 @@ export class ApplicationsService {
       semester,
       position: Position.DEVELOPER, // TODO: Change this to be dynamic
       stage: ApplicationStage.APP_RECEIVED,
-      step: ApplicationStep.SUBMITTED,
+      step: ReviewStage.SUBMITTED,
       response: application,
       reviews: [],
     });
@@ -389,10 +389,8 @@ export class ApplicationsService {
   /**
    * Determines application step based on reviews
    */
-  private determineApplicationStep(reviews: any[]): ApplicationStep {
-    return reviews.length > 0
-      ? ApplicationStep.REVIEWED
-      : ApplicationStep.SUBMITTED;
+  private determineApplicationStep(reviews: any[]): ReviewStage {
+    return reviews.length > 0 ? ReviewStage.REVIEWED : ReviewStage.SUBMITTED;
   }
 
   /**

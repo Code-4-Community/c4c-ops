@@ -1,12 +1,8 @@
 //import { stagesMap } from '../applications.constants';
-import {
-  ApplicationStage,
-  ApplicationStep,
-  ApplicationStageOrder,
-} from '../types';
+import { ApplicationStage, ReviewStage, ApplicationStageOrder } from '../types';
 
 export class ApplicationStatus {
-  constructor(private stage: ApplicationStage, private step: ApplicationStep) {}
+  constructor(private stage: ApplicationStage, private step: ReviewStage) {}
 
   public getNextStatus(): ApplicationStatus | null {
     if (
@@ -18,9 +14,9 @@ export class ApplicationStatus {
     }
 
     const nextStep =
-      this.step === ApplicationStep.SUBMITTED
-        ? ApplicationStep.REVIEWED
-        : ApplicationStep.SUBMITTED;
+      this.step === ReviewStage.SUBMITTED
+        ? ReviewStage.REVIEWED
+        : ReviewStage.SUBMITTED;
     const nextStage = this.getNextApplicationStage(this.stage);
 
     return new ApplicationStatus(nextStage, nextStep);
