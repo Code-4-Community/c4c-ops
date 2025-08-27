@@ -7,6 +7,11 @@ enum ApplicationStage {
   REJECTED,
 }
 
+enum ApplicationStep {
+  SUBMITTED = 'SUBMITTED',
+  REVIEWED = 'REVIEWED',
+}
+
 enum ReviewStatus {
   UNASSIGNED = 'UNASSIGNED',
   ASSIGNED = 'ASSIGNED',
@@ -20,11 +25,6 @@ enum Position {
   DESIGNER = 'DESIGNER',
 }
 
-enum ApplicationStep {
-  SUBMITTED = 'SUBMITTED',
-  REVIEWED = 'REVIEWED',
-}
-
 type ApplicationRow = {
   id: number;
   userId: number;
@@ -32,7 +32,7 @@ type ApplicationRow = {
   position: Position;
   reviewed: string;
   assignedTo: string[];
-  step: ApplicationStep;
+  review: ReviewStatus;
   stage: ApplicationStage;
   rating: number | null;
   createdAt: Date;

@@ -59,7 +59,7 @@ export class ApiClient {
       name: app.firstName + ' ' + app.lastName,
       position: app.position,
       stage: app.stage,
-      step: app.step,
+      review: app.review,
       // If no reviews/ratings, set to null, else display
       rating:
         app.meanRatingAllReviews && app.meanRatingAllReviews > 0
