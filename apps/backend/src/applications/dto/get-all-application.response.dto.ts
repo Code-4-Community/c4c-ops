@@ -1,10 +1,18 @@
-import { IsDate, IsEnum, IsPositive, IsString } from 'class-validator';
+import {
+  IsDate,
+  IsEnum,
+  IsPositive,
+  IsString,
+  IsArray,
+  IsOptional,
+} from 'class-validator';
 import {
   ApplicationStage,
-  ApplicationStep,
   Position,
+  ReviewStage,
   ReviewStatus,
 } from '../types';
+import { AssignedRecruiterDTO } from './get-application.response.dto';
 
 export class GetAllApplicationResponseDTO {
   @IsPositive()
@@ -19,8 +27,8 @@ export class GetAllApplicationResponseDTO {
   @IsEnum(ApplicationStage)
   stage: ApplicationStage;
 
-  @IsEnum(ApplicationStep)
-  step: ApplicationStep;
+  @IsEnum(ReviewStage)
+  step: ReviewStage;
 
   @IsEnum(ReviewStatus)
   review: ReviewStatus;
@@ -45,4 +53,8 @@ export class GetAllApplicationResponseDTO {
 
   @IsPositive()
   meanRatingInterview: number;
+
+  @IsArray()
+  @IsOptional()
+  assignedRecruiters: AssignedRecruiterDTO[];
 }

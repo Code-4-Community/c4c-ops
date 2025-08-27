@@ -14,12 +14,12 @@ import {
   ListItemText,
   ListItemIcon,
   Button,
-  FormControl,
   Select,
-  SelectChangeEvent,
-  MenuItem,
   Snackbar,
   Alert,
+  MenuItem,
+  FormControl,
+  SelectChangeEvent,
 } from '@mui/material';
 import { DoneOutline } from '@mui/icons-material';
 
@@ -27,35 +27,73 @@ import {
   ApplicationRow,
   Application,
   Semester,
-  ApplicationStep,
+  Review,
   ReviewStatus,
+  ApplicationStage,
 } from '../types';
 import apiClient from '@api/apiClient';
 import { applicationColumns } from './columns';
 import { ReviewModal } from './reviewModal';
+import { AssignedRecruiters } from './AssignedRecruiters';
 import useLoginContext from '@components/LoginPage/useLoginContext';
 
 const TODAY = new Date();
-
 const REVIEW_OPTIONS: ReviewStatus[] = Object.values(ReviewStatus);
+
+const STAGE_OPTIONS: ApplicationStage[] = Object.values(
+  ApplicationStage,
+).filter((value): value is ApplicationStage => typeof value === 'string');
+
+const STAGE_KEYS = Object.keys(ApplicationStage).filter((key) =>
+  isNaN(Number(key)),
+) as (keyof typeof ApplicationStage)[];
 
 const getCurrentSemester = (): Semester => {
   const month: number = TODAY.getMonth();
   if (month >= 1 && month <= 7) {
-    return Semester.FALL; // We will be recruiting for the fall semester during Feb - Aug
+    return Semester.FALL;
   }
-  return Semester.SPRING; // We will be recruiting for the spring semester during Sep - Jan
+  return Semester.SPRING;
 };
 
 const getCurrentYear = (): number => {
   return TODAY.getFullYear();
 };
 
+const formatStageName = (stage: string): string => {
+  return stage.charAt(0).toUpperCase() + stage.slice(1).toLowerCase();
+};
+
+const mapStageStringToEnumKey = (stageString: string): string => {
+  const stageMap: { [key: string]: string } = {
+    'Application Received': 'APP_RECEIVED',
+    'PM Challenge': 'PM_CHALLENGE',
+    'Behavioral Interview': 'B_INTERVIEW',
+    'Technical Interview': 'T_INTERVIEW',
+    ACCEPTED: 'ACCEPTED',
+    REJECTED: 'REJECTED',
+  };
+
+  return stageMap[stageString] || stageString;
+};
+
+const mapEnumKeyToStageValue = (enumKey: string): string => {
+  const keyToValueMap: { [key: string]: string } = {
+    APP_RECEIVED: 'Application Received',
+    PM_CHALLENGE: 'PM Challenge',
+    B_INTERVIEW: 'Behavioral Interview',
+    T_INTERVIEW: 'Technical Interview',
+    ACCEPTED: 'ACCEPTED',
+    REJECTED: 'REJECTED',
+  };
+
+  return keyToValueMap[enumKey] || 'Application Received';
+};
+
 export function ApplicationTable() {
   const isPageRendered = useRef<boolean>(false);
 
   const { token: accessToken } = useLoginContext();
-  // TODO implement auto token refresh
   const [data, setData] = useState<ApplicationRow[]>([]);
   const [fullName, setFullName] = useState<string>('');
   const [rowSelection, setRowSelection] = useState<GridRowSelectionModel>([]);
@@ -69,6 +107,7 @@ export function ApplicationTable() {
 
   const [toastOpen, setToastOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+  const [isUpdatingStage, setIsUpdatingStage] = useState(false);
 
   const handleToastClose = () => {
     setToastOpen(false);
@@ -79,13 +118,18 @@ export function ApplicationTable() {
   };
 
   const fetchData = async () => {
-    const data = await apiClient.getAllApplications(accessToken);
-    // Each application needs an id for the DataGrid to work
-    if (data) {
-      data.forEach((row, index) => {
-        row.id = index;
-      });
-      setData(data);
+    try {
+      const data = await apiClient.getAllApplications(accessToken);
+      if (data) {
+        data.forEach((row, index) => {
+          row.id = index;
+        });
+        setData(data);
+      }
+    } catch (error) {
+      console.error('Error fetching applications:', error);
+      setToastMessage('Failed to fetch applications. Please try again.');
+      setToastOpen(true);
     }
   };
 
@@ -95,7 +139,48 @@ export function ApplicationTable() {
       setSelectedApplication(application);
     } catch (error) {
       console.error('Error fetching application:', error);
-      alert('Failed to fetch application details.');
+      setToastMessage('Failed to fetch application details.');
+      setToastOpen(true);
+    }
+  };
+
+  const updateStage = async (userId: number, newStage: string) => {
+    if (isUpdatingStage) return;
+
+    console.log('Updating stage for userId:', userId);
+    console.log('New stage value being sent to backend:', newStage);
+    console.log('Type of new stage:', typeof newStage);
+    setIsUpdatingStage(true);
+
+    try {
+      // @ts-expect-error todo
+      const result = await apiClient.updateStage(accessToken, userId, newStage);
+      console.log('API response:', result);
+
+      // @ts-expect-error todo
+      setData((prevData) =>
+        prevData.map((row) =>
+          row.userId === userId ? { ...row, stage: newStage } : row,
+        ),
+      );
+
+      if (selectedUserRow?.userId === userId) {
+        // @ts-expect-error todo
+        setSelectedApplication((prev) =>
+          prev ? { ...prev, stage: newStage } : null,
+        );
+      }
+
+      setToastMessage(`Stage updated to ${newStage} successfully!`);
+      setToastOpen(true);
+    } catch (error) {
+      console.error('Error updating stage:', error);
+      setToastMessage('Failed to update stage. Please try again.');
+      setToastOpen(true);
+
+      await fetchData();
+    } finally {
+      setIsUpdatingStage(false);
     }
   };
 
@@ -138,10 +223,8 @@ export function ApplicationTable() {
         renderCell: (params: GridRenderCellParams<ApplicationRow>) => {
           const handleReviewStageChange = async (event: SelectChangeEvent) => {
             const newReviewStage = event.target.value as ReviewStatus;
-            console.log('Row:', params.row);
             await updateReviewStage(params.row.userId, newReviewStage);
           };
-
           return (
             <FormControl size="medium" fullWidth>
               <Select
@@ -149,22 +232,41 @@ export function ApplicationTable() {
                 onChange={handleReviewStageChange}
                 placeholder={'Select'}
                 variant={'standard'}
-                sx={{
-                  fontSize: '0.875rem',
-                  color: 'white',
-                  '& .MuiInput-underline:before': {
-                    color: 'white',
-                    display: 'none',
-                  },
-                  '& .MuiInput-underline:after': {
-                    display: 'none',
-                  },
-                  '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
-                    display: 'none',
-                  },
-                }}
+                sx={{ fontSize: '0.875rem', color: 'white' }}
               >
                 {REVIEW_OPTIONS.map((option) => (
+                  <MenuItem
+                    key={option}
+                    value={option}
+                    sx={{ fontSize: '0.875rem', color: 'white' }}
+                  >
+                    {option}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          );
+        },
+      };
+    } else if (col.field === 'stage') {
+      return {
+        ...col,
+        width: 240,
+        renderCell: (params: GridRenderCellParams<ApplicationRow>) => {
+          const handleStageChange = async (event: SelectChangeEvent) => {
+            const newStage = event.target.value as ApplicationStage;
+            await updateStage(params.row.userId, newStage);
+          };
+          return (
+            <FormControl size="medium" fullWidth>
+              <Select
+                value={params.value || ''}
+                onChange={handleStageChange}
+                placeholder={'Select'}
+                variant={'standard'}
+                sx={{ fontSize: '0.875rem', color: 'white' }}
+              >
+                {STAGE_OPTIONS.map((option) => (
                   <MenuItem
                     key={option}
                     value={option}
@@ -192,15 +294,7 @@ export function ApplicationTable() {
                 sx={{
                   fontSize: '0.875rem',
                 }}
-              >
-                {}
-                <MenuItem value="Unassigned" sx={{ fontSize: '0.875rem' }}>
-                  Unassigned
-                </MenuItem>
-                <MenuItem value="Jane Smith" sx={{ fontSize: '0.875rem' }}>
-                  Jane Smith
-                </MenuItem>
-              </Select>
+              ></Select>
             </FormControl>
           );
         },
@@ -218,7 +312,14 @@ export function ApplicationTable() {
 
   useEffect(() => {
     if (rowSelection.length > 0) {
-      setSelectedUserRow(data[rowSelection[0] as number]);
+      const selectedRow = data[rowSelection[0] as number];
+      setSelectedUserRow(selectedRow);
+      if (selectedRow) {
+        getApplication(selectedRow.userId);
+      }
+    } else {
+      setSelectedUserRow(null);
+      setSelectedApplication(null);
     }
   }, [rowSelection, data]);
 
@@ -235,29 +336,44 @@ export function ApplicationTable() {
       </Typography>
       <DataGrid
         rows={data}
-        columns={enhancedColumns}
+        columns={enhancedColumns as GridColDef[]}
         initialState={{
           pagination: {
-            paginationModel: { page: 0, pageSize: 5 },
+            paginationModel: { page: 0, pageSize: 10 },
           },
         }}
-        pageSizeOptions={[5, 10]}
+        pageSizeOptions={[5, 10, 25]}
         onRowSelectionModelChange={(newRowSelectionModel) => {
           setRowSelection(newRowSelectionModel);
-          getApplication(data[newRowSelectionModel[0] as number].userId);
         }}
         rowSelectionModel={rowSelection}
       />
-
       <Typography variant="h6" mt={3}>
         {selectedUserRow
-          ? `Selected Applicant: ${selectedUserRow.firstName} ${selectedUserRow.lastName}`
+          ? `Selected Applicant: ${selectedUserRow.name}`
           : 'No Applicant Selected'}
       </Typography>
 
-      {/* TODO refactor application details into a separate component */}
       {selectedApplication ? (
         <>
+          <Typography variant="h6" mt={2} mb={1}>
+            Assigned Recruiters
+          </Typography>
+          <AssignedRecruiters
+            applicationId={selectedApplication.id}
+            assignedRecruiters={selectedApplication.assignedRecruiters}
+            onRecruitersChange={(recruiterIds) => {
+              // TODO: Delete
+              console.log('Recruiters changed:', recruiterIds);
+            }}
+            onRefreshData={() => {
+              // Refresh the data grid and application details
+              fetchData();
+              if (selectedUserRow) {
+                getApplication(selectedUserRow.userId);
+              }
+            }}
+          />
           <Typography variant="h6" mt={2}>
             Application Details
           </Typography>
@@ -272,10 +388,13 @@ export function ApplicationTable() {
               Position: {selectedApplication.position}
             </Typography>
             <Typography variant="body1">
-              Stage: {selectedApplication.stage}
+              App Stage: {selectedApplication.stage}
             </Typography>
             <Typography variant="body1">
               Status: {selectedApplication.step}
+            </Typography>
+            <Typography variant="body1">
+              Review: {selectedApplication.review}
             </Typography>
             <Typography variant="body1">
               Applications: {selectedApplication.numApps}
@@ -298,7 +417,6 @@ export function ApplicationTable() {
             ))}
           </List>
 
-          {/* TODO refactor reviews into a separate component */}
           <Stack>
             <Stack>
               Reviews:
