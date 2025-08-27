@@ -11,12 +11,12 @@ export const RecruiterColumns = [
   },
   {
     field: 'review',
-    headerName: 'Review',
+    headerName: 'Review Stage',
     width: 125,
   },
   {
     field: 'assignedRecruiters',
-    headerName: 'Assigned Recruiters',
+    headerName: 'Assigned to:',
     width: 200,
     renderCell: (params: any) => {
       const recruiters = params.value as Array<{

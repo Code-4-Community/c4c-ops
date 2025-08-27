@@ -33,6 +33,7 @@ type ApplicationRow = {
   reviewed: string;
   assignedTo: string[];
   stage: ApplicationStage;
+  step: ApplicationStep;
   rating: number | null;
   createdAt: Date;
   meanRatingAllReviews: number | null;

@@ -292,28 +292,30 @@ export class ApplicationsService {
   async findAllCurrentApplications(
     currentUser?: User,
   ): Promise<GetAllApplicationResponseDTO[]> {
-    // Base query for current cycle applications
-    interface ApplicationWhereClause {
-      year: number;
-      semester: Semester;
-      assignedRecruiterIds?: ReturnType<typeof In>;
+    const year = getCurrentYear();
+    const semester = getCurrentSemester();
+
+    let applications: Application[];
+
+    if (currentUser?.status === UserStatus.RECRUITER) {
+      const recruiterId = Number(currentUser.id);
+
+      applications = await this.applicationsRepository
+        .createQueryBuilder('application')
+        .leftJoinAndSelect('application.user', 'user')
+        .leftJoinAndSelect('application.reviews', 'reviews')
+        .where(':rid = ANY(application.assignedRecruiterIds)', {
+          rid: recruiterId,
+        })
+        .andWhere('application.year = :year', { year })
+        .andWhere('application.semester = :semester', { semester })
+        .getMany();
+    } else {
+      applications = await this.applicationsRepository.find({
+        where: { year, semester },
+        relations: ['user', 'reviews'],
+      });
     }
-
-    const baseWhere: ApplicationWhereClause = {
-      year: getCurrentYear(),
-      semester: getCurrentSemester(),
-    };
-
-    // If user is a recruiter, only show applications assigned to them by
-    // checking where assignedRecruiterIds includes the user's id
-    if (currentUser && currentUser.status === UserStatus.RECRUITER) {
-      baseWhere.assignedRecruiterIds = In([currentUser.id]);
-    }
-
-    const applications = await this.applicationsRepository.find({
-      where: baseWhere,
-      relations: ['user', 'reviews'],
-    });
 
     const allApplicationsDto = await Promise.all(
       applications.map(async (app) => {

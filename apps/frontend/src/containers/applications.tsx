@@ -23,6 +23,7 @@ const Applications: React.FC = () => {
   }, []);
 
   if (!currentUser) return <div>Loading...</div>;
+  else console.log('Current user is ', currentUser);
 
   return (
     <>
