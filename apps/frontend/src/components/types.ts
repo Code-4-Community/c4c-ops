@@ -1,10 +1,17 @@
 enum ApplicationStage {
-  RESUME = 'RESUME',
-  INTERVIEW = 'INTERVIEW',
+  APP_RECEIVED = 'APP_RECEIVED',
+  PM_CHALLENGE = 'PM_CHALLENGE',
+  B_INTERVIEW = 'B_INTERVIEW',
+  T_INTERVIEW = 'T_INTERVIEW',
   ACCEPTED = 'ACCEPTED',
   REJECTED = 'REJECTED',
-  TECHNICAL_CHALLENGE = 'TECHNICAL_CHALLENGE',
-  PM_CHALLENGE = 'PM_CHALLENGE',
+}
+
+enum ReviewStatus {
+  UNASSIGNED = 'UNASSIGNED',
+  ASSIGNED = 'ASSIGNED',
+  REVIEWING = 'REVIEWING',
+  REVIEWED = 'REVIEWED',
 }
 
 enum ReviewStage {
@@ -21,14 +28,34 @@ enum Position {
 type ApplicationRow = {
   id: number;
   userId: number;
+  name: string;
+  position: Position;
+  reviewed: string;
+  assignedTo: string[];
+  stage: ApplicationStage;
+  rating: number | null;
+  createdAt: Date;
+  meanRatingAllReviews: number | null;
+  meanRatingResume: number | null;
+  meanRatingChallenge: number | null;
+  meanRatingTechnicalChallenge: number | null;
+  meanRatingInterview: number | null;
+};
+
+type BackendApplicationDTO = {
+  userId: number;
   firstName: string;
   lastName: string;
   stage: ApplicationStage;
   step: ReviewStage;
   position: Position;
-  createdAt: string;
-  meanRatingAllStages: number;
-  meanRatingSingleStages: number;
+  assignedRecruiters: AssignedRecruiter[];
+  createdAt: Date;
+  meanRatingAllReviews: number | null;
+  meanRatingResume: number | null;
+  meanRatingChallenge: number | null;
+  meanRatingTechnicalChallenge: number | null;
+  meanRatingInterview: number | null;
 };
 
 type Response = {
@@ -61,10 +88,40 @@ type Application = {
   step: ReviewStage;
   response: Response[];
   numApps: number;
+  review: ReviewStatus;
   reviews: Review[];
+  assignedRecruiters: AssignedRecruiter[];
 };
 
+// TODO: should match backend type
+type User = {
+  id: number;
+  status: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  profilePicture: string | null;
+  linkedin: string | null;
+  github: string | null;
+  team: string | null;
+  role: string[] | null;
+};
+
+type AssignedRecruiter = {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email?: string;
+  assignedAt?: Date;
+};
+
+enum Decision {
+  ACCEPT = 'ACCEPT',
+  REJECT = 'REJECT',
+}
+
 export {
+  User,
   ApplicationRow,
   Application,
   ApplicationStage,
@@ -73,4 +130,7 @@ export {
   Response,
   Review,
   Semester,
+  BackendApplicationDTO,
+  Decision,
+  AssignedRecruiter,
 };
