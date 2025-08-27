@@ -1,11 +1,10 @@
 import { useEffect, useState, useRef } from 'react';
 import {
   DataGrid,
-  GridRowSelectionModel,
   GridColDef,
   GridRenderCellParams,
+  GridRowSelectionModel,
 } from '@mui/x-data-grid';
-import { Snackbar, Alert } from '@mui/material';
 import {
   Container,
   Typography,
@@ -16,25 +15,30 @@ import {
   ListItemIcon,
   Button,
   Select,
+  Snackbar,
+  Alert,
   MenuItem,
   FormControl,
   SelectChangeEvent,
 } from '@mui/material';
 import { DoneOutline } from '@mui/icons-material';
+
 import {
   ApplicationRow,
   Application,
   Semester,
+  Review,
+  ReviewStatus,
   ApplicationStage,
 } from '../types';
 import apiClient from '@api/apiClient';
 import { applicationColumns } from './columns';
-import { DecisionModal } from './decisionModal';
 import { ReviewModal } from './reviewModal';
 import { AssignedRecruiters } from './AssignedRecruiters';
 import useLoginContext from '@components/LoginPage/useLoginContext';
 
 const TODAY = new Date();
+const REVIEW_OPTIONS: ReviewStatus[] = Object.values(ReviewStatus);
 
 const STAGE_OPTIONS: ApplicationStage[] = Object.values(
   ApplicationStage,
@@ -108,14 +112,9 @@ export function ApplicationTable() {
   const handleToastClose = () => {
     setToastOpen(false);
   };
-  const [openDecisionModal, setOpenDecisionModal] = useState(false);
 
   const handleOpenReviewModal = () => {
     setOpenReviewModal(true);
-  };
-
-  const handleOpenDecisionModal = () => {
-    setOpenDecisionModal(true);
   };
 
   const fetchData = async () => {
@@ -185,16 +184,71 @@ export function ApplicationTable() {
     }
   };
 
-  const getFullName = async () => {
+  const updateReviewStage = async (
+    userId: number,
+    newReviewStage: ReviewStatus,
+  ) => {
     try {
-      setFullName(await apiClient.getFullName(accessToken));
+      // payload goes to apiClient and updates local state
+      await apiClient.updateReviewStage(accessToken, userId, newReviewStage);
+      setData((prevData) =>
+        prevData.map((row) =>
+          row.userId === userId ? { ...row, review: newReviewStage } : row,
+        ),
+      );
+      if (selectedUserRow?.userId === userId) {
+        setSelectedApplication((prev) =>
+          prev ? { ...prev, review: newReviewStage } : null,
+        );
+      }
+      setToastMessage(
+        `Review stage updated to ${newReviewStage} successfully!`,
+      );
+      setToastOpen(true);
     } catch (error) {
-      console.error('Error fetching full name:', error);
+      setToastMessage('Failed to update Review stage. Please try again.');
+      setToastOpen(true);
     }
   };
 
+  const getFullName = async () => {
+    setFullName(await apiClient.getFullName(accessToken));
+  };
+
   const enhancedColumns: GridColDef[] = applicationColumns.map((col) => {
-    if (col.field === 'stage') {
+    if (col.field === 'review') {
+      return {
+        ...col,
+        width: 240,
+        renderCell: (params: GridRenderCellParams<ApplicationRow>) => {
+          const handleReviewStageChange = async (event: SelectChangeEvent) => {
+            const newReviewStage = event.target.value as ReviewStatus;
+            await updateReviewStage(params.row.userId, newReviewStage);
+          };
+          return (
+            <FormControl size="medium" fullWidth>
+              <Select
+                value={params.value || ''}
+                onChange={handleReviewStageChange}
+                placeholder={'Select'}
+                variant={'standard'}
+                sx={{ fontSize: '0.875rem', color: 'white' }}
+              >
+                {REVIEW_OPTIONS.map((option) => (
+                  <MenuItem
+                    key={option}
+                    value={option}
+                    sx={{ fontSize: '0.875rem', color: 'white' }}
+                  >
+                    {option}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          );
+        },
+      };
+    } else if (col.field === 'stage') {
       return {
         ...col,
         width: 240,
@@ -218,50 +272,19 @@ export function ApplicationTable() {
           return (
             <FormControl size="medium" fullWidth>
               <Select
-                value={currentStageKey}
+                value={params.value || ''}
                 onChange={handleStageChange}
+                placeholder={'Select'}
                 variant={'standard'}
-                disabled={isUpdatingStage}
-                displayEmpty
-                sx={{
-                  fontSize: '0.875rem',
-                  color: 'white',
-                  '& .MuiSelect-select': {
-                    color: 'white',
-                  },
-                  '& .MuiInput-underline:before': {
-                    display: 'none',
-                  },
-                  '& .MuiInput-underline:after': {
-                    display: 'none',
-                  },
-                  '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
-                    display: 'none',
-                  },
-                  '& .MuiSvgIcon-root': {
-                    color: 'white',
-                  },
-                }}
+                sx={{ fontSize: '0.875rem', color: 'white' }}
               >
-                {!STAGE_KEYS.includes(
-                  currentStageKey as keyof typeof ApplicationStage,
-                ) &&
-                  currentStageKey && (
-                    <MenuItem
-                      key={currentStageKey}
-                      value={currentStageKey}
-                      sx={{ fontSize: '0.875rem' }}
-                    >
-                      {currentStageKey}
-                    </MenuItem>
-                  )}
-                {STAGE_KEYS.map((stageKey) => (
+                {STAGE_OPTIONS.map((option) => (
                   <MenuItem
-                    key={stageKey}
-                    value={stageKey}
-                    sx={{ fontSize: '0.875rem' }}
+                    key={option}
+                    value={option}
+                    sx={{ fontSize: '0.875rem', color: 'white' }}
                   >
-                    {stageKey}
+                    {option}
                   </MenuItem>
                 ))}
               </Select>
@@ -283,14 +306,7 @@ export function ApplicationTable() {
                 sx={{
                   fontSize: '0.875rem',
                 }}
-              >
-                <MenuItem value="Unassigned" sx={{ fontSize: '0.875rem' }}>
-                  Unassigned
-                </MenuItem>
-                <MenuItem value="Jane Smith" sx={{ fontSize: '0.875rem' }}>
-                  Jane Smith
-                </MenuItem>
-              </Select>
+              ></Select>
             </FormControl>
           );
         },
@@ -302,6 +318,8 @@ export function ApplicationTable() {
   useEffect(() => {
     fetchData();
     getFullName();
+    isPageRendered.current = true;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessToken]);
 
   useEffect(() => {
@@ -319,16 +337,6 @@ export function ApplicationTable() {
 
   return (
     <Container maxWidth="xl">
-      <Stack direction="row" alignItems="center" spacing={2} mt={4} mb={8}>
-        <img
-          src="/c4clogo.png"
-          alt="C4C Logo"
-          style={{ width: 50, height: 40 }}
-        />
-        <Typography variant="h4" sx={{ fontWeight: 'bold', color: 'white' }}>
-          Database | {getCurrentSemester()} {getCurrentYear()} Recruitment Cycle
-        </Typography>
-      </Stack>
       <Typography variant="h4" mb={1}>
         Welcome back, {fullName ? fullName : 'User'}
       </Typography>
@@ -395,7 +403,7 @@ export function ApplicationTable() {
               App Stage: {selectedApplication.stage}
             </Typography>
             <Typography variant="body1">
-              Review Stage: {selectedApplication.step}
+              Status: {selectedApplication.step}
             </Typography>
             <Typography variant="body1">
               Review: {selectedApplication.review}
@@ -447,23 +455,10 @@ export function ApplicationTable() {
             >
               Start Review
             </Button>
-
-            {selectedUserRow && (
-              <Button size="small" onClick={handleOpenDecisionModal}>
-                Move Stage
-              </Button>
-            )}
           </Stack>
           <ReviewModal
             open={openReviewModal}
             setOpen={setOpenReviewModal}
-            selectedUserRow={selectedUserRow}
-            selectedApplication={selectedApplication}
-            accessToken={accessToken}
-          />
-          <DecisionModal
-            open={openDecisionModal}
-            setOpen={setOpenDecisionModal}
             selectedUserRow={selectedUserRow}
             selectedApplication={selectedApplication}
             accessToken={accessToken}

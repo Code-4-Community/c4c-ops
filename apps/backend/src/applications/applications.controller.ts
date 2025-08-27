@@ -13,7 +13,13 @@ import {
   UnauthorizedException,
   Put,
 } from '@nestjs/common';
-import { ApplicationStage, Decision, Response, ReviewStage } from './types';
+import {
+  ApplicationStage,
+  Decision,
+  Response,
+  ReviewStage,
+  ReviewStatus,
+} from './types';
 import { ApplicationsService } from './applications.service';
 import { CurrentUserInterceptor } from '../interceptors/current-user.interceptor';
 import { AuthGuard } from '@nestjs/passport';
@@ -203,5 +209,26 @@ export class ApplicationsController {
       throw new BadRequestException('Invalid stage value');
     }
     return await this.applicationsService.updateStage(userId, stage);
+  }
+
+  @Put('/review/:userId')
+  @UseGuards(AuthGuard('jwt'))
+  async updateReviewStage(
+    @Param('userId', ParseIntPipe) userId: number,
+    @Body('review') review: ReviewStatus,
+    @Request() req,
+  ): Promise<Application> {
+    if (![UserStatus.ADMIN, UserStatus.RECRUITER].includes(req.user.status)) {
+      throw new UnauthorizedException();
+    }
+
+    const reviewStageEnum: ReviewStatus = ReviewStatus[review];
+    if (!reviewStageEnum) {
+      throw new BadRequestException('Invalid review stage value');
+    }
+    return await this.applicationsService.updateReviewStage(
+      userId,
+      reviewStageEnum,
+    );
   }
 }

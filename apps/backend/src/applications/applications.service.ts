@@ -13,7 +13,7 @@ import {
   getCurrentSemester,
   getCurrentYear,
 } from './utils';
-import { Decision, Response } from './types';
+import { Decision, Response, ReviewStatus } from './types';
 import * as crypto from 'crypto';
 import { User } from '../users/user.entity';
 import { UserStatus } from '../users/types';
@@ -220,6 +220,32 @@ export class ApplicationsService {
 
     //Save the updated stage
     await this.applicationsRepository.save(application);
+  }
+
+  /**
+   * Updates the Review Stage of a user
+   */
+  async updateReviewStage(
+    userId: number,
+    newReviewStage: ReviewStatus,
+  ): Promise<Application> {
+    const updateResult = await this.applicationsRepository
+      .createQueryBuilder()
+      .update(Application)
+      .set({ review: newReviewStage })
+      .where('user.id = :userId', { userId })
+      .execute();
+
+    if (updateResult.affected === 0) {
+      throw new BadRequestException(`Application for User ${userId} not found`);
+    }
+
+    const application = await this.applicationsRepository.findOne({
+      where: { user: { id: userId } },
+      relations: ['user', 'reviews'],
+    });
+
+    return application;
   }
 
   /**

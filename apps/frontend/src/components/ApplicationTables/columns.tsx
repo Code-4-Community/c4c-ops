@@ -31,8 +31,8 @@ export const applicationColumns = [
     ),
   },
   {
-    field: 'reviewed',
-    headerName: 'Reviewed',
+    field: 'review',
+    headerName: 'Review Stage',
     flex: 1,
     headerAlign: 'left' as const,
     type: 'singleSelect',
