@@ -12,6 +12,7 @@ enum ApplicationStep {
   REVIEWED = 'REVIEWED',
 }
 
+//
 enum ReviewStatus {
   UNASSIGNED = 'UNASSIGNED',
   ASSIGNED = 'ASSIGNED',
