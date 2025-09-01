@@ -80,7 +80,7 @@ export const applicationColumns = (
     headerAlign: 'left',
     type: 'singleSelect',
     valueOptions: [...REVIEWED_STATUSES],
-    sortable: false,
+    sortable: true,
     renderHeader: (): React.ReactNode => (
       <strong style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
         Reviewed <FilterList sx={{ fontSize: 16 }} />
@@ -88,8 +88,8 @@ export const applicationColumns = (
     ),
   },
   {
-    field: 'assignedTo', // must match your data
-    headerName: 'Assigned Recruiters',
+    field: 'assignedTo',
+    headerName: 'Assigned to:',
     flex: 1,
     sortable: false,
     disableColumnMenu: true,
@@ -116,7 +116,7 @@ export const applicationColumns = (
     headerAlign: 'left',
     type: 'singleSelect',
     valueOptions: [...STAGE_STATUSES], // ← spread to fix readonly type
-    sortable: false,
+    sortable: true,
     renderHeader: (): React.ReactNode => (
       <strong style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
         App Stage <FilterList sx={{ fontSize: 16 }} />
@@ -134,7 +134,7 @@ export const applicationColumns = (
     headerName: 'Rating',
     flex: 1,
     headerAlign: 'left',
-    sortable: false,
+    sortable: true,
     disableColumnMenu: true,
     renderHeader: (): React.ReactNode => <strong>Rating</strong>,
     renderCell: (
