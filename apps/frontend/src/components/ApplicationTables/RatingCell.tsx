@@ -58,7 +58,6 @@ export const RatingCell = ({ value, row }: RatingCellProps) => {
               profilePicture: null,
               linkedin: null,
               github: null,
-              team: null,
               role: null,
             });
           }

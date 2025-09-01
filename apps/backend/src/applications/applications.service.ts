@@ -13,11 +13,11 @@ import {
   getCurrentSemester,
   getCurrentYear,
 } from './utils';
-import { Decision, Response } from './types';
+import { Decision, Response, ReviewStatus } from './types';
 import * as crypto from 'crypto';
 import { User } from '../users/user.entity';
 import { UserStatus } from '../users/types';
-import { Position, ApplicationStage, ApplicationStep, Semester } from './types';
+import { Position, ApplicationStage, ReviewStage, Semester } from './types';
 import { GetAllApplicationResponseDTO } from './dto/get-all-application.response.dto';
 import { AssignedRecruiterDTO } from './dto/get-application.response.dto';
 
@@ -56,7 +56,7 @@ export class ApplicationsService {
       semester,
       position: Position.DEVELOPER, // TODO: Change this to be dynamic
       stage: ApplicationStage.APP_RECEIVED,
-      step: ApplicationStep.SUBMITTED,
+      step: ReviewStage.SUBMITTED,
       response: application,
       reviews: [],
     });
@@ -223,6 +223,32 @@ export class ApplicationsService {
   }
 
   /**
+   * Updates the Review Stage of a user
+   */
+  async updateReviewStage(
+    userId: number,
+    newReviewStage: ReviewStatus,
+  ): Promise<Application> {
+    const updateResult = await this.applicationsRepository
+      .createQueryBuilder()
+      .update(Application)
+      .set({ review: newReviewStage })
+      .where('user.id = :userId', { userId })
+      .execute();
+
+    if (updateResult.affected === 0) {
+      throw new BadRequestException(`Application for User ${userId} not found`);
+    }
+
+    const application = await this.applicationsRepository.findOne({
+      where: { user: { id: userId } },
+      relations: ['user', 'reviews'],
+    });
+
+    return application;
+  }
+
+  /**
    * Updates the stage of the application for a given user.
    */
   async updateStage(
@@ -318,7 +344,7 @@ export class ApplicationsService {
     const allApplicationsDto = await Promise.all(
       applications.map(async (app) => {
         const ratings = this.calculateAllRatings(app.reviews);
-        const applicationStep = this.determineApplicationStep(app.reviews);
+        const reviewStage = this.determineReviewStage(app.reviews);
         const assignedRecruiters =
           await this.getAssignedRecruitersForApplication(app);
 
@@ -328,7 +354,7 @@ export class ApplicationsService {
           ratings.meanRatingChallenge,
           ratings.meanRatingTechnicalChallenge,
           ratings.meanRatingInterview,
-          applicationStep,
+          reviewStage,
           assignedRecruiters,
         );
       }),
@@ -387,10 +413,8 @@ export class ApplicationsService {
   /**
    * Determines application step based on reviews
    */
-  private determineApplicationStep(reviews: any[]): ApplicationStep {
-    return reviews.length > 0
-      ? ApplicationStep.REVIEWED
-      : ApplicationStep.SUBMITTED;
+  private determineReviewStage(reviews: any[]): ReviewStage {
+    return reviews.length > 0 ? ReviewStage.REVIEWED : ReviewStage.SUBMITTED;
   }
 
   /**
