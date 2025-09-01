@@ -411,7 +411,7 @@ export class ApplicationsService {
   }
 
   /**
-   * Determines application step based on reviews
+   * Determines review stage based on reviews
    */
   private determineReviewStage(reviews: any[]): ReviewStage {
     return reviews.length > 0 ? ReviewStage.REVIEWED : ReviewStage.SUBMITTED;
