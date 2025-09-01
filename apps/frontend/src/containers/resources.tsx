@@ -107,7 +107,7 @@ const Resources: React.FC = () => {
               Application Stage:
             </Typography>
 
-            <StageButton>{formatStage(String(app.stage))}</StageButton>
+            <StageButton>{formatStage(app.stage.toString())}</StageButton>
 
             <Typography
               variant="body1"
