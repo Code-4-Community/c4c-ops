@@ -126,13 +126,11 @@ export class ApplicationsController {
       );
     }
 
-    let applicationStep: ReviewStage = null;
-
-    // The application step
+    let reviewStageValue: ReviewStage;
     if (app.reviews.length > 0) {
-      applicationStep = ReviewStage.REVIEWED;
+      reviewStageValue = ReviewStage.REVIEWED;
     } else {
-      applicationStep = ReviewStage.SUBMITTED;
+      reviewStageValue = ReviewStage.SUBMITTED;
     }
 
     // Get assigned recruiters for this application (only for admins and recruiters)
@@ -152,7 +150,7 @@ export class ApplicationsController {
 
     return app.toGetApplicationResponseDTO(
       apps.length,
-      applicationStep,
+      reviewStageValue,
       assignedRecruiters,
     );
   }

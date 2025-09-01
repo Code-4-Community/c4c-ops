@@ -86,6 +86,7 @@ export class Application {
   @Column('int', { array: true, default: [] })
   @IsArray()
   assignedRecruiterIds: number[];
+  reviewStage: ReviewStage;
 
   toGetAllApplicationResponseDTO(
     meanRatingAllReviews,
@@ -93,7 +94,7 @@ export class Application {
     meanRatingChallenge,
     meanRatingTechnicalChallenge,
     meanRatingInterview,
-    step: ReviewStage,
+    reviewStage,
     assignedRecruiters: AssignedRecruiterDTO[] = [],
   ): GetAllApplicationResponseDTO {
     return {
@@ -101,7 +102,7 @@ export class Application {
       firstName: this.user.firstName,
       lastName: this.user.lastName,
       stage: this.stage,
-      step: step,
+      step: reviewStage,
       position: this.position,
       review: this.review,
       createdAt: this.createdAt,
@@ -116,7 +117,7 @@ export class Application {
 
   toGetApplicationResponseDTO(
     numApps: number,
-    step: ReviewStage,
+    reviewStage: ReviewStage,
     assignedRecruiters: AssignedRecruiterDTO[] = [],
   ): GetApplicationResponseDTO {
     return {
@@ -126,7 +127,7 @@ export class Application {
       semester: this.semester,
       position: this.position,
       stage: this.stage,
-      step: step,
+      step: reviewStage,
       review: this.review,
       response: this.response,
       reviews: this.reviews,

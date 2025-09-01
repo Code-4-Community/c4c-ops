@@ -68,7 +68,7 @@ export class ApiClient {
       createdAt: app.createdAt,
       // TODO: CHANGE ONCE THERE IS A BACKEND ENDPOINT FOR REVIEWED STAGE
       reviewed: app.meanRatingAllReviews ? 'Reviewed' : 'Unassigned',
-      assignedTo: [],
+      assignedTo: app.assignedRecruiters,
       // Include detailed ratings for dropdown
       meanRatingAllReviews: app.meanRatingAllReviews,
       meanRatingResume: app.meanRatingResume,

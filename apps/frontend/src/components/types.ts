@@ -20,6 +20,7 @@ enum ReviewStage {
 }
 
 enum Position {
+  TECH_LEAD = 'TECH_LEAD',
   DEVELOPER = 'DEVELOPER',
   PM = 'PRODUCT_MANAGER',
   DESIGNER = 'DESIGNER',
@@ -31,7 +32,7 @@ type ApplicationRow = {
   name: string;
   position: Position;
   reviewed: string;
-  assignedTo: string[];
+  assignedTo: AssignedRecruiter[];
   stage: ApplicationStage;
   rating: number | null;
   createdAt: Date;
@@ -48,6 +49,7 @@ type BackendApplicationDTO = {
   lastName: string;
   stage: ApplicationStage;
   step: ReviewStage;
+  review: ReviewStatus;
   position: Position;
   assignedRecruiters: AssignedRecruiter[];
   createdAt: Date;
@@ -86,9 +88,9 @@ type Application = {
   position: Position;
   stage: ApplicationStage;
   step: ReviewStage;
+  review: ReviewStatus;
   response: Response[];
   numApps: number;
-  review: ReviewStatus;
   reviews: Review[];
   assignedRecruiters: AssignedRecruiter[];
 };
@@ -96,15 +98,16 @@ type Application = {
 // TODO: should match backend type
 type User = {
   id: number;
-  status: string;
+  // TODO: Maybe make UserStatus enum that matches backend
+  status: string | null;
   firstName: string;
   lastName: string;
   email: string;
   profilePicture: string | null;
   linkedin: string | null;
   github: string | null;
-  team: string | null;
-  role: string[] | null;
+  // team: Team | null;
+  role: Position[] | null;
 };
 
 type AssignedRecruiter = {

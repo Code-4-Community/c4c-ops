@@ -44,7 +44,7 @@ const createMockReview = (overrides: Partial<Review> = {}): Review =>
   ({
     id: 1,
     rating: 4,
-    stage: ApplicationStage.RESUME,
+    stage: ApplicationStage.APP_RECEIVED,
     createdAt: new Date(),
     updatedAt: new Date(),
     application: null,
