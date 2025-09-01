@@ -9,6 +9,43 @@ import { RatingCell } from './RatingCell';
 import { FilterList } from '@mui/icons-material';
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 
+// Helper to format text (e.g., capitalize, replace underscores)
+const formatText = (text: string): string => {
+  return text
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, (char) => char.toUpperCase())
+    .replace('App Received', 'Application Received');
+};
+
+export const formatStageName = (stage: string): string => {
+  return formatText(stage);
+};
+
+export const mapStageStringToEnumKey = (stageString: string): string => {
+  const stageMap: { [key: string]: string } = {
+    'Application Received': 'APP_RECEIVED',
+    'PM Challenge': 'PM_CHALLENGE',
+    'Behavioral Interview': 'B_INTERVIEW',
+    'Technical Interview': 'T_INTERVIEW',
+    Accepted: 'ACCEPTED',
+    Rejected: 'REJECTED',
+    'Accepted/Rejected': 'ACCEPTED', // fallback for combined
+  };
+  return stageMap[stageString] || stageString;
+};
+
+export const mapEnumKeyToStageValue = (enumKey: string): string => {
+  const keyToValueMap: { [key: string]: string } = {
+    APP_RECEIVED: 'Application Received',
+    PM_CHALLENGE: 'PM Challenge',
+    B_INTERVIEW: 'Behavioral Interview',
+    T_INTERVIEW: 'Technical Interview',
+    ACCEPTED: 'Accepted',
+    REJECTED: 'Rejected',
+  };
+  return keyToValueMap[enumKey] || enumKey;
+};
+
 export const applicationColumns = (
   allRecruiters: AssignedRecruiter[],
 ): GridColDef<ApplicationRow>[] => [
@@ -85,6 +122,12 @@ export const applicationColumns = (
         App Stage <FilterList sx={{ fontSize: 16 }} />
       </strong>
     ),
+    renderCell: (
+      params: GridRenderCellParams<ApplicationRow>,
+    ): React.ReactNode => {
+      // Use the mapping to show a human-readable value
+      return mapEnumKeyToStageValue(params.value as string);
+    },
   },
   {
     field: 'rating',
