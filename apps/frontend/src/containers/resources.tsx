@@ -10,16 +10,19 @@ import {
   ThankYouText,
   DescriptionText,
 } from '../components/ApplicantView/ApplicantStatus/items';
+import FileUploadBox from './fileUploadBox';
 
 const Resources: React.FC = () => {
   const { token: accessToken } = useLoginContext();
   const [app, setApp] = useState<Application | null>(null);
   const [loading, setLoading] = useState(true);
+  const [applicationId, setApplicationId] = useState<number | null>(null);
 
   const getApplication = async (userId: number) => {
     try {
       const application = await apiClient.getApplication(accessToken, userId);
       setApp(application);
+      setApplicationId(application.id);
       return application;
     } catch (error) {
       console.error('Error fetching application:', error);
@@ -104,7 +107,7 @@ const Resources: React.FC = () => {
               Application Stage:
             </Typography>
 
-            <StageButton>{formatStage(String(app.stage))}</StageButton>
+            <StageButton>{formatStage(app.stage.toString())}</StageButton>
 
             <Typography
               variant="body1"
@@ -146,6 +149,12 @@ const Resources: React.FC = () => {
           </StyledPaper>
         )}
       </Box>
+      {!loading && app && String(app.stage) === 'PM_CHALLENGE' && (
+        <FileUploadBox
+          accessToken={accessToken}
+          applicationId={applicationId}
+        />
+      )}
     </Container>
   );
 };

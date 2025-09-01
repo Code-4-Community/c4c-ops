@@ -4,7 +4,7 @@ import { Application, ApplicationRow, Semester } from '@components/types';
 import { Container, Stack, Typography } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import { GridRowSelectionModel } from '@mui/x-data-grid/models/gridRowSelectionModel';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { RecruiterColumns } from './columns';
 
 export function RecruiterTable() {
@@ -22,6 +22,8 @@ export function RecruiterTable() {
     return TODAY.getFullYear();
   };
 
+  const isPageRendered = useRef<boolean>(false);
+
   const { token: accessToken } = useLoginContext();
   const [data, setData] = useState<ApplicationRow[]>([]);
   const [fullName, setFullName] = useState<string>('');
@@ -35,7 +37,6 @@ export function RecruiterTable() {
   const getApplication = async (userId: number) => {
     try {
       const application = await apiClient.getApplication(accessToken, userId);
-      console.log('Fetched application:', application);
       setSelectedApplication(application);
     } catch (error) {
       console.error('Error fetching application:', error);
@@ -63,6 +64,12 @@ export function RecruiterTable() {
     getFullName();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessToken]);
+
+  useEffect(() => {
+    if (rowSelection.length > 0) {
+      setSelectedUserRow(data[rowSelection[0] as number]);
+    }
+  }, [rowSelection, data]);
 
   useEffect(() => {
     if (rowSelection.length > 0) {

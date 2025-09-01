@@ -346,7 +346,7 @@ export class ApplicationsService {
     const allApplicationsDto = await Promise.all(
       applications.map(async (app) => {
         const ratings = this.calculateAllRatings(app.reviews);
-        const applicationStep = this.determineApplicationStep(app.reviews);
+        const reviewStage = this.determineReviewStage(app.reviews);
         const assignedRecruiters =
           await this.getAssignedRecruitersForApplication(app);
 
@@ -356,7 +356,7 @@ export class ApplicationsService {
           ratings.meanRatingChallenge,
           ratings.meanRatingTechnicalChallenge,
           ratings.meanRatingInterview,
-          applicationStep,
+          reviewStage,
           assignedRecruiters,
         );
       }),
@@ -376,6 +376,21 @@ export class ApplicationsService {
     }
 
     return currentApp;
+  }
+
+  async findOne(applicationId: number): Promise<Application> {
+    const application = await this.applicationsRepository.findOne({
+      where: { id: applicationId },
+      relations: ['user', 'reviews'],
+    });
+
+    if (!application) {
+      throw new BadRequestException(
+        `Application with ID ${applicationId} not found`,
+      );
+    }
+
+    return application;
   }
 
   /**
@@ -413,9 +428,9 @@ export class ApplicationsService {
   }
 
   /**
-   * Determines application step based on reviews
+   * Determines review stage based on reviews
    */
-  private determineApplicationStep(reviews: any[]): ReviewStage {
+  private determineReviewStage(reviews: any[]): ReviewStage {
     return reviews.length > 0 ? ReviewStage.REVIEWED : ReviewStage.SUBMITTED;
   }
 

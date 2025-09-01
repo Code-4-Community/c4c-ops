@@ -2,9 +2,9 @@ import { IsPositive, IsString, IsOptional, IsDate } from 'class-validator';
 import { Review } from '../../reviews/review.entity';
 import {
   ApplicationStage,
+  ReviewStage,
   Position,
   Response,
-  ReviewStage,
   ReviewStatus,
   Semester,
 } from '../types';
