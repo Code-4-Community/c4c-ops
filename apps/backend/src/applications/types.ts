@@ -8,7 +8,7 @@ export enum Semester {
   SPRING = 'SPRING',
 }
 
-export enum ApplicationStep {
+export enum ReviewStage {
   SUBMITTED = 'SUBMITTED',
   REVIEWED = 'REVIEWED',
 }

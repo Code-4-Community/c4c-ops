@@ -86,7 +86,7 @@ export function AssignedRecruiters({
   };
 
   const renderValue = (selected: number[]) => (
-    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, width: '100%' }}>
       {selected.map((recruiterId) => {
         const recruiter = allRecruiters.find((r) => r.id === recruiterId);
         return (
@@ -98,6 +98,10 @@ export function AssignedRecruiters({
                 : `Recruiter ${recruiterId}`
             }
             size="small"
+            sx={{
+              color: 'white',
+              backgroundColor: '#ccc',
+            }}
           />
         );
       })}
@@ -109,10 +113,10 @@ export function AssignedRecruiters({
       <InputLabel sx={{ color: 'white' }}>Assigned Recruiters</InputLabel>
       <Select
         multiple
+        size="small"
         value={selectedRecruiterIds}
         onChange={handleRecruiterChange}
         renderValue={renderValue}
-        label="Assigned Recruiters"
         disabled={loading}
         sx={{
           backgroundColor: '#333333',

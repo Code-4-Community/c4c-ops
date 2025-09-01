@@ -13,7 +13,13 @@ import {
   UnauthorizedException,
   Put,
 } from '@nestjs/common';
-import { ApplicationStage, Decision, Response } from './types';
+import {
+  ApplicationStage,
+  Decision,
+  Response,
+  ReviewStage,
+  ReviewStatus,
+} from './types';
 import { ApplicationsService } from './applications.service';
 import { CurrentUserInterceptor } from '../interceptors/current-user.interceptor';
 import { AuthGuard } from '@nestjs/passport';
@@ -25,7 +31,6 @@ import { getAppForCurrentCycle } from './utils';
 import { UserStatus } from '../users/types';
 import { Application } from './application.entity';
 import { GetAllApplicationResponseDTO } from './dto/get-all-application.response.dto';
-import { ApplicationStep } from './types';
 import { AssignRecruitersRequestDTO } from './dto/assign-recruiters.request.dto';
 
 @Controller('apps')
@@ -121,13 +126,11 @@ export class ApplicationsController {
       );
     }
 
-    let applicationStep = null;
-
-    // The application step
+    let reviewStageValue: ReviewStage;
     if (app.reviews.length > 0) {
-      applicationStep = ApplicationStep.REVIEWED;
+      reviewStageValue = ReviewStage.REVIEWED;
     } else {
-      applicationStep = ApplicationStep.SUBMITTED;
+      reviewStageValue = ReviewStage.SUBMITTED;
     }
 
     // Get assigned recruiters for this application (only for admins and recruiters)
@@ -147,7 +150,7 @@ export class ApplicationsController {
 
     return app.toGetApplicationResponseDTO(
       apps.length,
-      applicationStep,
+      reviewStageValue,
       assignedRecruiters,
     );
   }
@@ -199,10 +202,31 @@ export class ApplicationsController {
       throw new UnauthorizedException();
     }
 
-    const stageEnum: ApplicationStage = ApplicationStage[stage];
-    if (!stageEnum) {
+    const stageEnum: ReviewStage = ApplicationStage[stage];
+    if (!Object.values(ApplicationStage).includes(stage)) {
       throw new BadRequestException('Invalid stage value');
     }
-    return await this.applicationsService.updateStage(userId, stageEnum);
+    return await this.applicationsService.updateStage(userId, stage);
+  }
+
+  @Put('/review/:userId')
+  @UseGuards(AuthGuard('jwt'))
+  async updateReviewStage(
+    @Param('userId', ParseIntPipe) userId: number,
+    @Body('review') review: ReviewStatus,
+    @Request() req,
+  ): Promise<Application> {
+    if (![UserStatus.ADMIN, UserStatus.RECRUITER].includes(req.user.status)) {
+      throw new UnauthorizedException();
+    }
+
+    const reviewStageEnum: ReviewStatus = ReviewStatus[review];
+    if (!reviewStageEnum) {
+      throw new BadRequestException('Invalid review stage value');
+    }
+    return await this.applicationsService.updateReviewStage(
+      userId,
+      reviewStageEnum,
+    );
   }
 }

@@ -3,6 +3,7 @@ import type {
   Application,
   ApplicationRow,
   ApplicationStage,
+  ReviewStatus,
   User,
   BackendApplicationDTO,
   AssignedRecruiter,
@@ -67,7 +68,7 @@ export class ApiClient {
       createdAt: app.createdAt,
       // TODO: CHANGE ONCE THERE IS A BACKEND ENDPOINT FOR REVIEWED STAGE
       reviewed: app.meanRatingAllReviews ? 'Reviewed' : 'Unassigned',
-      assignedTo: [],
+      assignedTo: app.assignedRecruiters,
       // Include detailed ratings for dropdown
       meanRatingAllReviews: app.meanRatingAllReviews,
       meanRatingResume: app.meanRatingResume,
@@ -106,6 +107,22 @@ export class ApiClient {
         Authorization: `Bearer ${accessToken}`,
       },
     }) as Promise<void>;
+  }
+
+  public async updateReviewStage(
+    accessToken: string,
+    userId: number,
+    review: ReviewStatus,
+  ): Promise<Application> {
+    return this.put(
+      `/api/apps/review/${userId}`,
+      { review },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+    ) as Promise<Application>;
   }
 
   public async submitReview(
@@ -186,6 +203,24 @@ export class ApiClient {
     ) as Promise<Application>;
   }
 
+  public async uploadFile(
+    accessToken: string,
+    applicationId: number,
+    file: File,
+  ): Promise<{ message: string; fileId: number }> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return this.axiosInstance
+      .post(`/api/file-upload/${applicationId}`, formData, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+      .then((response) => response.data);
+  }
+
   public async getUserById(accessToken: string, userId: number): Promise<User> {
     return this.get(`/api/users/${userId}`, {
       headers: {
@@ -204,17 +239,6 @@ export class ApiClient {
       .then((response) => response.data);
   }
 
-  private async post(
-    path: string,
-    body: unknown,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    headers: AxiosRequestConfig<any> | undefined = undefined,
-  ): Promise<unknown> {
-    return this.axiosInstance
-      .post(path, body, headers)
-      .then((response) => response.data);
-  }
-
   private async put(
     path: string,
     body: unknown,
@@ -223,6 +247,17 @@ export class ApiClient {
   ): Promise<unknown> {
     return this.axiosInstance
       .put(path, body, headers)
+      .then((response) => response.data);
+  }
+
+  private async post(
+    path: string,
+    body: unknown,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    headers: AxiosRequestConfig<any> | undefined = undefined,
+  ): Promise<unknown> {
+    return this.axiosInstance
+      .post(path, body, headers)
       .then((response) => response.data);
   }
 

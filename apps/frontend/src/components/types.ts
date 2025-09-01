@@ -1,10 +1,10 @@
 enum ApplicationStage {
-  APP_RECEIVED,
-  PM_CHALLENGE,
-  B_INTERVIEW,
-  T_INTERVIEW,
-  ACCEPTED,
-  REJECTED,
+  APP_RECEIVED = 'APP_RECEIVED',
+  PM_CHALLENGE = 'PM_CHALLENGE',
+  B_INTERVIEW = 'B_INTERVIEW',
+  T_INTERVIEW = 'T_INTERVIEW',
+  ACCEPTED = 'ACCEPTED',
+  REJECTED = 'REJECTED',
 }
 
 enum ReviewStatus {
@@ -14,12 +14,13 @@ enum ReviewStatus {
   REVIEWED = 'REVIEWED',
 }
 
-enum ApplicationStep {
+enum ReviewStage {
   SUBMITTED = 'SUBMITTED',
   REVIEWED = 'REVIEWED',
 }
 
 enum Position {
+  TECH_LEAD = 'TECH_LEAD',
   DEVELOPER = 'DEVELOPER',
   PM = 'PRODUCT_MANAGER',
   DESIGNER = 'DESIGNER',
@@ -31,7 +32,7 @@ type ApplicationRow = {
   name: string;
   position: Position;
   reviewed: string;
-  assignedTo: string[];
+  assignedTo: AssignedRecruiter[];
   stage: ApplicationStage;
   rating: number | null;
   createdAt: Date;
@@ -47,7 +48,7 @@ type BackendApplicationDTO = {
   firstName: string;
   lastName: string;
   stage: ApplicationStage;
-  step: ApplicationStep;
+  step: ReviewStage;
   review: ReviewStatus;
   position: Position;
   assignedRecruiters: AssignedRecruiter[];
@@ -75,8 +76,8 @@ type Review = {
 };
 
 enum Semester {
-  FALL = 'FALL',
-  SPRING = 'SPRING',
+  FALL = 'Fall',
+  SPRING = 'Spring',
 }
 
 type Application = {
@@ -86,7 +87,7 @@ type Application = {
   semester: Semester;
   position: Position;
   stage: ApplicationStage;
-  step: ApplicationStep;
+  step: ReviewStage;
   review: ReviewStatus;
   response: Response[];
   numApps: number;
@@ -97,15 +98,16 @@ type Application = {
 // TODO: should match backend type
 type User = {
   id: number;
-  status: string;
+  // TODO: Maybe make UserStatus enum that matches backend
+  status: string | null;
   firstName: string;
   lastName: string;
   email: string;
   profilePicture: string | null;
   linkedin: string | null;
   github: string | null;
-  team: string | null;
-  role: string[] | null;
+  // team: Team | null;
+  role: Position[] | null;
 };
 
 type AssignedRecruiter = {
@@ -126,7 +128,7 @@ export {
   ApplicationRow,
   Application,
   ApplicationStage,
-  ApplicationStep,
+  ReviewStage,
   ReviewStatus,
   Position,
   Response,
