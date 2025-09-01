@@ -26,8 +26,11 @@ export function ApplicationTable() {
   const navigate = useNavigate();
 
   const { token: accessToken } = useLoginContext();
+  console.log('Access Token in Application Table: ', accessToken);
   // TODO implement auto token refresh
   const [data, setData] = useState<ApplicationRow[]>([]);
+  console.log('Data: ', data);
+  // TODO implement auto token refresh
   const [fullName, setFullName] = useState<string>('');
 
   const handleRowClick = async (params: { row: ApplicationRow }) => {

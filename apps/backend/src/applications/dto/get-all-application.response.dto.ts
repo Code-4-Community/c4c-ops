@@ -8,11 +8,12 @@ import {
 } from 'class-validator';
 import {
   ApplicationStage,
-  ApplicationStep,
+  ReviewStage,
   Position,
   ReviewStatus,
 } from '../types';
 import { AssignedRecruiterDTO } from './get-application.response.dto';
+import { Review } from '../../reviews/review.entity';
 
 export class GetAllApplicationResponseDTO {
   @IsPositive()
@@ -27,8 +28,8 @@ export class GetAllApplicationResponseDTO {
   @IsEnum(ApplicationStage)
   stage: ApplicationStage;
 
-  @IsEnum(ApplicationStep)
-  step: ApplicationStep;
+  @IsEnum(ReviewStage)
+  step: ReviewStage;
 
   @IsEnum(ReviewStatus)
   review: ReviewStatus;

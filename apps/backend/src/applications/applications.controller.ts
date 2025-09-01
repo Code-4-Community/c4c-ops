@@ -24,7 +24,7 @@ import { getAppForCurrentCycle } from './utils';
 import { UserStatus } from '../users/types';
 import { Application } from './application.entity';
 import { GetAllApplicationResponseDTO } from './dto/get-all-application.response.dto';
-import { ApplicationStep } from './types';
+import { ReviewStage } from './types';
 import { AssignRecruitersRequestDTO } from './dto/assign-recruiters.request.dto';
 
 @Controller('apps')
@@ -120,13 +120,13 @@ export class ApplicationsController {
       );
     }
 
-    let applicationStep = null;
+    let reviewStage = null;
 
     // The application step
     if (app.reviews.length > 0) {
-      applicationStep = ApplicationStep.REVIEWED;
+      reviewStage = reviewStage.REVIEWED;
     } else {
-      applicationStep = ApplicationStep.SUBMITTED;
+      reviewStage = reviewStage.SUBMITTED;
     }
 
     // Get assigned recruiters for this application (only for admins and recruiters)
@@ -146,7 +146,7 @@ export class ApplicationsController {
 
     return app.toGetApplicationResponseDTO(
       apps.length,
-      applicationStep,
+      reviewStage,
       assignedRecruiters,
     );
   }
