@@ -203,6 +203,24 @@ export class ApiClient {
     ) as Promise<Application>;
   }
 
+  public async uploadFile(
+    accessToken: string,
+    applicationId: number,
+    file: File,
+  ): Promise<{ message: string; fileId: number }> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return this.axiosInstance
+      .post(`/api/file-upload/${applicationId}`, formData, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+      .then((response) => response.data);
+  }
+
   public async getUserById(accessToken: string, userId: number): Promise<User> {
     return this.get(`/api/users/${userId}`, {
       headers: {

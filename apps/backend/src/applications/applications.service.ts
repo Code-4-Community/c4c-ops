@@ -376,6 +376,21 @@ export class ApplicationsService {
     return currentApp;
   }
 
+  async findOne(applicationId: number): Promise<Application> {
+    const application = await this.applicationsRepository.findOne({
+      where: { id: applicationId },
+      relations: ['user', 'reviews'],
+    });
+
+    if (!application) {
+      throw new BadRequestException(
+        `Application with ID ${applicationId} not found`,
+      );
+    }
+
+    return application;
+  }
+
   /**
    * Calculates mean rating for reviews filtered by stage
    */

@@ -9,18 +9,13 @@ import {
   Button,
   Dialog,
   DialogContent,
-  DialogActions,
   IconButton,
-  Chip,
 } from '@mui/material';
 import {
   Visibility as PreviewIcon,
   Close as CloseIcon,
   GetApp as DownloadIcon,
-  Description as FileTextIcon,
-  Image as ImageIcon,
   InsertDriveFile as FileIcon,
-  Folder as FolderIcon,
   Article as WordIcon,
 } from '@mui/icons-material';
 import apiClient from '@api/apiClient';
@@ -33,7 +28,7 @@ import {
   ThankYouText,
   DescriptionText,
 } from '../components/ApplicantView/ApplicantStatus/items';
-import { access } from 'fs';
+import FileUploadBox from './fileUploadBox';
 
 interface FileUpload {
   id: number;
@@ -55,11 +50,13 @@ const Resources: React.FC = () => {
   const [filesLoading, setFilesLoading] = useState(false);
   const [previewFile, setPreviewFile] = useState<FileUpload | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [applicationId, setApplicationId] = useState<number | null>(null);
 
   const getApplication = async (userId: number) => {
     try {
       const application = await apiClient.getApplication(accessToken, userId);
       setApp(application);
+      setApplicationId(application.id);
       return application;
     } catch (error) {
       console.error('Error fetching application:', error);
@@ -120,8 +117,8 @@ const Resources: React.FC = () => {
   const createPdfDataUrl = (file: FileUpload): string => {
     if (!file.file_data?.data) return '';
     const uint8Array = new Uint8Array(file.file_data.data);
-    const base64String = btoa(String.fromCharCode(...uint8Array));
-    return `data:${file.mimetype};base64,${base64String}`;
+    const blob = new Blob([uint8Array], { type: file.mimetype });
+    return URL.createObjectURL(blob);
   };
 
   const downloadFile = (file: FileUpload) => {
@@ -683,6 +680,12 @@ const Resources: React.FC = () => {
           {renderPreviewContent()}
         </DialogContent>
       </Dialog>
+      {!loading && app && String(app.stage) === 'PM_CHALLENGE' && (
+        <FileUploadBox
+          accessToken={accessToken}
+          applicationId={applicationId}
+        />
+      )}
     </Container>
   );
 };
