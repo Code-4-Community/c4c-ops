@@ -22,59 +22,6 @@ const getCurrentYear = (): number => {
   return TODAY.getFullYear();
 };
 
-const formatText = (text: string): string => {
-  if (!text) return '';
-
-  const specialCases: { [key: string]: string } = {
-    ACCEPTED: 'Accepted',
-    REJECTED: 'Rejected',
-    APP_RECEIVED: 'Application Received',
-    PM_CHALLENGE: 'PM Challenge',
-    B_INTERVIEW: 'Behavioral Interview',
-    T_INTERVIEW: 'Technical Interview',
-  };
-
-  if (specialCases[text.toUpperCase()]) {
-    return specialCases[text.toUpperCase()];
-  }
-
-  return text
-    .toLowerCase()
-    .split(' ')
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
-};
-
-const formatStageName = (stage: string): string => {
-  return formatText(stage);
-};
-
-const mapStageStringToEnumKey = (stageString: string): string => {
-  const stageMap: { [key: string]: string } = {
-    'Application Received': 'APP_RECEIVED',
-    'PM Challenge': 'PM_CHALLENGE',
-    'Behavioral Interview': 'B_INTERVIEW',
-    'Technical Interview': 'T_INTERVIEW',
-    ACCEPTED: 'ACCEPTED',
-    REJECTED: 'REJECTED',
-  };
-
-  return stageMap[stageString] || stageString;
-};
-
-const mapEnumKeyToStageValue = (enumKey: string): string => {
-  const keyToValueMap: { [key: string]: string } = {
-    APP_RECEIVED: 'Application Received',
-    PM_CHALLENGE: 'PM Challenge',
-    B_INTERVIEW: 'Behavioral Interview',
-    T_INTERVIEW: 'Technical Interview',
-    ACCEPTED: 'Accepted',
-    REJECTED: 'Rejected',
-  };
-
-  return keyToValueMap[enumKey] || 'Application Received';
-};
-
 export function ApplicationTable() {
   const navigate = useNavigate();
 
