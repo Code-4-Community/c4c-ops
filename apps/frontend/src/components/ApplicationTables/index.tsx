@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-import { DataGrid } from '@mui/x-data-grid';
+import { DataGrid, GridRowParams } from '@mui/x-data-grid';
 import { useNavigate } from 'react-router-dom';
 import { Container, Typography, Stack } from '@mui/material';
 
-import { ApplicationRow, Semester } from '../types';
+import { ApplicationRow, AssignedRecruiter, Semester } from '../types';
 import apiClient from '@api/apiClient';
 import { applicationColumns } from './columns';
 import useLoginContext from '@components/LoginPage/useLoginContext';
@@ -26,19 +26,20 @@ export function ApplicationTable() {
   const navigate = useNavigate();
 
   const { token: accessToken } = useLoginContext();
-  console.log('Access Token in Application Table: ', accessToken);
   // TODO implement auto token refresh
   const [data, setData] = useState<ApplicationRow[]>([]);
-  console.log('Data: ', data);
-  // TODO implement auto token refresh
   const [fullName, setFullName] = useState<string>('');
+  const [allRecruiters, setAllRecruiters] = useState<AssignedRecruiter[]>([]);
 
-  const handleRowClick = async (params: { row: ApplicationRow }) => {
-    // SHOULD ONLY BE ACCESSIBLE TO ADMIN AND RECRUITER (IF THEY ARE ASSIGNED TO THE APPLICATION)
+  const handleRowClick = async (params: GridRowParams<ApplicationRow>) => {
+    // navigate to application page by userId
+    console.log('Navigating to application of userId:', params.row.userId);
+    console.log('token:', accessToken);
     const application = await apiClient.getApplication(
       accessToken,
       params.row.userId,
     );
+    console.log('application:', application);
     navigate(`/applications/${params.row.userId}`);
   };
 
@@ -62,7 +63,7 @@ export function ApplicationTable() {
     getFullName();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessToken]);
-
+  console.log('data', data);
   return (
     <Container maxWidth="xl">
       <Stack direction="row" alignItems="center" spacing={2} mt={4} mb={8}>
@@ -75,18 +76,10 @@ export function ApplicationTable() {
           Database | {getCurrentSemester()} {getCurrentYear()} Recruitment Cycle
         </Typography>
       </Stack>
-      <Typography variant="h4" mb={1}>
-        Welcome back, {fullName ? fullName : 'User'}
-      </Typography>
-      <Typography variant="h6" mb={1}>
-        Current Recruitment Cycle: {getCurrentSemester()} {getCurrentYear()}
-      </Typography>
-      <Typography variant="body1" mb={3}>
-        Assigned For Review: Jane Smith, John Doe (Complete by 5/1/2024)
-      </Typography>
+
       <DataGrid
         rows={data}
-        columns={applicationColumns}
+        columns={applicationColumns(allRecruiters)}
         initialState={{
           pagination: {
             paginationModel: { page: 0, pageSize: 5 },
@@ -94,6 +87,7 @@ export function ApplicationTable() {
         }}
         pageSizeOptions={[5, 10]}
         onRowClick={handleRowClick}
+        disableRowSelectionOnClick
         sx={{ cursor: 'pointer' }}
       />
     </Container>

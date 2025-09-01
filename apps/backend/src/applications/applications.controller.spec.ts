@@ -510,14 +510,14 @@ describe('ApplicationsController', () => {
       it('should allow applicant to view their current application status', async () => {
         const mockApplication = {
           id: 1,
-          stage: ApplicationStage.TECHNICAL_CHALLENGE,
+          stage: ApplicationStage.T_INTERVIEW,
           position: Position.DEVELOPER,
           user: applicantUser,
           reviews: [
             createMockReview({
               id: 1,
               rating: 4,
-              stage: ApplicationStage.RESUME,
+              stage: ApplicationStage.APP_RECEIVED,
             }),
           ],
           content: null,
@@ -529,7 +529,7 @@ describe('ApplicationsController', () => {
           response: [{ question: 'Why C4C?', answer: 'meow' }],
           toGetApplicationResponseDTO: jest.fn().mockReturnValue({
             id: 1,
-            stage: ApplicationStage.TECHNICAL_CHALLENGE,
+            stage: ApplicationStage.T_INTERVIEW,
             position: Position.DEVELOPER,
             step: ApplicationStep.REVIEWED,
             reviews: [{ id: 1, rating: 4, stage: ApplicationStage.RESUME }],
@@ -548,7 +548,7 @@ describe('ApplicationsController', () => {
         const result = await controller.getApplication(1, req);
 
         expect(result).toBeDefined();
-        expect(result.stage).toBe(ApplicationStage.TECHNICAL_CHALLENGE);
+        expect(result.stage).toBe(ApplicationStage.T_INTERVIEW);
         expect(result.step).toBe(ApplicationStep.REVIEWED);
         expect(result.position).toBe(Position.DEVELOPER);
         expect(mockApplicationsService.findAll).toHaveBeenCalledWith(1);
@@ -557,7 +557,7 @@ describe('ApplicationsController', () => {
       it('should return correct application step when no reviews exist', async () => {
         const mockApplication = {
           id: 1,
-          stage: ApplicationStage.RESUME,
+          stage: ApplicationStage.APP_RECEIVED,
           position: Position.DEVELOPER,
           user: applicantUser,
           reviews: [],
@@ -570,7 +570,7 @@ describe('ApplicationsController', () => {
           response: [{ question: 'Why C4C?', answer: 'meow' }],
           toGetApplicationResponseDTO: jest.fn().mockReturnValue({
             id: 1,
-            stage: ApplicationStage.RESUME,
+            stage: ApplicationStage.APP_RECEIVED,
             position: Position.DEVELOPER,
             step: ApplicationStep.SUBMITTED,
             reviews: [],

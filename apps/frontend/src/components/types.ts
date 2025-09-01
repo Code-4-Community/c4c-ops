@@ -1,8 +1,8 @@
 enum ApplicationStage {
-  APP_RECEIVED = 'Application Received',
-  PM_CHALLENGE = 'PM Challenge',
-  B_INTERVIEW = 'Behavioral Interview',
-  T_INTERVIEW = 'Technical Interview',
+  APP_RECEIVED = 'APP_RECEIVED',
+  PM_CHALLENGE = 'PM_CHALLENGE',
+  B_INTERVIEW = 'B_INTERVIEW',
+  T_INTERVIEW = 'T_INTERVIEW',
   ACCEPTED = 'ACCEPTED',
   REJECTED = 'REJECTED',
 }
@@ -29,6 +29,22 @@ enum Position {
 type ApplicationRow = {
   id: number;
   userId: number;
+  name: string;
+  position: Position;
+  reviewed: string;
+  assignedTo: AssignedRecruiter[];
+  stage: ApplicationStage;
+  rating: number | null;
+  createdAt: Date;
+  meanRatingAllReviews: number | null;
+  meanRatingResume: number | null;
+  meanRatingChallenge: number | null;
+  meanRatingTechnicalChallenge: number | null;
+  meanRatingInterview: number | null;
+};
+
+type BackendApplicationDTO = {
+  userId: number;
   firstName: string;
   lastName: string;
   stage: ApplicationStage;
@@ -36,9 +52,12 @@ type ApplicationRow = {
   review: ReviewStatus;
   position: Position;
   assignedRecruiters: AssignedRecruiter[];
-  createdAt: string;
-  meanRatingAllStages: number;
-  meanRatingSingleStages: number;
+  createdAt: Date;
+  meanRatingAllReviews: number | null;
+  meanRatingResume: number | null;
+  meanRatingChallenge: number | null;
+  meanRatingTechnicalChallenge: number | null;
+  meanRatingInterview: number | null;
 };
 
 type Response = {
@@ -115,6 +134,7 @@ export {
   Response,
   Review,
   Semester,
+  BackendApplicationDTO,
   Decision,
   AssignedRecruiter,
 };

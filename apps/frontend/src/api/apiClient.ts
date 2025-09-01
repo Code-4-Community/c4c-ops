@@ -3,8 +3,9 @@ import type {
   Application,
   ApplicationRow,
   ApplicationStage,
-  Decision,
+  ReviewStatus,
   User,
+  BackendApplicationDTO,
   AssignedRecruiter,
 } from '@components/types';
 
@@ -44,22 +45,37 @@ export class ApiClient {
     return token as string;
   }
 
-  public async getUserById(accessToken: string, userId: number): Promise<User> {
-    return this.get(`/api/users/${userId}`, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    }) as Promise<User>;
-  }
-
   public async getAllApplications(
     accessToken: string,
   ): Promise<ApplicationRow[]> {
-    return (await this.get('/api/apps', {
+    const rawData = (await this.get('/api/apps', {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
-    })) as Promise<ApplicationRow[]>;
+    })) as BackendApplicationDTO[];
+
+    return rawData.map((app, index) => ({
+      id: index,
+      userId: app.userId,
+      name: app.firstName + ' ' + app.lastName,
+      position: app.position,
+      stage: app.stage,
+      // If no reviews/ratings, set to null, else display
+      rating:
+        app.meanRatingAllReviews && app.meanRatingAllReviews > 0
+          ? app.meanRatingAllReviews
+          : null,
+      createdAt: app.createdAt,
+      // TODO: CHANGE ONCE THERE IS A BACKEND ENDPOINT FOR REVIEWED STAGE
+      reviewed: app.meanRatingAllReviews ? 'Reviewed' : 'Unassigned',
+      assignedTo: app.assignedRecruiters,
+      // Include detailed ratings for dropdown
+      meanRatingAllReviews: app.meanRatingAllReviews,
+      meanRatingResume: app.meanRatingResume,
+      meanRatingChallenge: app.meanRatingChallenge,
+      meanRatingTechnicalChallenge: app.meanRatingTechnicalChallenge,
+      meanRatingInterview: app.meanRatingInterview,
+    }));
   }
 
   public async getApplication(
@@ -91,6 +107,22 @@ export class ApiClient {
         Authorization: `Bearer ${accessToken}`,
       },
     }) as Promise<void>;
+  }
+
+  public async updateReviewStage(
+    accessToken: string,
+    userId: number,
+    review: ReviewStatus,
+  ): Promise<Application> {
+    return this.put(
+      `/api/apps/review/${userId}`,
+      { review },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+    ) as Promise<Application>;
   }
 
   public async submitReview(
@@ -155,6 +187,30 @@ export class ApiClient {
     }) as Promise<User>;
   }
 
+  public async updateStage(
+    accessToken: string,
+    userId: number,
+    stage: ApplicationStage,
+  ): Promise<Application> {
+    return this.put(
+      `/api/apps/stage/${userId}`,
+      { stage },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+    ) as Promise<Application>;
+  }
+
+  public async getUserById(accessToken: string, userId: number): Promise<User> {
+    return this.get(`/api/users/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }) as Promise<User>;
+  }
+
   private async get(
     path: string,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -162,6 +218,17 @@ export class ApiClient {
   ): Promise<unknown> {
     return this.axiosInstance
       .get(path, headers)
+      .then((response) => response.data);
+  }
+
+  private async put(
+    path: string,
+    body: unknown,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    headers: AxiosRequestConfig<any> | undefined = undefined,
+  ): Promise<unknown> {
+    return this.axiosInstance
+      .put(path, body, headers)
       .then((response) => response.data);
   }
 

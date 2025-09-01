@@ -7,7 +7,7 @@ import {
   Chip,
   Box,
 } from '@mui/material';
-import { User, AssignedRecruiter } from '../types';
+import { AssignedRecruiter } from '../types';
 import apiClient from '@api/apiClient';
 import useLoginContext from '@components/LoginPage/useLoginContext';
 

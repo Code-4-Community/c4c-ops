@@ -8,8 +8,8 @@ import {
 } from 'class-validator';
 import {
   ApplicationStage,
-  ReviewStage,
   Position,
+  ReviewStage,
   ReviewStatus,
 } from '../types';
 import { AssignedRecruiterDTO } from './get-application.response.dto';
