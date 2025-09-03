@@ -1,8 +1,6 @@
 import {
   Typography,
   Stack,
-  List,
-  ListItem,
   Button,
   TextField,
   Select,
@@ -14,13 +12,7 @@ import {
   Card,
 } from '@mui/material';
 import { useState, useEffect } from 'react';
-import {
-  Application,
-  ApplicationRow,
-  AssignedRecruiter,
-  Position,
-  User,
-} from '../types';
+import { Application, AssignedRecruiter, User } from '../types';
 import { useNavigate } from 'react-router-dom';
 import {
   MailOutline,

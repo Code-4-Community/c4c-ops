@@ -1,8 +1,4 @@
-import {
-  GridColDef,
-  GridRenderCellParams,
-  GridColumnHeaderParams,
-} from '@mui/x-data-grid';
+import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import { ApplicationRow, AssignedRecruiter } from '@components/types';
 import { REVIEWED_STATUSES, STAGE_STATUSES } from './constants';
 import { RatingCell } from './RatingCell';

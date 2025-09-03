@@ -35,7 +35,6 @@ export default function LoginPage() {
       } else if (authCode) {
         try {
           const token = await apiClient.getToken(authCode);
-          console.log('Fetched Token:', token);
 
           sessionStorage.setItem('token', JSON.stringify(token));
           setToken(token);

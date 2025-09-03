@@ -51,7 +51,6 @@ const IndividualApplication: React.FC = () => {
   }
 
   if (!application || !user) {
-    console.log('No application or user found');
     return <Navigate to="/applications" />;
   }
 

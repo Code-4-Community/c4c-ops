@@ -13,7 +13,6 @@ import {
   ReviewStatus,
 } from '../types';
 import { AssignedRecruiterDTO } from './get-application.response.dto';
-import { Review } from '../../reviews/review.entity';
 
 export class GetAllApplicationResponseDTO {
   @IsPositive()

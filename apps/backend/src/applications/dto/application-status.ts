@@ -1,4 +1,3 @@
-//import { stagesMap } from '../applications.constants';
 import { ApplicationStage, ReviewStage, ApplicationStageOrder } from '../types';
 
 export class ApplicationStatus {

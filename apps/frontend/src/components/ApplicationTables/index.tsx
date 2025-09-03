@@ -32,14 +32,10 @@ export function ApplicationTable() {
   const [allRecruiters, setAllRecruiters] = useState<AssignedRecruiter[]>([]);
 
   const handleRowClick = async (params: GridRowParams<ApplicationRow>) => {
-    // navigate to application page by userId
-    console.log('Navigating to application of userId:', params.row.userId);
-    console.log('token:', accessToken);
     const application = await apiClient.getApplication(
       accessToken,
       params.row.userId,
     );
-    console.log('application:', application);
     navigate(`/applications/${params.row.userId}`);
   };
 
@@ -63,7 +59,6 @@ export function ApplicationTable() {
     getFullName();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessToken]);
-  console.log('data', data);
   return (
     <Container maxWidth="xl">
       <Stack direction="row" alignItems="center" spacing={2} mt={4} mb={8}>
