@@ -10,7 +10,8 @@ import {
   ApplicationStage,
   Position,
   Semester,
-  ApplicationStep,
+  StageProgress,
+  ReviewStatus,
 } from './types';
 import { UserStatus } from '../users/types';
 import { userFactory } from '../testing/factories/user.factory';
@@ -36,8 +37,9 @@ const createMockApplication = (
   year: 2024,
   semester: Semester.FALL,
   position: Position.DEVELOPER,
-  stage: ApplicationStage.RESUME,
-  step: ApplicationStep.SUBMITTED,
+  stage: ApplicationStage.APP_RECEIVED,
+  stageProgress: StageProgress.PENDING,
+  reviewStatus: ReviewStatus.UNASSIGNED,
   response: [],
   reviews: [],
   content: null,
@@ -83,9 +85,9 @@ describe('ApplicationsService', () => {
 
   describe('processDecision', () => {
     describe('Stage Progression for Developers', () => {
-      it('should move from RESUME to TECHNICAL_CHALLENGE when accepted', async () => {
+      it('should move from APP_RECEIVED to T_INTERVIEW when accepted', async () => {
         const application = createMockApplication({
-          stage: ApplicationStage.RESUME,
+          stage: ApplicationStage.APP_RECEIVED,
           position: Position.DEVELOPER,
         });
 
@@ -96,13 +98,13 @@ describe('ApplicationsService', () => {
 
         await service.processDecision(1, Decision.ACCEPT);
 
-        expect(application.stage).toBe(ApplicationStage.TECHNICAL_CHALLENGE);
+        expect(application.stage).toBe(ApplicationStage.T_INTERVIEW);
         expect(applicationsRepository.save).toHaveBeenCalledWith(application);
       });
 
-      it('should move from TECHNICAL_CHALLENGE to INTERVIEW when accepted', async () => {
+      it('should move from T_INTERVIEW to B_INTERVIEW when accepted', async () => {
         const application = createMockApplication({
-          stage: ApplicationStage.TECHNICAL_CHALLENGE,
+          stage: ApplicationStage.T_INTERVIEW,
           position: Position.DEVELOPER,
         });
 
@@ -113,13 +115,13 @@ describe('ApplicationsService', () => {
 
         await service.processDecision(1, Decision.ACCEPT);
 
-        expect(application.stage).toBe(ApplicationStage.INTERVIEW);
+        expect(application.stage).toBe(ApplicationStage.B_INTERVIEW);
         expect(applicationsRepository.save).toHaveBeenCalledWith(application);
       });
 
-      it('should move from INTERVIEW to ACCEPTED when accepted', async () => {
+      it('should move from B_INTERVIEW to ACCEPTED when accepted', async () => {
         const application = createMockApplication({
-          stage: ApplicationStage.INTERVIEW,
+          stage: ApplicationStage.B_INTERVIEW,
           position: Position.DEVELOPER,
         });
 
@@ -134,29 +136,24 @@ describe('ApplicationsService', () => {
         expect(applicationsRepository.save).toHaveBeenCalledWith(application);
       });
 
-      it('should not progress beyond ACCEPTED stage', async () => {
+      it('should throw error when trying to progress from ACCEPTED stage', async () => {
         const application = createMockApplication({
           stage: ApplicationStage.ACCEPTED,
           position: Position.DEVELOPER,
         });
 
         jest.spyOn(service, 'findCurrent').mockResolvedValue(application);
-        jest
-          .spyOn(applicationsRepository, 'save')
-          .mockResolvedValue(application);
 
-        await service.processDecision(1, Decision.ACCEPT);
-
-        // stage should remain ACCEPTED since theres no next stage
-        expect(application.stage).toBe(undefined); // this is the actual behavior when no next stage exists
-        expect(applicationsRepository.save).toHaveBeenCalledWith(application);
+        await expect(
+          service.processDecision(1, Decision.ACCEPT),
+        ).rejects.toThrow(BadRequestException);
       });
     });
 
     describe('Stage Progression for Product Managers', () => {
-      it('should move from RESUME to PM_CHALLENGE when accepted', async () => {
+      it('should move from APP_RECEIVED to PM_CHALLENGE when accepted', async () => {
         const application = createMockApplication({
-          stage: ApplicationStage.RESUME,
+          stage: ApplicationStage.APP_RECEIVED,
           position: Position.PM,
         });
 
@@ -171,7 +168,7 @@ describe('ApplicationsService', () => {
         expect(applicationsRepository.save).toHaveBeenCalledWith(application);
       });
 
-      it('should move from PM_CHALLENGE to INTERVIEW when accepted', async () => {
+      it('should move from PM_CHALLENGE to B_INTERVIEW when accepted', async () => {
         const application = createMockApplication({
           stage: ApplicationStage.PM_CHALLENGE,
           position: Position.PM,
@@ -184,15 +181,32 @@ describe('ApplicationsService', () => {
 
         await service.processDecision(1, Decision.ACCEPT);
 
-        expect(application.stage).toBe(ApplicationStage.INTERVIEW);
+        expect(application.stage).toBe(ApplicationStage.B_INTERVIEW);
+        expect(applicationsRepository.save).toHaveBeenCalledWith(application);
+      });
+
+      it('should move from B_INTERVIEW to ACCEPTED when accepted', async () => {
+        const application = createMockApplication({
+          stage: ApplicationStage.B_INTERVIEW,
+          position: Position.PM,
+        });
+
+        jest.spyOn(service, 'findCurrent').mockResolvedValue(application);
+        jest
+          .spyOn(applicationsRepository, 'save')
+          .mockResolvedValue(application);
+
+        await service.processDecision(1, Decision.ACCEPT);
+
+        expect(application.stage).toBe(ApplicationStage.ACCEPTED);
         expect(applicationsRepository.save).toHaveBeenCalledWith(application);
       });
     });
 
     describe('Stage Progression for Designers', () => {
-      it('should move from RESUME to INTERVIEW when accepted', async () => {
+      it('should move from APP_RECEIVED to B_INTERVIEW when accepted', async () => {
         const application = createMockApplication({
-          stage: ApplicationStage.RESUME,
+          stage: ApplicationStage.APP_RECEIVED,
           position: Position.DESIGNER,
         });
 
@@ -203,7 +217,24 @@ describe('ApplicationsService', () => {
 
         await service.processDecision(1, Decision.ACCEPT);
 
-        expect(application.stage).toBe(ApplicationStage.INTERVIEW);
+        expect(application.stage).toBe(ApplicationStage.B_INTERVIEW);
+        expect(applicationsRepository.save).toHaveBeenCalledWith(application);
+      });
+
+      it('should move from B_INTERVIEW to ACCEPTED when accepted', async () => {
+        const application = createMockApplication({
+          stage: ApplicationStage.B_INTERVIEW,
+          position: Position.DESIGNER,
+        });
+
+        jest.spyOn(service, 'findCurrent').mockResolvedValue(application);
+        jest
+          .spyOn(applicationsRepository, 'save')
+          .mockResolvedValue(application);
+
+        await service.processDecision(1, Decision.ACCEPT);
+
+        expect(application.stage).toBe(ApplicationStage.ACCEPTED);
         expect(applicationsRepository.save).toHaveBeenCalledWith(application);
       });
     });
@@ -211,10 +242,10 @@ describe('ApplicationsService', () => {
     describe('Rejection Logic', () => {
       it('should set stage to REJECTED when decision is REJECT from any stage', async () => {
         const stages = [
-          ApplicationStage.RESUME,
-          ApplicationStage.TECHNICAL_CHALLENGE,
+          ApplicationStage.APP_RECEIVED,
+          ApplicationStage.T_INTERVIEW,
           ApplicationStage.PM_CHALLENGE,
-          ApplicationStage.INTERVIEW,
+          ApplicationStage.B_INTERVIEW,
         ];
 
         for (const stage of stages) {
@@ -265,21 +296,17 @@ describe('ApplicationsService', () => {
         ).rejects.toThrow(BadRequestException);
       });
 
-      it('should handle invalid stage gracefully', async () => {
+      it('should throw error for invalid stage', async () => {
         const application = createMockApplication({
           stage: 'INVALID_STAGE' as ApplicationStage,
           position: Position.DEVELOPER,
         });
 
         jest.spyOn(service, 'findCurrent').mockResolvedValue(application);
-        const saveSpy = jest
-          .spyOn(applicationsRepository, 'save')
-          .mockResolvedValue(application);
 
-        await service.processDecision(1, Decision.ACCEPT);
-
-        // early return when stage is invalid
-        expect(saveSpy).not.toHaveBeenCalled();
+        await expect(
+          service.processDecision(1, Decision.ACCEPT),
+        ).rejects.toThrow(BadRequestException);
       });
     });
   });
@@ -335,7 +362,7 @@ describe('ApplicationsService', () => {
         expect.objectContaining({
           user: mockUser,
           position: Position.DEVELOPER,
-          stage: ApplicationStage.RESUME,
+          stage: ApplicationStage.APP_RECEIVED,
           response: mockResponse,
         }),
       );
@@ -375,7 +402,7 @@ describe('ApplicationsService', () => {
       const response = [{ question: 'Why C4C?', answer: 'meow' }];
 
       const newApplication = createMockApplication({
-        stage: ApplicationStage.RESUME,
+        stage: ApplicationStage.APP_RECEIVED,
         position: Position.DEVELOPER,
       });
 
@@ -388,15 +415,15 @@ describe('ApplicationsService', () => {
       jest.spyOn(utils, 'getAppForCurrentCycle').mockReturnValue(null);
 
       const submittedApp = await service.submitApp(response, user);
-      expect(submittedApp.stage).toBe(ApplicationStage.RESUME);
+      expect(submittedApp.stage).toBe(ApplicationStage.APP_RECEIVED);
 
       jest.spyOn(service, 'findCurrent').mockResolvedValue(submittedApp);
 
       await service.processDecision(1, Decision.ACCEPT);
-      expect(submittedApp.stage).toBe(ApplicationStage.TECHNICAL_CHALLENGE);
+      expect(submittedApp.stage).toBe(ApplicationStage.T_INTERVIEW);
 
       await service.processDecision(1, Decision.ACCEPT);
-      expect(submittedApp.stage).toBe(ApplicationStage.INTERVIEW);
+      expect(submittedApp.stage).toBe(ApplicationStage.B_INTERVIEW);
 
       await service.processDecision(1, Decision.ACCEPT);
       expect(submittedApp.stage).toBe(ApplicationStage.ACCEPTED);
@@ -404,7 +431,7 @@ describe('ApplicationsService', () => {
 
     it('should handle rejection at any stage', async () => {
       const application = createMockApplication({
-        stage: ApplicationStage.TECHNICAL_CHALLENGE,
+        stage: ApplicationStage.T_INTERVIEW,
         position: Position.DEVELOPER,
       });
 

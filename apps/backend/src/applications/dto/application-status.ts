@@ -1,7 +1,12 @@
-import { ApplicationStage, ReviewStage, ApplicationStageOrder } from '../types';
+import { ApplicationStage, StageProgress, Position } from '../types';
+import { stagesMap } from '../applications.constants';
 
 export class ApplicationStatus {
-  constructor(private stage: ApplicationStage, private step: ReviewStage) {}
+  constructor(
+    private stage: ApplicationStage,
+    private stageProgress: StageProgress,
+    private position: Position,
+  ) {}
 
   public getNextStatus(): ApplicationStatus | null {
     if (
@@ -12,25 +17,43 @@ export class ApplicationStatus {
       return null;
     }
 
-    const nextStep =
-      this.step === ReviewStage.SUBMITTED
-        ? ReviewStage.REVIEWED
-        : ReviewStage.SUBMITTED;
-    const nextStage = this.getNextApplicationStage(this.stage);
+    const nextProgress =
+      this.stageProgress === StageProgress.PENDING
+        ? StageProgress.COMPLETED
+        : StageProgress.PENDING;
+    const nextStage = this.getNextApplicationStage(this.stage, this.position);
 
-    return new ApplicationStatus(nextStage, nextStep);
+    if (!nextStage) {
+      return null;
+    }
+
+    return new ApplicationStatus(nextStage, nextProgress, this.position);
   }
 
   public getNextApplicationStage(
     current: ApplicationStage,
-  ): ApplicationStage | undefined {
-    const currentIndex = ApplicationStageOrder.indexOf(current);
+    position: Position,
+  ): ApplicationStage | null {
+    // Terminal states have no next stage
     if (
-      currentIndex !== -1 &&
-      currentIndex < ApplicationStageOrder.length - 1
+      [ApplicationStage.ACCEPTED, ApplicationStage.REJECTED].includes(current)
     ) {
-      return ApplicationStageOrder[currentIndex + 1];
+      return null;
     }
-    return undefined;
+
+    const stagesArr = stagesMap[position];
+    const currentIndex = stagesArr.indexOf(current);
+
+    if (currentIndex === -1) {
+      // Current stage not in position's flow - this shouldn't happen
+      throw new Error(`Invalid stage ${current} for position ${position}`);
+    }
+
+    if (currentIndex < stagesArr.length - 1) {
+      return stagesArr[currentIndex + 1];
+    }
+
+    // No more stages in the flow (ready for final decision)
+    return null;
   }
 }

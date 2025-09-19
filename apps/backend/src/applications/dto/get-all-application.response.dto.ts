@@ -9,7 +9,7 @@ import {
 import {
   ApplicationStage,
   Position,
-  ReviewStage,
+  StageProgress,
   ReviewStatus,
 } from '../types';
 import { AssignedRecruiterDTO } from './get-application.response.dto';
@@ -27,11 +27,11 @@ export class GetAllApplicationResponseDTO {
   @IsEnum(ApplicationStage)
   stage: ApplicationStage;
 
-  @IsEnum(ReviewStage)
-  step: ReviewStage;
+  @IsEnum(StageProgress)
+  stageProgress: StageProgress;
 
   @IsEnum(ReviewStatus)
-  review: ReviewStatus;
+  reviewStatus: ReviewStatus;
 
   @IsEnum(Position)
   position: Position;

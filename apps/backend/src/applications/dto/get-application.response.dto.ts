@@ -2,11 +2,11 @@ import { IsPositive, IsString, IsOptional, IsDate } from 'class-validator';
 import { Review } from '../../reviews/review.entity';
 import {
   ApplicationStage,
-  ReviewStage,
+  StageProgress,
   Position,
   Response,
-  ReviewStatus,
   Semester,
+  ReviewStatus,
 } from '../types';
 
 export class AssignedRecruiterDTO {
@@ -41,9 +41,9 @@ export class GetApplicationResponseDTO {
 
   stage: ApplicationStage;
 
-  step: ReviewStage;
+  stageProgress: StageProgress;
 
-  review: ReviewStatus;
+  reviewStatus: ReviewStatus;
 
   response: Response[];
 

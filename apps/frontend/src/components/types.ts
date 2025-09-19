@@ -10,8 +10,8 @@ enum ApplicationStage {
 enum ReviewStatus {
   UNASSIGNED = 'UNASSIGNED',
   ASSIGNED = 'ASSIGNED',
-  REVIEWING = 'REVIEWING',
-  REVIEWED = 'REVIEWED',
+  IN_REVIEW = 'IN_REVIEW',
+  REVIEW_COMPLETE = 'REVIEW_COMPLETE',
 }
 
 enum Position {
@@ -21,11 +21,12 @@ enum Position {
   DESIGNER = 'DESIGNER',
 }
 
-enum ReviewStage {
-  SUBMITTED = 'SUBMITTED',
-  REVIEWED = 'REVIEWED',
+enum StageProgress {
+  PENDING = 'PENDING',
+  COMPLETED = 'COMPLETED',
 }
 
+// has more fields than applciation/review entity, they are merged
 type ApplicationRow = {
   id: number;
   userId: number;
@@ -48,8 +49,8 @@ type BackendApplicationDTO = {
   firstName: string;
   lastName: string;
   stage: ApplicationStage;
-  step: ReviewStage;
-  review: ReviewStatus;
+  stageProgress: StageProgress;
+  reviewStatus: ReviewStatus;
   position: Position;
   assignedRecruiters: AssignedRecruiter[];
   createdAt: Date;
@@ -87,8 +88,8 @@ type Application = {
   semester: Semester;
   position: Position;
   stage: ApplicationStage;
-  step: ReviewStage;
-  review: ReviewStatus;
+  stageProgress: StageProgress;
+  reviewStatus: ReviewStatus;
   response: Response[];
   numApps: number;
   reviews: Review[];
@@ -128,7 +129,7 @@ export {
   ApplicationRow,
   Application,
   ApplicationStage,
-  ReviewStage,
+  StageProgress,
   ReviewStatus,
   Position,
   Response,

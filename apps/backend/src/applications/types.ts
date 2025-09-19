@@ -8,9 +8,10 @@ export enum Semester {
   SPRING = 'SPRING',
 }
 
-export enum ReviewStage {
-  SUBMITTED = 'SUBMITTED',
-  REVIEWED = 'REVIEWED',
+// each non-terminal ApplicationStage associated with StageProgress
+export enum StageProgress {
+  PENDING = 'PENDING',
+  COMPLETED = 'COMPLETED',
 }
 
 export enum ApplicationStage {
@@ -18,24 +19,18 @@ export enum ApplicationStage {
   PM_CHALLENGE = 'PM Challenge',
   B_INTERVIEW = 'Behavioral Interview',
   T_INTERVIEW = 'Technical Interview',
+  // these below are terminal stages that align with the Decision enum
   ACCEPTED = 'ACCEPTED',
   REJECTED = 'REJECTED',
 }
 
-export const ApplicationStageOrder: ApplicationStage[] = [
-  ApplicationStage.APP_RECEIVED,
-  ApplicationStage.PM_CHALLENGE,
-  ApplicationStage.B_INTERVIEW,
-  ApplicationStage.T_INTERVIEW,
-  ApplicationStage.ACCEPTED,
-  ApplicationStage.REJECTED,
-];
-
+// status of the review process for an application
+// relative to a recruiter
 export enum ReviewStatus {
   UNASSIGNED = 'UNASSIGNED',
   ASSIGNED = 'ASSIGNED',
-  REVIEWING = 'REVIEWING',
-  REVIEWED = 'REVIEWED',
+  IN_REVIEW = 'IN_REVIEW',
+  REVIEW_COMPLETE = 'REVIEW_COMPLETE',
 }
 
 export enum Position {
