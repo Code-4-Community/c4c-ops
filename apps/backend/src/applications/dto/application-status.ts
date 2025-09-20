@@ -1,4 +1,8 @@
-import { ApplicationStage, StageProgress, Position } from '../types';
+import {
+  ApplicationStage,
+  StageProgress,
+  Position,
+} from '@shared/types/application.types';
 import { stagesMap } from '../applications.constants';
 
 export class ApplicationStatus {

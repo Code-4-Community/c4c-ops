@@ -18,12 +18,12 @@ import { AuthService } from './auth.service';
 import { UsersService } from '../users/users.service';
 import { VerifyUserRequestDTO } from './dtos/verify-user.request.dto';
 import { User } from '../users/user.entity';
-import { SignInResponseDto } from './dtos/sign-in.response.dto';
+import { SignInResponseDto } from '../../../shared/dto/auth.dto';
 import { CurrentUserInterceptor } from '../interceptors/current-user.interceptor';
 import { AuthGuard } from '@nestjs/passport';
 import { ForgotPasswordRequestDto } from './dtos/forgot-password.request.dto';
 import { ConfirmResetPasswordDto } from './dtos/confirm-reset-password.request.dto';
-import { UserStatus } from '../users/types';
+import { UserStatus } from '../../../shared/types/user.types';
 
 @Controller('auth')
 @UseInterceptors(CurrentUserInterceptor)

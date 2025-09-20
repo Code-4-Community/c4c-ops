@@ -8,7 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Not, Repository } from 'typeorm';
 import { User } from './user.entity';
 import { UpdateUserRequestDTO } from './dto/update-user.request.dto';
-import { UserStatus } from './types';
+import { UserStatus } from '../../../shared/types/user.types';
 
 @Injectable()
 export class UsersService {

@@ -12,8 +12,8 @@ import {
   Semester,
   StageProgress,
   ReviewStatus,
-} from './types';
-import { UserStatus } from '../users/types';
+} from '../../../shared/types/application.types';
+import { UserStatus } from '../../../shared/types/user.types';
 import { userFactory } from '../testing/factories/user.factory';
 import * as utils from './utils';
 

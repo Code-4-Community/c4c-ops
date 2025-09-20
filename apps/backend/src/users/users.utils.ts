@@ -1,4 +1,4 @@
-import { GetUserResponseDto } from './dto/get-user.response.dto';
+import { GetUserResponseDto } from '../../../shared/dto/user.dto';
 import { User } from './user.entity';
 
 export const toGetUserResponseDto = (user: User): GetUserResponseDto => {

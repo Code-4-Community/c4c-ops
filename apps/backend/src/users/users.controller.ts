@@ -16,8 +16,8 @@ import { UpdateUserRequestDTO } from './dto/update-user.request.dto';
 import { UsersService } from './users.service';
 import { AuthGuard } from '@nestjs/passport';
 import { CurrentUserInterceptor } from '../interceptors/current-user.interceptor';
-import { GetUserResponseDto } from './dto/get-user.response.dto';
-import { UserStatus } from './types';
+import { GetUserResponseDto } from '../../../shared/dto/user.dto';
+import { UserStatus } from '../../../shared/types/user.types';
 import { toGetUserResponseDto } from './users.utils';
 import { User } from './user.entity';
 

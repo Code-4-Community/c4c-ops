@@ -247,15 +247,15 @@ const IndividualApplicationDetails = ({
           <Typography variant="body1">Review Step: </Typography>
           <Select
             size="small"
-            value={selectedApplication.step}
+            value={selectedApplication.stageProgress}
             sx={{
               color: 'white',
               backgroundColor: 'gray',
               minWidth: '75%',
             }}
           >
-            <MenuItem value={selectedApplication.step}>
-              {selectedApplication.step}
+            <MenuItem value={selectedApplication.stageProgress}>
+              {selectedApplication.stageProgress}
             </MenuItem>
           </Select>
         </Stack>

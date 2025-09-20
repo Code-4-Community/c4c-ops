@@ -19,18 +19,18 @@ import {
   Response,
   StageProgress,
   ReviewStatus,
-} from './types';
+} from '../../../shared/types/application.types';
 import { ApplicationsService } from './applications.service';
 import { CurrentUserInterceptor } from '../interceptors/current-user.interceptor';
 import { AuthGuard } from '@nestjs/passport';
 import {
   AssignedRecruiterDTO,
   GetApplicationResponseDTO,
-} from './dto/get-application.response.dto';
+  GetAllApplicationResponseDTO,
+} from '../../../shared/dto/application.dto';
 import { getAppForCurrentCycle } from './utils';
-import { UserStatus } from '../users/types';
+import { UserStatus } from '../../../shared/types/user.types';
 import { Application } from './application.entity';
-import { GetAllApplicationResponseDTO } from './dto/get-all-application.response.dto';
 import { AssignRecruitersRequestDTO } from './dto/assign-recruiters.request.dto';
 
 @Controller('apps')

@@ -13,14 +13,23 @@ import {
   getCurrentSemester,
   getCurrentYear,
 } from './utils';
-import { Decision, Response, ReviewStatus } from './types';
+import {
+  Decision,
+  Response,
+  ReviewStatus,
+  Position,
+  ApplicationStage,
+  StageProgress,
+  Semester,
+} from '../../../shared/types/application.types';
 import * as crypto from 'crypto';
 import { User } from '../users/user.entity';
-import { UserStatus } from '../users/types';
-import { Position, ApplicationStage, StageProgress, Semester } from './types';
+import { UserStatus } from '../../../shared/types/user.types';
 import { stagesMap } from './applications.constants';
-import { GetAllApplicationResponseDTO } from './dto/get-all-application.response.dto';
-import { AssignedRecruiterDTO } from './dto/get-application.response.dto';
+import {
+  GetAllApplicationResponseDTO,
+  AssignedRecruiterDTO,
+} from '../../../shared/dto/application.dto';
 
 @Injectable()
 export class ApplicationsService {

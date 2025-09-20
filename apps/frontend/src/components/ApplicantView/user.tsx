@@ -143,7 +143,7 @@ export const ApplicantView = ({ user }: ApplicantViewProps) => {
                     Stage: {selectedApplication.stage}
                   </Typography>
                   <Typography variant="body1">
-                    Status: {selectedApplication.step}
+                    Status: {selectedApplication.stageProgress}
                   </Typography>
                   <Typography variant="body1">
                     Applications: {selectedApplication.numApps}

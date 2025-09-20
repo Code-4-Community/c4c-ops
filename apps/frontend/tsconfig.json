@@ -12,7 +12,6 @@
       "@components/*": ["components/*"],
       "@containers/*": ["containers/*"],
       "@public/*": ["../public/*"],
-      "@shared/*": ["../../../shared/*"],
       "@utils/*": ["utils/*"]
     }
   },

@@ -1,6 +1,6 @@
 import { Application } from './application.entity';
 import { Cycle } from './dto/cycle';
-import { Semester } from './types';
+import { Semester } from '../../../shared/types/application.types';
 
 export const getCurrentSemester = (): Semester => {
   const month: number = new Date().getMonth();

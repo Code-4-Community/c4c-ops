@@ -1,4 +1,7 @@
-import { ApplicationStage, Position } from './types';
+import {
+  ApplicationStage,
+  Position,
+} from '../../../shared/types/application.types';
 
 // Position-specific stage progressions (excluding terminal states ACCEPTED/REJECTED)
 const DEV_STAGES = [

@@ -15,13 +15,13 @@ import {
   ApplicationStage,
   StageProgress,
   ReviewStatus,
-} from './types';
+} from '../../../shared/types/application.types';
 import {
   GetApplicationResponseDTO,
   AssignedRecruiterDTO,
-} from './dto/get-application.response.dto';
+  GetAllApplicationResponseDTO,
+} from '../../../shared/dto/application.dto';
 import { Review } from '../reviews/review.entity';
-import { GetAllApplicationResponseDTO } from './dto/get-all-application.response.dto';
 import { FileUpload } from '../file-upload/entities/file-upload.entity';
 import { PrimaryGeneratedColumn } from 'typeorm';
 
