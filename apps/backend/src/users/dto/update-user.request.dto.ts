@@ -1,5 +1,5 @@
 import { Application } from '../../applications/application.entity';
-import { UserStatus, Role, Team } from '../types';
+import { UserStatus, Role, Team } from '@shared/types/user.types';
 import {
   IsEmail,
   IsOptional,

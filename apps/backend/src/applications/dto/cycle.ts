@@ -1,4 +1,4 @@
-import { Semester } from '../types';
+import { Semester } from '@shared/types/application.types';
 
 export class Cycle {
   constructor(public year: number, public semester: Semester) {}

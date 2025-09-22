@@ -167,16 +167,18 @@ const Resources: React.FC = () => {
     }
   };
 
-  const formatReviewStatus = (review: string) => {
-    switch (review) {
+  const formatReviewStatus = (reviewStatus: string) => {
+    switch (reviewStatus) {
       case 'IN_REVIEW':
         return 'In Review';
-      case 'ACCEPTED':
-        return 'Accepted';
-      case 'REJECTED':
-        return 'Rejected';
+      case 'REVIEW_COMPLETE':
+        return 'Review Complete';
+      case 'UNASSIGNED':
+        return 'Unassigned';
+      case 'ASSIGNED':
+        return 'Assigned';
       default:
-        return review
+        return reviewStatus
           .replace(/_/g, ' ')
           .replace(/\b\w/g, (l) => l.toUpperCase());
     }
@@ -344,7 +346,7 @@ const Resources: React.FC = () => {
               Application Status:
             </Typography>
 
-            <StatusButton>{formatReviewStatus(app.review)}</StatusButton>
+            <StatusButton>{formatReviewStatus(app.reviewStatus)}</StatusButton>
 
             <ThankYouText variant="body1" fontWeight={'bold'}>
               Thank you for applying!

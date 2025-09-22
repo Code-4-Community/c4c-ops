@@ -13,13 +13,23 @@ import {
   getCurrentSemester,
   getCurrentYear,
 } from './utils';
-import { Decision, Response, ReviewStatus } from './types';
+import {
+  Decision,
+  Response,
+  ReviewStatus,
+  Position,
+  ApplicationStage,
+  StageProgress,
+  Semester,
+} from '../../../shared/types/application.types';
 import * as crypto from 'crypto';
 import { User } from '../users/user.entity';
-import { UserStatus } from '../users/types';
-import { Position, ApplicationStage, ReviewStage, Semester } from './types';
-import { GetAllApplicationResponseDTO } from './dto/get-all-application.response.dto';
-import { AssignedRecruiterDTO } from './dto/get-application.response.dto';
+import { UserStatus } from '../../../shared/types/user.types';
+import { stagesMap } from './applications.constants';
+import {
+  GetAllApplicationResponseDTO,
+  AssignedRecruiterDTO,
+} from '../../../shared/dto/application.dto';
 
 @Injectable()
 export class ApplicationsService {
@@ -42,7 +52,6 @@ export class ApplicationsService {
     const { applications: existingApplications } = user;
     const { year, semester } = getCurrentCycle();
 
-    // TODO Maybe allow for more applications?
     if (getAppForCurrentCycle(existingApplications)) {
       throw new UnauthorizedException(
         `Applicant ${user.id} has already submitted an application for the current cycle`,
@@ -56,7 +65,7 @@ export class ApplicationsService {
       semester,
       position: Position.DEVELOPER, // TODO: Change this to be dynamic
       stage: ApplicationStage.APP_RECEIVED,
-      step: ReviewStage.SUBMITTED,
+      stageProgress: StageProgress.PENDING,
       response: application,
       reviews: [],
     });
@@ -204,35 +213,67 @@ export class ApplicationsService {
   ): Promise<void> {
     const application = await this.findCurrent(applicantId);
 
+    if (!application) {
+      throw new BadRequestException(
+        `Application for applicant ${applicantId} not found`,
+      );
+    }
+
+    // Check if application is in a terminal state
+    if (
+      application.stage === ApplicationStage.ACCEPTED ||
+      application.stage === ApplicationStage.REJECTED
+    ) {
+      throw new BadRequestException(
+        `Application is already in terminal state: ${application.stage}`,
+      );
+    }
+
     let newStage: ApplicationStage;
+
     if (decision === Decision.REJECT) {
       newStage = ApplicationStage.REJECTED;
-    }
-    // else {
-    // const stagesArr = stagesMap[application.position];
-    // const stageIndex = stagesArr.indexOf(application.stage);
-    // if (stageIndex === -1) {
-    //   return;
-    // }
-    // newStage = stagesArr[stageIndex + 1];
-    // }
-    application.stage = newStage;
+    } else if (decision === Decision.ACCEPT) {
+      const stagesArr = stagesMap[application.position];
+      const currentIndex = stagesArr.indexOf(application.stage);
 
-    //Save the updated stage
+      if (currentIndex === -1) {
+        // Current stage not in normal flow
+        throw new BadRequestException(
+          `Invalid stage ${application.stage} for position ${application.position}`,
+        );
+      }
+
+      // Check if we're at the last stage in the pipeline
+      if (currentIndex === stagesArr.length - 1) {
+        // Final acceptance
+        newStage = ApplicationStage.ACCEPTED;
+      } else {
+        // Move to next stage in the pipeline
+        newStage = stagesArr[currentIndex + 1];
+      }
+    } else {
+      throw new BadRequestException(`Invalid decision: ${decision}`);
+    }
+
+    application.stage = newStage;
+    application.stageProgress = StageProgress.PENDING; // Reset progress for new stage
+
+    // Save the updated stage
     await this.applicationsRepository.save(application);
   }
 
   /**
-   * Updates the Review Stage of a user
+   * Updates the Review Status of a user's application
    */
-  async updateReviewStage(
+  async updateReviewStatus(
     userId: number,
-    newReviewStage: ReviewStatus,
+    newReviewStatus: ReviewStatus,
   ): Promise<Application> {
     const updateResult = await this.applicationsRepository
       .createQueryBuilder()
       .update(Application)
-      .set({ review: newReviewStage })
+      .set({ reviewStatus: newReviewStatus })
       .where('user.id = :userId', { userId })
       .execute();
 
@@ -250,28 +291,40 @@ export class ApplicationsService {
 
   /**
    * Updates the stage of the application for a given user.
+   * Validates that the stage transition is valid for the position. First if the stage
+   * exists, then if it is not already in a terminal state
    */
   async updateStage(
     userId: number,
     newStage: ApplicationStage,
   ): Promise<Application> {
-    const updateResult = await this.applicationsRepository
-      .createQueryBuilder()
-      .update(Application)
-      .set({ stage: newStage })
-      .where('user.id = :userId', { userId })
-      .execute();
-
-    if (updateResult.affected === 0) {
-      throw new BadRequestException(`Application for user ${userId} not found`);
-    }
-
+    // First get the application to validate the transition
     const application = await this.applicationsRepository.findOne({
       where: { user: { id: userId } },
       relations: ['user', 'reviews'],
     });
 
-    return application;
+    if (!application) {
+      throw new BadRequestException(`Application for user ${userId} not found`);
+    }
+
+    // Validate stage transition is valid for this position
+    const validStages = stagesMap[application.position];
+    const isTerminalStage =
+      newStage === ApplicationStage.ACCEPTED ||
+      newStage === ApplicationStage.REJECTED;
+
+    if (!isTerminalStage && !validStages.includes(newStage)) {
+      throw new BadRequestException(
+        `Stage ${newStage} is not valid for position ${application.position}`,
+      );
+    }
+
+    // Update the stage
+    application.stage = newStage;
+    application.stageProgress = StageProgress.PENDING;
+
+    return await this.applicationsRepository.save(application);
   }
 
   async findAll(userId: number): Promise<Application[]> {
@@ -346,7 +399,10 @@ export class ApplicationsService {
     const allApplicationsDto = await Promise.all(
       applications.map(async (app) => {
         const ratings = this.calculateAllRatings(app.reviews);
-        const reviewStage = this.determineReviewStage(app.reviews);
+        const stageProgress = this.determineStageProgress(
+          app.stage,
+          app.reviews,
+        );
         const assignedRecruiters =
           await this.getAssignedRecruitersForApplication(app);
 
@@ -356,7 +412,7 @@ export class ApplicationsService {
           ratings.meanRatingChallenge,
           ratings.meanRatingTechnicalChallenge,
           ratings.meanRatingInterview,
-          reviewStage,
+          stageProgress,
           assignedRecruiters,
         );
       }),
@@ -428,10 +484,25 @@ export class ApplicationsService {
   }
 
   /**
-   * Determines review stage based on reviews
+   * Determines stage progress based on current stage and reviews
+   * A stage is considered COMPLETED if it has been reviewed
+   * Terminal stages (ACCEPTED/REJECTED) are always COMPLETED
    */
-  private determineReviewStage(reviews: any[]): ReviewStage {
-    return reviews.length > 0 ? ReviewStage.REVIEWED : ReviewStage.SUBMITTED;
+  private determineStageProgress(
+    stage: ApplicationStage,
+    reviews: any[],
+  ): StageProgress {
+    // Terminal stages are always completed
+    if (
+      stage === ApplicationStage.ACCEPTED ||
+      stage === ApplicationStage.REJECTED
+    ) {
+      return StageProgress.COMPLETED;
+    }
+
+    // Check if current stage has been reviewed
+    const stageReviewed = reviews.some((review) => review.stage === stage);
+    return stageReviewed ? StageProgress.COMPLETED : StageProgress.PENDING;
   }
 
   /**

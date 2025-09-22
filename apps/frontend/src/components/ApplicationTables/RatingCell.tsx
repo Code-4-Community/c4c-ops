@@ -54,10 +54,11 @@ export const RatingCell = ({ value, row }: RatingCellProps) => {
               firstName: 'Unknown',
               lastName: 'Reviewer',
               email: '',
-              status: '',
+              status: null,
               profilePicture: null,
               linkedin: null,
               github: null,
+              team: null,
               role: null,
             });
           }

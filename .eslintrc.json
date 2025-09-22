@@ -1,6 +1,6 @@
 {
   "root": true,
-  "ignorePatterns": ["**/*"],
+  "ignorePatterns": ["node_modules", "dist", "build", ".nx"],
   "plugins": ["@nx"],
   "overrides": [
     {
@@ -10,7 +10,7 @@
           "error",
           {
             "enforceBuildableLibDependency": true,
-            "allow": [],
+            "allow": ["../../../shared/**"],
             "depConstraints": [
               {
                 "sourceTag": "*",

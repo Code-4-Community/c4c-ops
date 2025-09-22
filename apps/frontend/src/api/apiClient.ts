@@ -60,7 +60,7 @@ export class ApiClient {
       name: app.firstName + ' ' + app.lastName,
       position: app.position,
       stage: app.stage,
-      review: app.review,
+      review: app.reviewStatus,
       // If no reviews/ratings, set to null, else display
       rating:
         app.meanRatingAllReviews && app.meanRatingAllReviews > 0
@@ -110,14 +110,14 @@ export class ApiClient {
     }) as Promise<void>;
   }
 
-  public async updateReviewStage(
+  public async updateReviewStatus(
     accessToken: string,
     userId: number,
-    review: ReviewStatus,
+    reviewStatus: ReviewStatus,
   ): Promise<Application> {
     return this.put(
-      `/api/apps/review/${userId}`,
-      { review },
+      `/api/apps/review-status/${userId}`,
+      { reviewStatus },
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,

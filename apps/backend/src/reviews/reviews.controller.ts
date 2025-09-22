@@ -12,7 +12,7 @@ import { CurrentUserInterceptor } from '../interceptors/current-user.interceptor
 import { ReviewsService } from './reviews.service';
 import { Review } from './review.entity';
 import { SubmitReviewRequestDTO } from './dto/submit-review.request.dto';
-import { UserStatus } from '../users/types';
+import { UserStatus } from '../../../shared/types/user.types';
 
 @Controller('reviews')
 @UseInterceptors(CurrentUserInterceptor)

@@ -17,20 +17,20 @@ import {
   ApplicationStage,
   Decision,
   Response,
-  ReviewStage,
+  StageProgress,
   ReviewStatus,
-} from './types';
+} from '../../../shared/types/application.types';
 import { ApplicationsService } from './applications.service';
 import { CurrentUserInterceptor } from '../interceptors/current-user.interceptor';
 import { AuthGuard } from '@nestjs/passport';
 import {
   AssignedRecruiterDTO,
   GetApplicationResponseDTO,
-} from './dto/get-application.response.dto';
+  GetAllApplicationResponseDTO,
+} from '../../../shared/dto/application.dto';
 import { getAppForCurrentCycle } from './utils';
-import { UserStatus } from '../users/types';
+import { UserStatus } from '../../../shared/types/user.types';
 import { Application } from './application.entity';
-import { GetAllApplicationResponseDTO } from './dto/get-all-application.response.dto';
 import { AssignRecruitersRequestDTO } from './dto/assign-recruiters.request.dto';
 
 @Controller('apps')
@@ -95,7 +95,6 @@ export class ApplicationsController {
   @UseGuards(AuthGuard('jwt'))
   async getApplication(
     @Param('userId', ParseIntPipe) userId: number,
-    // TODO make req.user.applications unaccessible
     @Request() req,
   ): Promise<GetApplicationResponseDTO> {
     if (
@@ -126,15 +125,24 @@ export class ApplicationsController {
       );
     }
 
-    let reviewStageValue: ReviewStage;
-    if (app.reviews.length > 0) {
-      reviewStageValue = ReviewStage.REVIEWED;
+    // Determine stage progress based on stage and reviews
+    let stageProgressValue: StageProgress;
+    if (
+      app.stage === ApplicationStage.ACCEPTED ||
+      app.stage === ApplicationStage.REJECTED
+    ) {
+      stageProgressValue = StageProgress.COMPLETED;
     } else {
-      reviewStageValue = ReviewStage.SUBMITTED;
+      // Check if current stage has been reviewed
+      const stageReviewed = app.reviews.some(
+        (review) => review.stage === app.stage,
+      );
+      stageProgressValue = stageReviewed
+        ? StageProgress.COMPLETED
+        : StageProgress.PENDING;
     }
 
     // Get assigned recruiters for this application (only for admins and recruiters)
-    // TODO: make this more generic for other roles
     let assignedRecruiters = [];
     if (
       req.user.status === UserStatus.ADMIN ||
@@ -150,7 +158,7 @@ export class ApplicationsController {
 
     return app.toGetApplicationResponseDTO(
       apps.length,
-      reviewStageValue,
+      stageProgressValue,
       assignedRecruiters,
     );
   }
@@ -202,31 +210,29 @@ export class ApplicationsController {
       throw new UnauthorizedException();
     }
 
-    const stageEnum: ReviewStage = ApplicationStage[stage];
     if (!Object.values(ApplicationStage).includes(stage)) {
       throw new BadRequestException('Invalid stage value');
     }
     return await this.applicationsService.updateStage(userId, stage);
   }
 
-  @Put('/review/:userId')
+  @Put('/review-status/:userId')
   @UseGuards(AuthGuard('jwt'))
-  async updateReviewStage(
+  async updateReviewStatus(
     @Param('userId', ParseIntPipe) userId: number,
-    @Body('review') review: ReviewStatus,
+    @Body('reviewStatus') reviewStatus: ReviewStatus,
     @Request() req,
   ): Promise<Application> {
     if (![UserStatus.ADMIN, UserStatus.RECRUITER].includes(req.user.status)) {
       throw new UnauthorizedException();
     }
 
-    const reviewStageEnum: ReviewStatus = ReviewStatus[review];
-    if (!reviewStageEnum) {
-      throw new BadRequestException('Invalid review stage value');
+    if (!Object.values(ReviewStatus).includes(reviewStatus)) {
+      throw new BadRequestException('Invalid review status value');
     }
-    return await this.applicationsService.updateReviewStage(
+    return await this.applicationsService.updateReviewStatus(
       userId,
-      reviewStageEnum,
+      reviewStatus,
     );
   }
 }

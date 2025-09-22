@@ -3,10 +3,10 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "format:check": "prettier --no-error-on-unmatched-pattern --check apps/{frontend,backend}/src/**/*.{js,ts,tsx}",
-    "format": "prettier --no-error-on-unmatched-pattern --write apps/{frontend,backend}/src/**/*.{js,ts,tsx}",
-    "lint:check": "eslint apps/frontend --ext .ts,.tsx && eslint apps/backend --ext .ts,.tsx",
-    "lint": "eslint apps/frontend --ext .ts,.tsx --fix && eslint apps/backend --ext .ts,.tsx --fix",
+    "format:check": "prettier --no-error-on-unmatched-pattern --check apps/{frontend,backend}/src/**/*.{js,ts,tsx} apps/shared/**/*.{ts,tsx}",
+    "format": "prettier --no-error-on-unmatched-pattern --write apps/{frontend,backend}/src/**/*.{js,ts,tsx} apps/shared/**/*.{ts,tsx}",
+    "lint:check": "eslint apps/frontend --ext .ts,.tsx && eslint apps/backend --ext .ts,.tsx && eslint 'apps/shared/**/*.{ts,tsx}'",
+    "lint": "eslint apps/frontend --ext .ts,.tsx --fix && eslint apps/backend --ext .ts,.tsx --fix && eslint 'apps/shared/**/*.{ts,tsx}' --fix",
     "prepush": "yarn run format:check && yarn run lint:check",
     "prepush:fix": "yarn run format && yarn run lint",
     "prepare": "husky install",
@@ -92,5 +92,6 @@
     "typescript": "^5.1.3",
     "vite": "^4.3.9",
     "vitest": "^0.32.0"
-  }
+  },
+  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }

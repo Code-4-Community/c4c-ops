@@ -1,6 +1,6 @@
 import merge from 'lodash/merge';
 
-import { UserStatus } from '../../users/types';
+import { UserStatus } from '@shared/types/user.types';
 import { User } from '../../users/user.entity';
 
 export const defaultUser: User = {
