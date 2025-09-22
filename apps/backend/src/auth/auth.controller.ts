@@ -16,13 +16,10 @@ import { SignInRequestDto } from './dtos/sign-in.request.dto';
 import { SignUpRequestDTO } from './dtos/sign-up.request.dto';
 import { AuthService } from './auth.service';
 import { UsersService } from '../users/users.service';
-import { VerifyUserRequestDTO } from './dtos/verify-user.request.dto';
 import { User } from '../users/user.entity';
 import { SignInResponseDto } from '../../../shared/dto/auth.dto';
 import { CurrentUserInterceptor } from '../interceptors/current-user.interceptor';
 import { AuthGuard } from '@nestjs/passport';
-import { ForgotPasswordRequestDto } from './dtos/forgot-password.request.dto';
-import { ConfirmResetPasswordDto } from './dtos/confirm-reset-password.request.dto';
 import { UserStatus } from '../../../shared/types/user.types';
 
 @Controller('auth')
@@ -33,6 +30,10 @@ export class AuthController {
     private usersService: UsersService,
   ) {}
 
+  /**
+   * Used by Google Form script
+   * @param signUpDto
+   */
   @Post('/signup')
   async createUser(@Body() signUpDto: SignUpRequestDTO): Promise<User> {
     //Regular expression to validate the email domain
@@ -60,16 +61,10 @@ export class AuthController {
     return user;
   }
 
-  // TODO will be deprecated if we use Google OAuth
-  @Post('/verify')
-  async verifyUser(@Body() body: VerifyUserRequestDTO) {
-    return await this.authService
-      .verifyUser(body.email, String(body.verificationCode))
-      .catch((err) => {
-        throw new BadRequestException(err.message);
-      });
-  }
-
+  /**
+   * Used by Google Forms script for c4c admin login to create a new user
+   * @param signInDto
+   */
   @Post('/signin')
   async signin(
     @Body() signInDto: SignInRequestDto,
@@ -98,28 +93,6 @@ export class AuthController {
     }
 
     this.usersService.remove(req.user, user.id);
-  }
-
-  @Post('/forgotPassword')
-  async forgotPassword(@Body() body: ForgotPasswordRequestDto) {
-    try {
-      await this.authService.forgotPassword(body.email);
-    } catch (e) {
-      throw new BadRequestException(e.message);
-    }
-  }
-
-  @Post('/confirmResetPassword')
-  async confirmResetPassword(@Body() body: ConfirmResetPasswordDto) {
-    try {
-      await this.authService.confirmPassword(
-        body.email,
-        body.verificationCode,
-        body.newPassword,
-      );
-    } catch (e) {
-      throw new BadRequestException(e.message);
-    }
   }
 
   @Get('/token/:code')

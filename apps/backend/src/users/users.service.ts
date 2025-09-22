@@ -8,7 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Not, Repository } from 'typeorm';
 import { User } from './user.entity';
 import { UpdateUserRequestDTO } from './dto/update-user.request.dto';
-import { UserStatus } from '../../../shared/types/user.types';
+import { UserStatus } from '@shared/types/user.types';
 
 @Injectable()
 export class UsersService {
@@ -32,26 +32,8 @@ export class UsersService {
     return this.usersRepository.save(user);
   }
 
-  // TODO not currently used and not refactored
-  async findAll(currentUser: User, getAllMembers: boolean): Promise<User[]> {
-    if (!getAllMembers) return [];
-
-    if (currentUser.status === UserStatus.APPLICANT) {
-      throw new UnauthorizedException();
-    }
-
-    const users: User[] = await this.usersRepository.find({
-      where: {
-        status: Not(UserStatus.APPLICANT),
-      },
-    });
-
-    return users;
-  }
-
   /**
    * Finds a user by their id.
-   * TODO: currently used for getting the recruiter information can get all of users like this, if this is a security violation, maybe we can switch to
    * @param id the id of the user.
    * @returns the user.
    */

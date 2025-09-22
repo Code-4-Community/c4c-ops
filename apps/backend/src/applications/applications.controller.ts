@@ -95,7 +95,6 @@ export class ApplicationsController {
   @UseGuards(AuthGuard('jwt'))
   async getApplication(
     @Param('userId', ParseIntPipe) userId: number,
-    // TODO make req.user.applications unaccessible
     @Request() req,
   ): Promise<GetApplicationResponseDTO> {
     if (
@@ -144,7 +143,6 @@ export class ApplicationsController {
     }
 
     // Get assigned recruiters for this application (only for admins and recruiters)
-    // TODO: make this more generic for other roles
     let assignedRecruiters = [];
     if (
       req.user.status === UserStatus.ADMIN ||

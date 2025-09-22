@@ -291,7 +291,8 @@ export class ApplicationsService {
 
   /**
    * Updates the stage of the application for a given user.
-   * Validates that the stage transition is valid for the position.
+   * Validates that the stage transition is valid for the position. First if the stage
+   * exists, then if it is not already in a terminal state
    */
   async updateStage(
     userId: number,

@@ -82,27 +82,6 @@ export class AuthService {
     });
   }
 
-  verifyUser(email: string, verificationCode: string): Promise<unknown> {
-    return new Promise((resolve, reject) => {
-      const cognitoUser = new CognitoUser({
-        Username: email,
-        Pool: this.userPool,
-      });
-
-      return cognitoUser.confirmRegistration(
-        verificationCode,
-        true,
-        (err, result) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(result);
-          }
-        },
-      );
-    });
-  }
-
   signin({ email, password }: SignInRequestDto): Promise<SignInResponseDto> {
     const authenticationDetails = new AuthenticationDetails({
       Username: email,
@@ -130,43 +109,6 @@ export class AuthService {
       });
     });
   }
-
-  forgotPassword(email: string): Promise<unknown> {
-    return new Promise((resolve, reject) => {
-      return new CognitoUser({
-        Username: email,
-        Pool: this.userPool,
-      }).forgotPassword({
-        onSuccess: function (result) {
-          resolve(result);
-        },
-        onFailure: function (err) {
-          reject(err);
-        },
-      });
-    });
-  }
-
-  confirmPassword(
-    email: string,
-    verificationCode: string,
-    newPassword: string,
-  ): Promise<unknown> {
-    return new Promise((resolve, reject) => {
-      return new CognitoUser({
-        Username: email,
-        Pool: this.userPool,
-      }).confirmPassword(verificationCode, newPassword, {
-        onSuccess: function (result) {
-          resolve(result);
-        },
-        onFailure: function (err) {
-          reject(err);
-        },
-      });
-    });
-  }
-
   async deleteUser(email: string): Promise<void> {
     const adminDeleteUserCommand = new AdminDeleteUserCommand({
       Username: email,
