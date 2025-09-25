@@ -19,6 +19,7 @@ import { SignUpRequestDTO } from './dtos/sign-up.request.dto';
 import { SignInRequestDto } from './dtos/sign-in.request.dto';
 import { SignInResponseDto } from '../../../shared/dto/auth.dto';
 import { TokenExchangeResponseDTO } from './dtos/token-exchange.response.dto';
+import { RefreshTokenRequestDTO } from './dtos/refresh-token.request.dto';
 
 @Injectable()
 export class AuthService {
@@ -150,4 +151,45 @@ export class AuthService {
     const tokens = res.data as TokenExchangeResponseDTO;
     return tokens.access_token;
   };
+
+  async refreshToken(refresh_token: string): Promise<{ accessToken: string }> {
+    const body = {
+      grant_type: 'refresh_token',
+      client_id: CognitoAuthConfig.clientId,
+      refresh_token: refresh_token,
+    };
+    const tokenExchangeEndpoint = `https://${CognitoAuthConfig.clientName}.auth.${CognitoAuthConfig.region}.amazoncognito.com/oauth2/token`;
+    const urlEncodedBody = new URLSearchParams(body);
+    try {
+      const res = await axios.post(tokenExchangeEndpoint, urlEncodedBody, {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      });
+      const tokens = res.data as TokenExchangeResponseDTO;
+      return {
+        accessToken: tokens.access_token,
+      };
+    } catch (err: any) {
+      console.error(
+        'Cognito Token Refresh Error:',
+        err.response?.data || err.message,
+      );
+      console.error('Full Error Details:', err.toJSON ? err.toJSON() : err);
+      const errorDesc =
+        err.response?.data?.error_description || err.response?.data?.error;
+      const errorCode = err.response?.data?.error || err.response?.status;
+      if (
+        errorCode === 'invalid_grant' ||
+        (typeof errorDesc === 'string' &&
+          errorDesc.toLowerCase().includes('invalid')) ||
+        err.response?.status === 400
+      ) {
+        throw new BadRequestException('Invalid or expired refresh token');
+      }
+      throw new BadRequestException(
+        `Error while refreshing tokens from cognito: ${err.message || err}`,
+      );
+    }
+  }
 }

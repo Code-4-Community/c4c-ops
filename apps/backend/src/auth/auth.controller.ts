@@ -21,6 +21,7 @@ import { SignInResponseDto } from '../../../shared/dto/auth.dto';
 import { CurrentUserInterceptor } from '../interceptors/current-user.interceptor';
 import { AuthGuard } from '@nestjs/passport';
 import { UserStatus } from '../../../shared/types/user.types';
+import { RefreshTokenRequestDTO } from './dtos/refresh-token.request.dto';
 
 @Controller('auth')
 @UseInterceptors(CurrentUserInterceptor)
@@ -99,5 +100,14 @@ export class AuthController {
   async grantAccessToken(@Request() req) {
     const { code } = req.params;
     return await this.authService.tokenExchange(code);
+  }
+
+  @Post('/refresh')
+  async refreshAccessToken(
+    @Body() refreshTokenRequestDTO: RefreshTokenRequestDTO,
+  ) {
+    return await this.authService.refreshToken(
+      refreshTokenRequestDTO.refresh_token,
+    );
   }
 }
