@@ -124,8 +124,10 @@ export class AuthService {
    * @see https://docs.aws.amazon.com/cognito/latest/developerguide/token-endpoint.html
    *
    * @param code - the authorization code granted by Cognito during the user's login
+   * Naman and Tarun's Documentation: Changed the return type to TokenExchangeResponseDTO to include the refresh token
+   * now the frontend gets the refresh token as well.
    */
-  tokenExchange = async (code: string): Promise<string> => {
+  tokenExchange = async (code: string): Promise<TokenExchangeResponseDTO> => {
     const body = {
       grant_type: 'authorization_code',
       code,
@@ -149,7 +151,7 @@ export class AuthService {
         throw new Error(`Error while fetching tokens from cognito: ${err}`);
       });
     const tokens = res.data as TokenExchangeResponseDTO;
-    return tokens.access_token;
+    return tokens;
   };
 
   async refreshToken(refresh_token: string): Promise<{ accessToken: string }> {

@@ -34,10 +34,23 @@ export default function LoginPage() {
         }
       } else if (authCode) {
         try {
-          const token = await apiClient.getToken(authCode);
+          const tokenResponse = await apiClient.getToken(authCode);
 
-          sessionStorage.setItem('token', JSON.stringify(token));
-          setToken(token);
+          // Store both tokens in localStorage for persistence
+          localStorage.setItem(
+            'auth_tokens',
+            JSON.stringify({
+              accessToken: tokenResponse.access_token,
+              refreshToken: tokenResponse.refresh_token,
+            }),
+          );
+
+          // Keep backward compatibility - store access token for existing code
+          sessionStorage.setItem(
+            'token',
+            JSON.stringify(tokenResponse.access_token),
+          );
+          setToken(tokenResponse.access_token);
           navigate('/');
         } catch (error) {
           console.error('Error fetching token:', error);
