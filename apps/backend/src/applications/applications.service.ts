@@ -20,6 +20,7 @@ import { UserStatus } from '../users/types';
 import { Position, ApplicationStage, ReviewStage, Semester } from './types';
 import { GetAllApplicationResponseDTO } from './dto/get-all-application.response.dto';
 import { AssignedRecruiterDTO } from './dto/get-application.response.dto';
+import { forEach } from 'lodash';
 
 @Injectable()
 export class ApplicationsService {
@@ -140,8 +141,7 @@ export class ApplicationsService {
       );
     }
 
-    // Update the assignedRecruiterIds field
-    application.assignedRecruiterIds = recruiterIds;
+    application.assignedRecruiterIds = [...new Set(recruiterIds)];
     await this.applicationsRepository.save(application);
   }
 
