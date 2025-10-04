@@ -21,7 +21,7 @@ import { SignInResponseDto } from '../../../shared/dto/auth.dto';
 import { CurrentUserInterceptor } from '../interceptors/current-user.interceptor';
 import { AuthGuard } from '@nestjs/passport';
 import { UserStatus } from '../../../shared/types/user.types';
-import { RefreshTokenRequestDTO } from './dtos/refresh-token.request.dto';
+import { RefreshTokenRequestDTO } from '../../../shared/dto/refresh-token.request.dto';
 
 @Controller('auth')
 @UseInterceptors(CurrentUserInterceptor)
