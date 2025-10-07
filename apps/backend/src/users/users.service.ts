@@ -50,46 +50,6 @@ export class UsersService {
     return user;
   }
 
-  // TODO refactor method to not take in currentUser
-  async findOne(currentUser: User, userId: number): Promise<User> {
-    const user = await this.usersRepository.findOne({
-      where: { id: userId },
-      relations: ['applications'],
-    });
-
-    if (!user) {
-      throw new NotFoundException(`User with ID ${userId} not found`);
-    }
-
-    const currentStatus = currentUser.status;
-    const targetStatus = user.status;
-
-    switch (currentStatus) {
-      // Admins and recruiters can access all users
-      case UserStatus.ADMIN:
-      case UserStatus.RECRUITER:
-        break;
-      // Alumni and members can access all users except for applicants
-      case UserStatus.ALUMNI:
-      case UserStatus.MEMBER:
-        if (targetStatus === UserStatus.APPLICANT) {
-          throw new NotFoundException(`User with ID ${userId} not found`);
-        }
-        break;
-      // Applicants can access all users except for applications that are not their own
-      case UserStatus.APPLICANT:
-        if (
-          targetStatus === UserStatus.APPLICANT &&
-          currentUser.id !== user.id
-        ) {
-          throw new NotFoundException(`User with ID ${userId} not found`);
-        }
-        break;
-    }
-
-    return user;
-  }
-
   async findByEmail(email: string): Promise<User[]> {
     const users = await this.usersRepository.find({
       where: { email },
@@ -103,7 +63,7 @@ export class UsersService {
     userId: number,
     updateUserDTO: UpdateUserRequestDTO,
   ): Promise<User> {
-    const user: User = await this.findOne(currentUser, userId);
+    const user: User = await this.findUserById(userId);
 
     if (!user) {
       throw new NotFoundException(`User with ID ${userId} not found`);
@@ -115,11 +75,11 @@ export class UsersService {
       throw new BadRequestException('Cannot update user');
     }
 
-    return await this.findOne(currentUser, userId);
+    return await this.findUserById(userId);
   }
 
   async remove(currentUser: User, userId: number): Promise<User> {
-    const user = await this.findOne(currentUser, userId);
+    const user = await this.findUserById(userId);
 
     if (!user) {
       throw new NotFoundException(`User with ID ${userId} not found`);
