@@ -9,38 +9,7 @@ import type {
   AssignedRecruiter,
 } from '@components/types';
 
-/**
- * Token response type, used in getToken method, returns access_token and refresh_token now
- */
-type TokenResponse = {
-  access_token: string;
-  refresh_token: string;
-  id_token: string;
-  token_type: string;
-  expires_in: number;
-};
-
-/**
- * Stored tokens type for localStorage
- */
-type StoredTokens = {
-  accessToken: string;
-  refreshToken: string;
-};
-
-// Simple token helper functions
-const getStoredTokens = (): StoredTokens | null => {
-  const stored = localStorage.getItem('auth_tokens');
-  return stored ? JSON.parse(stored) : null;
-};
-
-const updateAccessToken = (newAccessToken: string): void => {
-  const tokens = getStoredTokens();
-  if (tokens) {
-    const updated = { ...tokens, accessToken: newAccessToken };
-    localStorage.setItem('auth_tokens', JSON.stringify(updated));
-  }
-};
+import { type TokenResponse, type StoredTokens, getStoredTokens, updateAccessToken } from '../utils/tokenUtils';
 
 /**
  * Simple function to refresh tokens when they expire
