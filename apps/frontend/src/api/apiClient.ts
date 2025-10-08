@@ -9,7 +9,12 @@ import type {
   AssignedRecruiter,
 } from '@components/types';
 
-import { type TokenResponse, type StoredTokens, getStoredTokens, updateAccessToken } from '../utils/tokenUtils';
+import {
+  type TokenResponse,
+  type StoredTokens,
+  getStoredTokens,
+  updateAccessToken,
+} from '../utils/tokenUtils';
 
 /**
  * Simple function to refresh tokens when they expire

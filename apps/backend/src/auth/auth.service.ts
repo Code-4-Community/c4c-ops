@@ -19,7 +19,7 @@ import { SignUpRequestDTO } from './dtos/sign-up.request.dto';
 import { SignInRequestDto } from './dtos/sign-in.request.dto';
 import { SignInResponseDto } from '../../../shared/dto/auth.dto';
 import { TokenExchangeResponseDTO } from './dtos/token-exchange.response.dto';
-import { RefreshTokenRequestDTO } from '../../../shared/dto/refresh-token.request.dto';
+//import { RefreshTokenRequestDTO } from '../../../shared/dto/refresh-token.request.dto';
 
 @Injectable()
 export class AuthService {
