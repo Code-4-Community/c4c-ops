@@ -82,29 +82,7 @@ export class AuthController {
   ): Promise<void> {
     const user = await this.usersService.findUserById(userId);
 
-    const currentStatus = req.user.status;
-    const targetStatus = user.status;
-
-    switch (currentStatus) {
-      case UserStatus.ADMIN:
-      case UserStatus.RECRUITER:
-        break;
-      case UserStatus.ALUMNI:
-      case UserStatus.MEMBER:
-        if (targetStatus === UserStatus.APPLICANT) {
-          throw new UnauthorizedException();
-        }
-        break;
-      case UserStatus.APPLICANT:
-        if (targetStatus === UserStatus.APPLICANT && req.user.id !== user.id) {
-          throw new UnauthorizedException();
-        }
-        break;
-      default:
-        throw new UnauthorizedException();
-    }
-
-    if (user.id !== userId && user.status !== UserStatus.ADMIN) {
+    if (req.user.id !== userId && user.status !== UserStatus.ADMIN) {
       throw new UnauthorizedException();
     }
 
