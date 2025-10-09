@@ -11,6 +11,43 @@ import type {
 import type { User } from '@sharedTypes/types/user.types';
 import type { SubmitReviewRequest } from '@sharedTypes/dto/request/review.dto';
 
+import {
+  type TokenResponse,
+  type StoredTokens,
+  getStoredTokens,
+  updateAccessToken,
+} from '@utils/tokenUtils';
+
+/**
+ * Simple function to refresh tokens when they expire
+ * Call this when you get a 401 error
+ */
+const handleTokenRefresh = async (): Promise<string | null> => {
+  const tokens = getStoredTokens();
+  if (!tokens?.refreshToken) {
+    console.log('No refresh token available');
+    return null;
+  }
+
+  try {
+    // Use the refresh method from the API client instance
+    const apiClientInstance = new ApiClient();
+    const response = await apiClientInstance.refreshAccessToken(
+      tokens.refreshToken,
+    );
+
+    // Update stored tokens with new access token
+    updateAccessToken(response.accessToken);
+
+    return response.accessToken;
+  } catch (error) {
+    console.error('Token refresh failed:', error);
+    // Clear tokens if refresh fails
+    localStorage.removeItem('auth_tokens');
+    return null;
+  }
+};
+
 const defaultBaseUrl =
   import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3000';
 
@@ -19,6 +56,42 @@ export class ApiClient {
 
   constructor() {
     this.axiosInstance = axios.create({ baseURL: defaultBaseUrl });
+    this.setupTokenRefreshInterceptor();
+  }
+
+  /**
+   * Setup automatic token refresh when API calls return 401
+   */
+  private setupTokenRefreshInterceptor() {
+    this.axiosInstance.interceptors.response.use(
+      (response) => response, // Pass through successful responses
+      async (error) => {
+        const originalRequest = error.config;
+
+        // If we get 401 and haven't already tried to refresh
+        if (error.response?.status === 401 && !originalRequest._retry) {
+          originalRequest._retry = true; // Mark as retry to avoid infinite loops
+
+          console.log('Access token expired, attempting refresh...');
+
+          const newAccessToken = await handleTokenRefresh();
+
+          if (newAccessToken) {
+            // Update the authorization header with new token
+            originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+
+            // Retry the original request
+            return this.axiosInstance(originalRequest);
+          } else {
+            // Refresh failed, redirect to login
+            console.log('Token refresh failed, redirecting to login');
+            window.location.href = '/login';
+          }
+        }
+
+        return Promise.reject(error);
+      },
+    );
   }
 
   public async getHello(): Promise<string> {
@@ -26,14 +99,30 @@ export class ApiClient {
   }
 
   /**
-   * sends code to backend to get user's access token
+   * sends code to backend to get user's tokens (access + refresh)
    *
    * @param code - code from cognito oauth
-   * @returns access token
+   * @returns token response with access_token and refresh_token
    */
-  public async getToken(code: string): Promise<string> {
-    const token = await this.get(`/api/auth/token/${code}`);
-    return token as string;
+  public async getToken(code: string): Promise<TokenResponse> {
+    const tokens = await this.get(`/api/auth/token/${code}`);
+    return tokens as TokenResponse;
+  }
+
+  /**
+   * Refreshes the access token using the refresh token
+   *
+   * Naman and Tarun
+   * @param refreshToken - the refresh token from localStorage
+   * @returns new access token
+   */
+  public async refreshAccessToken(
+    refreshToken: string,
+  ): Promise<{ accessToken: string }> {
+    const response = await this.post('/api/auth/refresh', {
+      refresh_token: refreshToken,
+    });
+    return response as { accessToken: string };
   }
 
   public async getAllApplications(
@@ -277,3 +366,6 @@ export class ApiClient {
 }
 
 export default new ApiClient();
+
+// Export the token refresh function for manual use and testing
+export { handleTokenRefresh };
