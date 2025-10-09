@@ -1,19 +1,18 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { useState } from 'react';
 
-import Root from '@containers/root';
-import NotFound from '@containers/404';
-import Test from '@containers/test';
-import Dashboard from '@containers/dashboard';
-import Applications from '@containers/applications';
-import IndividualApplication from '@containers/individualApplication';
-import Resources from '@containers/resources';
-import Settings from '@containers/settings';
-import LoginContext from '@components/LoginPage/LoginContext';
-import ProtectedRoutes from '@components/ProtectedRoutes';
-import LoginPage from '@components/LoginPage';
-import Navigation from '@components/Navigation';
-import AdminRoutes from '@components/AdminRoutes';
+import ApplicantHomePage from '@features/applicant/pages/ApplicantHomePage';
+import NotFoundPage from '@shared/pages/NotFoundPage';
+import DashboardPage from '@shared/pages/DashboardPage';
+import ApplicationsPage from '@features/applications/pages/ApplicationsPage';
+import ApplicationDetailPage from '@features/applications/pages/ApplicationDetailPage';
+import ResourcesPage from '@features/applicant/pages/ResourcesPage';
+import SettingsPage from '@shared/pages/SettingsPage';
+import LoginContext from '@features/auth/components/LoginPage/LoginContext';
+import ProtectedRoutes from '@features/auth/components/ProtectedRoutes';
+import LoginPage from '@features/auth/components/LoginPage';
+import Navigation from '@shared/components/Navigation';
+import AdminRoutes from '@features/auth/components/AdminRoutes';
 
 export const App: React.FC = () => {
   const [token, setToken] = useState<string>('');
@@ -29,7 +28,7 @@ export const App: React.FC = () => {
                 path="/"
                 element={
                   <Navigation>
-                    <Dashboard />
+                    <DashboardPage />
                   </Navigation>
                 }
               />
@@ -37,7 +36,7 @@ export const App: React.FC = () => {
                 path="/applications"
                 element={
                   <Navigation>
-                    <Applications />
+                    <ApplicationsPage />
                   </Navigation>
                 }
               />
@@ -45,7 +44,7 @@ export const App: React.FC = () => {
                 path="/applications/:userId"
                 element={
                   <Navigation>
-                    <IndividualApplication />
+                    <ApplicationDetailPage />
                   </Navigation>
                 }
               />
@@ -53,7 +52,7 @@ export const App: React.FC = () => {
                 path="/resources"
                 element={
                   <Navigation>
-                    <Resources />
+                    <ResourcesPage />
                   </Navigation>
                 }
               />
@@ -61,17 +60,16 @@ export const App: React.FC = () => {
                 path="/settings"
                 element={
                   <Navigation>
-                    <Settings />
+                    <SettingsPage />
                   </Navigation>
                 }
               />
             </Route>
 
-            <Route path="/applicant" element={<Root />} />
-            <Route path="/test" element={<Test />} />
+            <Route path="/applicant" element={<ApplicantHomePage />} />
           </Route>
 
-          <Route path="*" element={<NotFound />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </BrowserRouter>
     </LoginContext.Provider>

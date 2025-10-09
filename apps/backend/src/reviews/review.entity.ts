@@ -1,6 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { Application } from '../applications/application.entity';
-import { ApplicationStage } from '../../../shared/types/application.types';
+import { ApplicationStage } from '@shared/types/application.types';
 
 @Entity()
 export class Review {

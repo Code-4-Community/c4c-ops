@@ -6,7 +6,7 @@ import { Repository } from 'typeorm';
 import { UsersService } from './users.service';
 import { User } from './user.entity';
 import { userFactory } from '../testing/factories/user.factory';
-import { UserStatus } from '../../../shared/types/user.types';
+import { UserStatus } from '@shared/types/user.types';
 
 const mockUsersRepository: Partial<Repository<User>> = {
   findOne: jest.fn(),

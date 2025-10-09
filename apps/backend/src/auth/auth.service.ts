@@ -17,7 +17,7 @@ import axios from 'axios';
 import CognitoAuthConfig from './aws-exports';
 import { SignUpRequestDTO } from './dtos/sign-up.request.dto';
 import { SignInRequestDto } from './dtos/sign-in.request.dto';
-import { SignInResponseDto } from '../../../shared/dto/auth.dto';
+import { SignInResponseDto } from './dtos/sign-in.response.dto';
 import { TokenExchangeResponseDTO } from './dtos/token-exchange.response.dto';
 
 @Injectable()

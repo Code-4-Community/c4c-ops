@@ -4,24 +4,15 @@ import type {
   ApplicationRow,
   ApplicationStage,
   ReviewStatus,
-  User,
   BackendApplicationDTO,
   AssignedRecruiter,
-} from '@components/types';
+  Decision,
+} from '@sharedTypes/types/application.types';
+import type { User } from '@sharedTypes/types/user.types';
+import type { SubmitReviewRequest } from '@sharedTypes/dto/request/review.dto';
 
 const defaultBaseUrl =
   import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3000';
-
-type SubmitReviewRequest = {
-  applicantId: number;
-  stage: ApplicationStage;
-  rating: number;
-  content: string;
-};
-
-type DecisionRequest = {
-  decision: 'ACCEPT' | 'REJECT';
-};
 
 export class ApiClient {
   private readonly axiosInstance: AxiosInstance;
@@ -101,13 +92,17 @@ export class ApiClient {
   public async submitDecision(
     accessToken: string,
     applicationId: number,
-    decisionRequest: DecisionRequest,
+    decision: Decision,
   ): Promise<void> {
-    return this.post(`/api/apps/decision/${applicationId}`, decisionRequest, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
+    return this.post(
+      `/api/apps/decision/${applicationId}`,
+      { decision },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
       },
-    }) as Promise<void>;
+    ) as Promise<void>;
   }
 
   public async updateReviewStatus(
@@ -262,17 +257,6 @@ export class ApiClient {
   private async post(
     path: string,
     body: unknown,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    headers: AxiosRequestConfig<any> | undefined = undefined,
-  ): Promise<unknown> {
-    return this.axiosInstance
-      .post(path, body, headers)
-      .then((response) => response.data);
-  }
-
-  private async postTwo(
-    path: string,
-    body: DecisionRequest,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     headers: AxiosRequestConfig<any> | undefined = undefined,
   ): Promise<unknown> {

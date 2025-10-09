@@ -21,15 +21,13 @@ import {
   ApplicationStage,
   StageProgress,
   Semester,
-} from '../../../shared/types/application.types';
+} from '@shared/types/application.types';
 import * as crypto from 'crypto';
 import { User } from '../users/user.entity';
-import { UserStatus } from '../../../shared/types/user.types';
+import { UserStatus } from '@shared/types/user.types';
 import { stagesMap } from './applications.constants';
-import {
-  GetAllApplicationResponseDTO,
-  AssignedRecruiterDTO,
-} from '../../../shared/dto/application.dto';
+import { GetAllApplicationResponseDTO } from './dto/get-all-applications.response.dto';
+import { AssignedRecruiterDTO } from './dto/assigned-recruiter.dto';
 
 @Injectable()
 export class ApplicationsService {
