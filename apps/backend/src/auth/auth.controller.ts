@@ -81,9 +81,9 @@ export class AuthController {
     @Param('userId', ParseIntPipe) userId: number,
     @Request() req,
   ): Promise<void> {
-    const user = await this.usersService.findOne(req.user, userId);
+    const user = await this.usersService.findUserById(userId);
 
-    if (user.id !== userId && user.status !== UserStatus.ADMIN) {
+    if (req.user.id !== userId && user.status !== UserStatus.ADMIN) {
       throw new UnauthorizedException();
     }
 

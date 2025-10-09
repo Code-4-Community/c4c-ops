@@ -67,7 +67,7 @@ export class UsersController {
       throw new UnauthorizedException('Invalid role');
     }
 
-    const user = await this.usersService.findOne(req.user, req.user.id);
+    const user = await this.usersService.findUserById(req.user.id);
 
     return toGetUserResponseDto(user);
   }
@@ -77,7 +77,7 @@ export class UsersController {
     @Param('userId', ParseIntPipe) userId: number,
     @Request() req,
   ): Promise<GetUserResponseDto> {
-    const user = await this.usersService.findOne(req.user, userId);
+    const user = await this.usersService.findUserById(req.user.id);
 
     return toGetUserResponseDto(user);
   }
