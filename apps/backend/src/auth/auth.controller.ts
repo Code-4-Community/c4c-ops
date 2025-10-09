@@ -17,10 +17,10 @@ import { SignUpRequestDTO } from './dtos/sign-up.request.dto';
 import { AuthService } from './auth.service';
 import { UsersService } from '../users/users.service';
 import { User } from '../users/user.entity';
-import { SignInResponseDto } from '../../../shared/dto/auth.dto';
+import { SignInResponseDto } from './dtos/sign-in.response.dto';
 import { CurrentUserInterceptor } from '../interceptors/current-user.interceptor';
 import { AuthGuard } from '@nestjs/passport';
-import { UserStatus } from '../../../shared/types/user.types';
+import { UserStatus } from '@shared/types/user.types';
 
 @Controller('auth')
 @UseInterceptors(CurrentUserInterceptor)

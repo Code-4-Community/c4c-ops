@@ -15,12 +15,10 @@ import {
   ApplicationStage,
   StageProgress,
   ReviewStatus,
-} from '../../../shared/types/application.types';
-import {
-  GetApplicationResponseDTO,
-  AssignedRecruiterDTO,
-  GetAllApplicationResponseDTO,
-} from '../../../shared/dto/application.dto';
+} from '@shared/types/application.types';
+import { GetApplicationResponseDTO } from './dto/get-application.response.dto';
+import { AssignedRecruiterDTO } from './dto/assigned-recruiter.dto';
+import { GetAllApplicationResponseDTO } from './dto/get-all-applications.response.dto';
 import { Review } from '../reviews/review.entity';
 import { FileUpload } from '../file-upload/entities/file-upload.entity';
 import { PrimaryGeneratedColumn } from 'typeorm';

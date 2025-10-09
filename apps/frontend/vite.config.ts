@@ -36,11 +36,13 @@ export default defineConfig({
   resolve: {
     alias: {
       '@api': path.resolve(__dirname, './src/api'),
-      '@components': path.resolve(__dirname, './src/components'),
-      '@containers': path.resolve(__dirname, './src/containers'),
+      '@features': path.resolve(__dirname, './src/features'),
       '@public': path.resolve(__dirname, './public'),
-      '@shared': path.resolve(__dirname, '../../shared'),
+      '@shared': path.resolve(__dirname, './src/shared'),
+      '@sharedTypes': path.resolve(__dirname, '../shared'),
       '@utils': path.resolve(__dirname, './src/utils'),
+      '@styles': path.resolve(__dirname, './src/styles'),
+      '@constants': path.resolve(__dirname, './src/constants'),
     },
   },
 });
