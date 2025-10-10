@@ -21,6 +21,7 @@ import { SignInResponseDto } from './dtos/sign-in.response.dto';
 import { CurrentUserInterceptor } from '../interceptors/current-user.interceptor';
 import { AuthGuard } from '@nestjs/passport';
 import { UserStatus } from '@shared/types/user.types';
+import { RefreshTokenRequestDTO } from './dtos/refresh-token.request.dto';
 
 @Controller('auth')
 @UseInterceptors(CurrentUserInterceptor)
@@ -80,9 +81,9 @@ export class AuthController {
     @Param('userId', ParseIntPipe) userId: number,
     @Request() req,
   ): Promise<void> {
-    const user = await this.usersService.findOne(req.user, userId);
+    const user = await this.usersService.findUserById(userId);
 
-    if (user.id !== userId && user.status !== UserStatus.ADMIN) {
+    if (req.user.id !== userId && user.status !== UserStatus.ADMIN) {
       throw new UnauthorizedException();
     }
 
@@ -99,5 +100,14 @@ export class AuthController {
   async grantAccessToken(@Request() req) {
     const { code } = req.params;
     return await this.authService.tokenExchange(code);
+  }
+
+  @Post('/refresh')
+  async refreshAccessToken(
+    @Body() refreshTokenRequestDTO: RefreshTokenRequestDTO,
+  ) {
+    return await this.authService.refreshToken(
+      refreshTokenRequestDTO.refresh_token,
+    );
   }
 }

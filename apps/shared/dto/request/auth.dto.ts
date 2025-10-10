@@ -19,3 +19,10 @@ export interface SignUpRequest {
   firstName: string;
   lastName: string;
 }
+
+/**
+ * Refresh token request interface
+ */
+export interface RefreshTokenRequest {
+  refresh_token: string;
+}
