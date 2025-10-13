@@ -13,6 +13,7 @@ import ProtectedRoutes from '@features/auth/components/ProtectedRoutes';
 import LoginPage from '@features/auth/components/LoginPage';
 import Navigation from '@shared/components/Navigation';
 import AdminRoutes from '@features/auth/components/AdminRoutes';
+import HomePage from '@shared/pages/HomePage';
 
 export const App: React.FC = () => {
   const [token, setToken] = useState<string>('');
@@ -21,6 +22,15 @@ export const App: React.FC = () => {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
+
+          <Route
+            path="/home"
+            element={
+              <Navigation>
+                <HomePage />
+              </Navigation>
+            }
+          />
 
           <Route element={<ProtectedRoutes token={token} />}>
             <Route element={<AdminRoutes />}>
