@@ -22,15 +22,7 @@ export const App: React.FC = () => {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
-
-          <Route
-            path="/home"
-            element={
-              <Navigation>
-                <HomePage />
-              </Navigation>
-            }
-          />
+          <Route path="/newlogin" element={<HomePage />} />
 
           <Route element={<ProtectedRoutes token={token} />}>
             <Route element={<AdminRoutes />}>
