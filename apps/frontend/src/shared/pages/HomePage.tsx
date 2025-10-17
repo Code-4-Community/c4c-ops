@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Button, Container, Stack, Typography } from '@mui/material';
-import { AccountCircle } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 
 const HomePage = () => {
+  const navigate = useNavigate();
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
     hours: 0,
@@ -76,7 +77,24 @@ const HomePage = () => {
             2025 Application
           </Typography>
         </Box>
-        {/* <AccountCircle sx={{ fontSize: 40, color: '#ffffff' }} /> */}
+        <Button
+          variant="contained"
+          onClick={() => navigate('/login')}
+          sx={{
+            backgroundColor: '#4a5fa8 !important',
+            color: '#ffffff !important',
+            fontSize: '16px',
+            fontWeight: 600,
+            padding: '10px 24px',
+            textTransform: 'none',
+            borderRadius: '6px',
+            '&:hover': {
+              backgroundColor: '#3d4f8f !important',
+            },
+          }}
+        >
+          Login
+        </Button>
       </Box>
 
       {/* Main Content */}
