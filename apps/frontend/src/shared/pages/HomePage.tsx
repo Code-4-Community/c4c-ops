@@ -122,7 +122,7 @@ const HomePage = () => {
               <Box
                 sx={{
                   display: 'grid',
-                  gridTemplateColumns: '2fr 1fr',
+                  gridTemplateColumns: '1.5fr 1fr',
                   gap: 2,
                 }}
               >
@@ -167,7 +167,7 @@ const HomePage = () => {
               <Box
                 sx={{
                   display: 'grid',
-                  gridTemplateColumns: '2fr 1fr',
+                  gridTemplateColumns: '1.5fr 1fr',
                   gap: 2,
                 }}
               >
@@ -212,7 +212,7 @@ const HomePage = () => {
               <Box
                 sx={{
                   display: 'grid',
-                  gridTemplateColumns: '2fr 1fr',
+                  gridTemplateColumns: '1.5fr 1fr',
                   gap: 2,
                 }}
               >
