@@ -32,16 +32,22 @@ export const ApplicantView = ({ user }: ApplicantViewProps) => {
       sx={{
         width: '100vw',
         minHeight: '100vh',
+        height: '100vh',
         backgroundColor: 'black',
         display: 'flex',
         justifyContent: 'center',
-        alignItems: 'center',
-        overflow: 'hidden',
-        position: 'relative',
+        alignItems: 'flex-start',
+        paddingTop: 2,
+        paddingBottom: 4,
+        overflowY: 'auto',
+        overflowX: 'hidden',
+        position: 'fixed',
+        top: 0,
+        left: 0,
         '::before, ::after': {
           content: '""',
           position: 'absolute',
-          width: 200,
+          width: '10%',
           height: '80%',
           background: 'linear-gradient(180deg, #8A2BE2, #FF00FF, #00FFFF)',
           filter: 'blur(80px)',
@@ -66,11 +72,11 @@ export const ApplicantView = ({ user }: ApplicantViewProps) => {
           justifyContent: 'center',
           backgroundColor: '#121212',
           color: 'white',
-          padding: 3,
+          padding: 2,
           borderRadius: 2,
           boxShadow: 2,
-          width: '80%',
-          maxWidth: 600,
+          width: '70%',
+          maxWidth: 500,
           position: 'relative',
           zIndex: 1,
         }}
@@ -87,13 +93,14 @@ export const ApplicantView = ({ user }: ApplicantViewProps) => {
               <>
                 <Box
                   sx={{
-                    padding: 3,
+                    padding: 4,
                     backgroundColor: '#1e1e1e',
                     borderRadius: 2,
                     boxShadow: 2,
                     textAlign: 'center',
-                    width: '100%',
+                    width: '82%',
                     mb: 3,
+                    alignSelf: 'center',
                   }}
                 >
                   <Typography variant="h6">Recruitment Stage</Typography>
@@ -105,34 +112,50 @@ export const ApplicantView = ({ user }: ApplicantViewProps) => {
                 <Typography variant="h6" mt={2}>
                   Application Details
                 </Typography>
-                <Stack spacing={2} direction="row" mt={1}>
-                  <Typography variant="body1">
-                    Year: {selectedApplication.year}
-                  </Typography>
-                  <Typography variant="body1">
-                    Semester: {selectedApplication.semester}
-                  </Typography>
-                  <Typography variant="body1">
-                    Position: {selectedApplication.position}
-                  </Typography>
-                  <Typography variant="body1">
-                    Stage: {selectedApplication.stage}
-                  </Typography>
-                  <Typography variant="body1">
-                    Status: {selectedApplication.stageProgress}
-                  </Typography>
-                  <Typography variant="body1">
-                    Applications: {selectedApplication.numApps}
-                  </Typography>
-                </Stack>
+                <Box
+                  sx={{
+                    padding: 4.5,
+                    backgroundColor: '#1e1e1e',
+                    borderRadius: 2,
+                    boxShadow: 2,
+                    width: '80%',
+                    alignSelf: 'center',
+                    mt: 1,
+                  }}
+                >
+                  <Stack
+                    spacing={1}
+                    direction="column"
+                    sx={{ alignItems: 'center' }}
+                  >
+                    <Typography variant="body1">
+                      Year: {selectedApplication.year}
+                    </Typography>
+                    <Typography variant="body1">
+                      Semester: {selectedApplication.semester}
+                    </Typography>
+                    <Typography variant="body1">
+                      Position: {selectedApplication.position}
+                    </Typography>
+                    <Typography variant="body1">
+                      Stage: {selectedApplication.stage}
+                    </Typography>
+                    <Typography variant="body1">
+                      Status: {selectedApplication.stageProgress}
+                    </Typography>
+                    <Typography variant="body1">
+                      Applications: {selectedApplication.numApps}
+                    </Typography>
+                  </Stack>
+                </Box>
 
                 <Typography variant="h6" mt={2}>
                   Application Responses
                 </Typography>
-                <List disablePadding dense>
+                <List disablePadding dense sx={{ width: '100%' }}>
                   {selectedApplication.response.map((response, index) => (
-                    <ListItem key={index}>
-                      <ListItemIcon>
+                    <ListItem key={index} sx={{ alignItems: 'flex-start' }}>
+                      <ListItemIcon sx={{ minWidth: 'auto', mr: 2 }}>
                         <DoneOutline sx={{ color: '#4CAF50' }} />
                       </ListItemIcon>
                       <ListItemText
@@ -142,6 +165,7 @@ export const ApplicantView = ({ user }: ApplicantViewProps) => {
                             {`A: ${response.answer}`}
                           </Typography>
                         }
+                        sx={{ m: 0 }}
                       />
                     </ListItem>
                   ))}
