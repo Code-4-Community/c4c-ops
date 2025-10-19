@@ -10,6 +10,7 @@ import {
   FormLabel,
   Divider,
   Card,
+  Grid,
 } from '@mui/material';
 import { useState, useEffect } from 'react';
 import {
@@ -194,7 +195,12 @@ const IndividualApplicationDetails = ({
           <Close />
         </Button>
       </Stack>
-      <Stack direction="column" spacing={2} my={2} sx={{ width: '50%' }}>
+      <Stack
+        direction="column"
+        spacing={2}
+        my={2}
+        sx={{ width: { xs: '100%', md: '50%' }, alignSelf: 'center' }}
+      >
         <Stack
           direction="row"
           justifyContent="space-between"
@@ -207,7 +213,7 @@ const IndividualApplicationDetails = ({
             sx={{
               color: 'white',
               backgroundColor: 'gray',
-              minWidth: '75%',
+              minWidth: { xs: '50%', md: '60%' },
             }}
           >
             <MenuItem value={selectedApplication.stage}>
@@ -221,7 +227,11 @@ const IndividualApplicationDetails = ({
           alignItems="center"
         >
           <Typography variant="body1">Assigned To: </Typography>
-          <Stack direction="row" alignItems="center" sx={{ minWidth: '75%' }}>
+          <Stack
+            direction="row"
+            alignItems="center"
+            sx={{ minWidth: { xs: '50%', md: '60%' } }}
+          >
             <AssignedRecruiters
               applicationId={selectedApplication.id}
               assignedRecruiters={selectedApplication.assignedRecruiters}
@@ -246,7 +256,7 @@ const IndividualApplicationDetails = ({
             sx={{
               color: 'white',
               backgroundColor: 'gray',
-              minWidth: '75%',
+              minWidth: { xs: '50%', md: '60%' },
             }}
           >
             <MenuItem value={selectedApplication.stageProgress}>
@@ -255,33 +265,35 @@ const IndividualApplicationDetails = ({
           </Select>
         </Stack>
       </Stack>
-      <Stack direction="row" spacing={2}>
-        <Stack
-          direction="column"
-          sx={{ flex: 2, border: '1px solid #6225b0', borderRadius: 1, p: 2 }}
-        >
-          <Typography variant="h5" textAlign="center">
-            Application Response
-          </Typography>
-          <Divider sx={{ my: 2, borderColor: '#ccc' }} />
-          {selectedApplication.response.map((response, index) => (
-            <Stack direction="column">
-              <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
-                {index + 1}. {response.question}
-              </Typography>
-              <Typography
-                variant="body2"
-                sx={{
-                  color: 'text.secondary',
-                }}
-              >
-                {response.answer}
-              </Typography>
-              <Divider sx={{ my: 2, borderColor: '#ccc' }} />
-            </Stack>
-          ))}
-        </Stack>
-        <Stack direction="column" sx={{ flex: 1 }}>
+      <Grid container spacing={2}>
+        <Grid item xs={12} md={8}>
+          <Stack
+            direction="column"
+            sx={{ border: '1px solid #6225b0', borderRadius: 1, p: 2 }}
+          >
+            <Typography variant="h5" textAlign="center">
+              Application Response
+            </Typography>
+            <Divider sx={{ my: 2, borderColor: '#ccc' }} />
+            {selectedApplication.response.map((response, index) => (
+              <Stack direction="column" key={index}>
+                <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
+                  {index + 1}. {response.question}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: 'text.secondary',
+                  }}
+                >
+                  {response.answer}
+                </Typography>
+                <Divider sx={{ my: 2, borderColor: '#ccc' }} />
+              </Stack>
+            ))}
+          </Stack>
+        </Grid>
+        <Grid item xs={12} md={4}>
           <Stack
             direction="column"
             sx={{ border: '1px solid #6225b0', borderRadius: 1, p: 2 }}
@@ -410,8 +422,8 @@ const IndividualApplicationDetails = ({
               )}
             </Stack>
           </Stack>
-        </Stack>
-      </Stack>
+        </Grid>
+      </Grid>
     </Stack>
   );
 };

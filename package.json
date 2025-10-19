@@ -6,7 +6,7 @@
     "format:check": "prettier --no-error-on-unmatched-pattern --check apps/{frontend,backend}/src/**/*.{js,ts,tsx} apps/shared/**/*.ts",
     "format": "prettier --no-error-on-unmatched-pattern --write apps/{frontend,backend}/src/**/*.{js,ts,tsx} apps/shared/**/*.ts",
     "lint:check": "eslint apps/frontend --ext .ts,.tsx && eslint apps/backend --ext .ts,.tsx && eslint 'apps/shared/**/*.ts'",
-    "lint": "eslint apps/frontend --ext .ts,.tsx --fix && eslint apps/backend --ext .ts,.tsx --fix && eslint 'apps/shared/**/*.ts' --fix",
+    "lint": "eslint apps/frontend --ext .ts,.tsx --fix && eslint apps/backend --ext .ts,.tsx --fix && eslint \"apps/shared/**/*.{ts,tsx}\" --fix",
     "prepush": "yarn run format:check && yarn run lint:check",
     "prepush:fix": "yarn run format && yarn run lint",
     "prepare": "husky install",
