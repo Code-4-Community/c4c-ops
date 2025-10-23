@@ -26,6 +26,10 @@ import { FileUploadModule } from './file-upload/file-upload.module';
       // Setting synchronize: true shouldn't be used in production - otherwise you can lose production data
       synchronize: true,
       namingStrategy: new PluralNamingStrategy(),
+      ssl:
+        process.env.NODE_ENV === 'production'
+          ? { rejectUnauthorized: false }
+          : false,
     }),
     TypeOrmModule.forFeature([Application, FileUpload]),
     AuthModule,
