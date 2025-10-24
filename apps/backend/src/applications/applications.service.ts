@@ -21,6 +21,7 @@ import { Position, ApplicationStage, ReviewStage, Semester } from './types';
 import { GetAllApplicationResponseDTO } from './dto/get-all-application.response.dto';
 import { AssignedRecruiterDTO } from './dto/get-application.response.dto';
 import { forEach } from 'lodash';
+import { Review } from '../reviews/review.entity';
 
 @Injectable()
 export class ApplicationsService {
@@ -42,6 +43,11 @@ export class ApplicationsService {
   async submitApp(application: Response[], user: User): Promise<Application> {
     const { applications: existingApplications } = user;
     const { year, semester } = getCurrentCycle();
+
+    // TODO:
+    // reach out and find what the index would be in application
+    // print out and log what you're doing just in case theres weird stuff
+    // helper method to convert that string into the position data type
 
     // TODO Maybe allow for more applications?
     if (getAppForCurrentCycle(existingApplications)) {
@@ -397,7 +403,7 @@ export class ApplicationsService {
    * Calculates mean rating for reviews filtered by stage
    */
   private calculateMeanRating(
-    reviews: any[],
+    reviews: Review[],
     stage?: ApplicationStage,
   ): number | null {
     const filteredReviews = stage
@@ -417,7 +423,7 @@ export class ApplicationsService {
   /**
    * Calculates mean rating for challenge stages (both technical and PM challenges)
    */
-  private calculateChallengeMeanRating(reviews: any[]): number | null {
+  private calculateChallengeMeanRating(reviews: Review[]): number | null {
     const challengeReviews = reviews.filter(
       (review) =>
         review.stage === ApplicationStage.T_INTERVIEW ||
@@ -430,7 +436,7 @@ export class ApplicationsService {
   /**
    * Determines review stage based on reviews
    */
-  private determineReviewStage(reviews: any[]): ReviewStage {
+  private determineReviewStage(reviews: Review[]): ReviewStage {
     return reviews.length > 0 ? ReviewStage.REVIEWED : ReviewStage.SUBMITTED;
   }
 
@@ -456,7 +462,7 @@ export class ApplicationsService {
   /**
    * Calculates all ratings for an application
    */
-  private calculateAllRatings(reviews: any[]) {
+  private calculateAllRatings(reviews: Review[]) {
     return {
       meanRatingAllReviews: this.calculateMeanRating(reviews),
       meanRatingResume: this.calculateMeanRating(

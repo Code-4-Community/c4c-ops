@@ -12,6 +12,7 @@ import {
 import { Entity, Column, OneToMany } from 'typeorm';
 import { Application } from '../applications/application.entity';
 import { Role, Team, UserStatus } from './types';
+import { Review } from '../reviews/review.entity';
 
 @Entity()
 export class User {
@@ -73,4 +74,7 @@ export class User {
   @IsObject({ each: true })
   @OneToMany(() => Application, (application) => application.user)
   applications: Application[];
+
+  @OneToMany(() => Review, (review) => review.reviewerId)
+  review: Review;
 }
