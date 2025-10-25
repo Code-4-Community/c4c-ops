@@ -1,9 +1,10 @@
 import useLoginContext from '@features/auth/components/LoginPage/useLoginContext';
 import { ApplicationRow } from '@sharedTypes/types/application.types';
 import { Container, Stack, Typography } from '@mui/material';
-import { DataGrid } from '@mui/x-data-grid';
+import { DataGrid, GridRowParams } from '@mui/x-data-grid';
 import { GridRowSelectionModel } from '@mui/x-data-grid/models/gridRowSelectionModel';
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { RecruiterColumns } from './columns';
 import { getCurrentSemester, getCurrentYear } from '@utils/semester';
 import {
@@ -23,6 +24,8 @@ export function RecruiterTable() {
     null,
   );
 
+  const navigate = useNavigate();
+
   // Get userId from selected row
   const selectedUserId = selectedUserRow?.userId ?? null;
   const { application: selectedApplication } = useApplication(
@@ -30,17 +33,13 @@ export function RecruiterTable() {
     selectedUserId,
   );
 
+  /* Unsure about whether this logic is still needed
   useEffect(() => {
     if (rowSelection.length > 0) {
       setSelectedUserRow(data[rowSelection[0] as number]);
     }
   }, [rowSelection, data]);
-
-  useEffect(() => {
-    if (rowSelection.length > 0) {
-      setSelectedUserRow(data[rowSelection[0] as number]);
-    }
-  }, [rowSelection, data]);
+  */
 
   return (
     <Container maxWidth="xl">
@@ -66,6 +65,16 @@ export function RecruiterTable() {
           },
         }}
         pageSizeOptions={defaultPageSizeOptions}
+          onRowClick={(params: GridRowParams<ApplicationRow>, event: any) => {
+            const target = event.target as HTMLElement;
+            // if the click originated from a checkbox (or element with role=checkbox), ignore it so checkbox selection still works
+            if (
+              target.closest('input[type="checkbox"], [role="checkbox"], .MuiDataGrid-checkboxInput, .MuiDataGrid-cellCheckbox')
+            ) {
+              return;
+            }
+            navigate(`/applications/${params.row.userId}`);
+          }}
         onRowSelectionModelChange={(newRowSelectionModel) => {
           setRowSelection(newRowSelectionModel);
         }}
