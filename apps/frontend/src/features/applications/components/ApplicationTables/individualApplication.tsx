@@ -30,6 +30,7 @@ import {
 import apiClient from '@api/apiClient';
 import { AssignedRecruiters } from './AssignedRecruiters';
 import { LOGO_PATHS } from '@constants/recruitment';
+import { useUserData } from '@shared/hooks/useUserData';
 
 type IndividualApplicationDetailsProps = {
   selectedApplication: Application;
@@ -60,6 +61,10 @@ const IndividualApplicationDetails = ({
   const [reviewerNames, setReviewerNames] = useState<ReviewerInfo>({});
 
   const navigate = useNavigate();
+
+  const { user: currentUser, isLoading: isUserLoading } =
+    useUserData(accessToken);
+  const isAdmin = currentUser?.status === 'Admin';
 
   const handleClose = () => {
     navigate('/applications');
@@ -221,6 +226,7 @@ const IndividualApplicationDetails = ({
             </MenuItem>
           </Select>
         </Stack>
+
         <Stack
           direction="row"
           justifyContent="space-between"
@@ -232,18 +238,27 @@ const IndividualApplicationDetails = ({
             alignItems="center"
             sx={{ minWidth: { xs: '50%', md: '60%' } }}
           >
-            <AssignedRecruiters
-              applicationId={selectedApplication.id}
-              assignedRecruiters={selectedApplication.assignedRecruiters}
-              onRecruitersChange={(recruiterIds) => {
-                const selectedRecruiters = allRecruiters.filter((recruiter) =>
-                  recruiterIds.includes(recruiter.id),
-                );
-                setAssignedRecruiters(selectedRecruiters);
-              }}
-            />
+            {isAdmin ? (
+              <AssignedRecruiters
+                applicationId={selectedApplication.id}
+                assignedRecruiters={selectedApplication.assignedRecruiters}
+                onRecruitersChange={(recruiterIds) => {
+                  const selectedRecruiters = allRecruiters.filter((recruiter) =>
+                    recruiterIds.includes(recruiter.id),
+                  );
+                  setAssignedRecruiters(selectedRecruiters);
+                }}
+              />
+            ) : (
+              <Typography sx={{ color: '#ccc' }}>
+                {selectedApplication.assignedRecruiters
+                  .map((r) => `${r.firstName} ${r.lastName}`)
+                  .join(', ') || 'Unassigned'}
+              </Typography>
+            )}
           </Stack>
         </Stack>
+
         <Stack
           direction="row"
           justifyContent="space-between"
