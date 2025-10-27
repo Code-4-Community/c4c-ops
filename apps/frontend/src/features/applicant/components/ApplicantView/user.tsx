@@ -15,7 +15,10 @@ import { User } from '@sharedTypes/types/user.types';
 import { useApplication } from '@shared/hooks/useApplication';
 import { useFullName } from '@shared/hooks/useUserData';
 import FileUploadBox from '../FileUploadBox';
-import { Application } from '@sharedTypes/types/application.types';
+import {
+  Application,
+  ApplicationStage,
+} from '@sharedTypes/types/application.types';
 
 interface ApplicantViewProps {
   user: User;
@@ -113,7 +116,8 @@ export const ApplicantView = ({ user }: ApplicantViewProps) => {
                 </Box>
                 {!isLoading &&
                   selectedApplication &&
-                  String(selectedApplication.stage) === 'PM_CHALLENGE' && (
+                  String(selectedApplication.stage) ===
+                    ApplicationStage.PM_CHALLENGE && (
                     <FileUploadBox
                       accessToken={accessToken}
                       applicationId={applicationId}
