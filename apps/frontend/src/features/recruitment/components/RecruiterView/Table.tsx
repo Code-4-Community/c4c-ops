@@ -33,14 +33,6 @@ export function RecruiterTable() {
     selectedUserId,
   );
 
-  /* Unsure about whether this logic is still needed
-  useEffect(() => {
-    if (rowSelection.length > 0) {
-      setSelectedUserRow(data[rowSelection[0] as number]);
-    }
-  }, [rowSelection, data]);
-  */
-
   return (
     <Container maxWidth="xl">
       <Stack direction="row" alignItems="center" spacing={2} mt={4} mb={8}>
