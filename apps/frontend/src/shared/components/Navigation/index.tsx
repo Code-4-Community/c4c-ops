@@ -17,7 +17,6 @@ import {
 import {
   Dashboard as DashboardIcon,
   Chat as ApplicationsIcon,
-  Book as ResourcesIcon,
   Settings as SettingsIcon,
   Menu as MenuIcon,
   ChevronLeft as ChevronLeftIcon,
@@ -39,11 +38,6 @@ const navigationItems: NavigationItem[] = [
     text: 'Applications',
     path: '/applications',
     icon: <ApplicationsIcon />,
-  },
-  {
-    text: 'Resources',
-    path: '/resources',
-    icon: <ResourcesIcon />,
   },
   {
     text: 'Settings',

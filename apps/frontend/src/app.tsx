@@ -6,7 +6,6 @@ import NotFoundPage from '@shared/pages/NotFoundPage';
 import DashboardPage from '@shared/pages/DashboardPage';
 import ApplicationsPage from '@features/applications/pages/ApplicationsPage';
 import ApplicationDetailPage from '@features/applications/pages/ApplicationDetailPage';
-import ResourcesPage from '@features/applicant/pages/ResourcesPage';
 import SettingsPage from '@shared/pages/SettingsPage';
 import LoginContext from '@features/auth/components/LoginPage/LoginContext';
 import ProtectedRoutes from '@features/auth/components/ProtectedRoutes';
@@ -47,14 +46,6 @@ export const App: React.FC = () => {
                 element={
                   <Navigation>
                     <ApplicationDetailPage />
-                  </Navigation>
-                }
-              />
-              <Route
-                path="/resources"
-                element={
-                  <Navigation>
-                    <ResourcesPage />
                   </Navigation>
                 }
               />

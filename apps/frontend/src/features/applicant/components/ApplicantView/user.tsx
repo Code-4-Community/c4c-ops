@@ -1,4 +1,4 @@
-import React from 'react';
+import { useState } from 'react';
 import {
   Typography,
   Stack,
@@ -14,6 +14,11 @@ import useLoginContext from '@features/auth/components/LoginPage/useLoginContext
 import { User } from '@sharedTypes/types/user.types';
 import { useApplication } from '@shared/hooks/useApplication';
 import { useFullName } from '@shared/hooks/useUserData';
+import FileUploadBox from '../FileUploadBox';
+import {
+  Application,
+  ApplicationStage,
+} from '@sharedTypes/types/application.types';
 
 interface ApplicantViewProps {
   user: User;
@@ -26,6 +31,7 @@ export const ApplicantView = ({ user }: ApplicantViewProps) => {
     user.id,
   );
   const { fullName } = useFullName(accessToken);
+  const [applicationId, setApplicationId] = useState<number | null>(null);
 
   return (
     <Box
@@ -108,7 +114,15 @@ export const ApplicantView = ({ user }: ApplicantViewProps) => {
                     {selectedApplication.stage}
                   </Typography>
                 </Box>
-
+                {!isLoading &&
+                  selectedApplication &&
+                  String(selectedApplication.stage) ===
+                    ApplicationStage.PM_CHALLENGE && (
+                    <FileUploadBox
+                      accessToken={accessToken}
+                      applicationId={applicationId}
+                    />
+                  )}
                 <Typography variant="h6" mt={2}>
                   Application Details
                 </Typography>
