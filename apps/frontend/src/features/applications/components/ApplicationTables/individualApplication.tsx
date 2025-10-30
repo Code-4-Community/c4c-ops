@@ -12,12 +12,9 @@ import {
   Card,
   Grid,
 } from '@mui/material';
+import { alpha } from '@mui/material/styles';
 import { useState, useEffect } from 'react';
-import {
-  Application,
-  AssignedRecruiter,
-  Decision,
-} from '@sharedTypes/types/application.types';
+import { Application, Decision } from '@sharedTypes/types/application.types';
 import { User } from '@sharedTypes/types/user.types';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -31,6 +28,7 @@ import apiClient from '@api/apiClient';
 import { AssignedRecruiters } from './AssignedRecruiters';
 import { LOGO_PATHS } from '@constants/recruitment';
 import { useUserData } from '@shared/hooks/useUserData';
+import CodeAmbientBackground from '../../components/CodeAmbientBackground';
 
 type IndividualApplicationDetailsProps = {
   selectedApplication: Application;
@@ -47,13 +45,9 @@ const IndividualApplicationDetails = ({
   selectedUser,
   accessToken,
 }: IndividualApplicationDetailsProps) => {
-  const [assignedRecruiters, setAssignedRecruiters] = useState<
-    AssignedRecruiter[]
-  >([]);
-  const [allRecruiters, setAllRecruiters] = useState<AssignedRecruiter[]>([]);
-  const [selectedRecruiterIds, setSelectedRecruiterIds] = useState<number[]>(
-    [],
-  );
+  // Lighter purple accent tuned to match Figma palette
+  const ACCENT = '#9B6CFF';
+  // Assigned recruiters are managed by the AssignedRecruiters child component
 
   const [reviewRating, setReviewRating] = useState<number | null>(null);
   const [reviewComment, setReviewComment] = useState('');
@@ -114,26 +108,7 @@ const IndividualApplicationDetails = ({
     }
   };
 
-  // Fetch all available recruiters
-  const fetchAllRecruiters = async () => {
-    try {
-      const recruiters = await apiClient.getAllRecruiters(accessToken);
-      setAllRecruiters(recruiters);
-    } catch (error) {
-      console.error('Error fetching recruiters:', error);
-    }
-  };
-
-  // Initialize selected recruiters from props
-  useEffect(() => {
-    const assignedIds = assignedRecruiters.map((recruiter) => recruiter.id);
-    setSelectedRecruiterIds(assignedIds);
-  }, [assignedRecruiters]);
-
-  // Fetch all available recruiters
-  useEffect(() => {
-    fetchAllRecruiters();
-  }, [accessToken]);
+  // (Recruiters fetching moved into AssignedRecruiters component)
 
   // Fetch reviewer names
   useEffect(() => {
@@ -160,285 +135,381 @@ const IndividualApplicationDetails = ({
   }, [selectedApplication.reviews, accessToken]);
 
   return (
-    <Stack direction="column">
-      {/* Top section with the user's name and links + app stage, assigned to, review step*/}
-      <Stack direction="row" justifyContent="space-between" alignItems="center">
-        {/* Logo + Name + information*/}
-        <Stack direction="column">
-          <Stack direction="row" alignItems="center" spacing={2}>
-            <img
-              src={LOGO_PATHS.STANDARD}
-              alt="C4C Logo"
-              style={{ width: 50, height: 40 }}
-            />
-            <Typography
-              variant="h5"
-              sx={{ fontWeight: 'bold', color: 'white' }}
-            >
-              {selectedUser.firstName} {selectedUser.lastName} |{' '}
-              {selectedApplication.position || 'No Position'}
-            </Typography>
-          </Stack>
-          <Typography
-            variant="subtitle1"
-            sx={{
-              display: 'flex',
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: 1,
-              color: '#ccc !important',
-            }}
-          >
-            {/* Make this with the correct links/information */}
-            <MailOutline sx={{ color: '#ccc' }} /> Email
-            <NoteAltOutlined sx={{ color: '#ccc' }} /> Overview
-            <DescriptionOutlined sx={{ color: '#ccc' }} /> Application
-            <StickyNote2Outlined sx={{ color: '#ccc' }} /> Interview Notes
-          </Typography>
-        </Stack>
-        <Button variant="text" size="small" onClick={handleClose}>
-          <Close />
-        </Button>
-      </Stack>
-      <Stack
-        direction="column"
-        spacing={2}
-        my={2}
-        sx={{ width: { xs: '100%', md: '50%' }, alignSelf: 'center' }}
-      >
+    <Stack
+      direction="column"
+      sx={{
+        gap: 2,
+        px: { xs: 2, sm: 3, md: 4 },
+        py: { xs: 2, sm: 3 },
+        color: '#fff',
+        textShadow: '0 1px 1px rgba(0,0,0,0.25)',
+        position: 'relative',
+      }}
+      className="bubbly-font"
+    >
+      <CodeAmbientBackground opacity={0.14} />
+      <Box sx={{ position: 'relative', zIndex: 1 }}>
+        {/* Top section with the user's name and links + app stage, assigned to, review step*/}
         <Stack
           direction="row"
           justifyContent="space-between"
           alignItems="center"
+          sx={{
+            backgroundColor: alpha(ACCENT, 0.12),
+            border: `1px solid ${alpha(ACCENT, 0.5)}`,
+            borderRadius: 1.5,
+            p: { xs: 1.5, md: 2 },
+            mb: 1.5,
+          }}
         >
-          <Typography variant="body1">App Stage: </Typography>
-          <Select
-            size="small"
-            value={selectedApplication.stage}
-            sx={{
-              color: 'white',
-              backgroundColor: 'gray',
-              minWidth: { xs: '50%', md: '60%' },
-            }}
-          >
-            <MenuItem value={selectedApplication.stage}>
-              {selectedApplication.stage}
-            </MenuItem>
-          </Select>
-        </Stack>
-
-        <Stack
-          direction="row"
-          justifyContent="space-between"
-          alignItems="center"
-        >
-          <Typography variant="body1">Assigned To: </Typography>
-          <Stack
-            direction="row"
-            alignItems="center"
-            sx={{ minWidth: { xs: '50%', md: '60%' } }}
-          >
-            {isAdmin ? (
-              <AssignedRecruiters
-                applicationId={selectedApplication.id}
-                assignedRecruiters={selectedApplication.assignedRecruiters}
-                onRecruitersChange={(recruiterIds) => {
-                  const selectedRecruiters = allRecruiters.filter((recruiter) =>
-                    recruiterIds.includes(recruiter.id),
-                  );
-                  setAssignedRecruiters(selectedRecruiters);
-                }}
+          {/* Logo + Name + information*/}
+          <Stack direction="column" spacing={0.5}>
+            <Stack direction="row" alignItems="center" spacing={2}>
+              <img
+                src={LOGO_PATHS.STANDARD}
+                alt="C4C Logo"
+                style={{ width: 50, height: 40 }}
               />
-            ) : (
-              <Typography sx={{ color: '#ccc' }}>
-                {selectedApplication.assignedRecruiters
-                  .map((r) => `${r.firstName} ${r.lastName}`)
-                  .join(', ') || 'Unassigned'}
+              <Typography variant="h5" sx={{ fontWeight: 700, color: '#fff' }}>
+                {selectedUser.firstName} {selectedUser.lastName} |{' '}
+                {selectedApplication.position || 'No Position'}
               </Typography>
-            )}
-          </Stack>
-        </Stack>
-
-        <Stack
-          direction="row"
-          justifyContent="space-between"
-          alignItems="center"
-        >
-          <Typography variant="body1">Review Step: </Typography>
-          <Select
-            size="small"
-            value={selectedApplication.stageProgress}
-            sx={{
-              color: 'white',
-              backgroundColor: 'gray',
-              minWidth: { xs: '50%', md: '60%' },
-            }}
-          >
-            <MenuItem value={selectedApplication.stageProgress}>
-              {selectedApplication.stageProgress}
-            </MenuItem>
-          </Select>
-        </Stack>
-      </Stack>
-      <Grid container spacing={2}>
-        <Grid item xs={12} md={8}>
-          <Stack
-            direction="column"
-            sx={{ border: '1px solid #6225b0', borderRadius: 1, p: 2 }}
-          >
-            <Typography variant="h5" textAlign="center">
-              Application Response
-            </Typography>
-            <Divider sx={{ my: 2, borderColor: '#ccc' }} />
-            {selectedApplication.response.map((response, index) => (
-              <Stack direction="column" key={index}>
-                <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
-                  {index + 1}. {response.question}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{
-                    color: 'text.secondary',
-                  }}
-                >
-                  {response.answer}
-                </Typography>
-                <Divider sx={{ my: 2, borderColor: '#ccc' }} />
-              </Stack>
-            ))}
-          </Stack>
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <Stack
-            direction="column"
-            sx={{ border: '1px solid #6225b0', borderRadius: 1, p: 2 }}
-          >
-            <Typography variant="h5" textAlign="center">
-              Recruiter Review
-            </Typography>
-            <Divider sx={{ my: 2, borderColor: '#ccc' }} />
-            <Box
-              component="form"
-              onSubmit={handleFormSubmit}
-              sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
-            >
-              <FormControl size="small">
-                <FormLabel sx={{ color: '#ccc' }}>Rating</FormLabel>
-                <Select
-                  value={reviewRating?.toString() || ''}
-                  onChange={(e) => handleRatingChange(e.target.value)}
-                  sx={{
-                    color: 'white',
-                    border: '1px solid white',
-                  }}
-                >
-                  <MenuItem value="">N/A</MenuItem>
-                  <MenuItem value={1}>1</MenuItem>
-                  <MenuItem value={2}>2</MenuItem>
-                  <MenuItem value={3}>3</MenuItem>
-                  <MenuItem value={4}>4</MenuItem>
-                  <MenuItem value={5}>5</MenuItem>
-                </Select>
-              </FormControl>
-
-              <FormControl size="small">
-                <FormLabel sx={{ color: '#ccc' }}>
-                  Final Recommendation
-                </FormLabel>
-                <Select
-                  value={decision || ''}
-                  onChange={(e) =>
-                    handleDecisionChange(
-                      e.target.value === 'N/A'
-                        ? null
-                        : (e.target.value as Decision),
-                    )
-                  }
-                  sx={{
-                    color: 'white',
-                    border: '1px solid white',
-                  }}
-                >
-                  <MenuItem value="N/A">N/A</MenuItem>
-                  <MenuItem value={Decision.ACCEPT}>Accept</MenuItem>
-                  <MenuItem value={Decision.REJECT}>Reject</MenuItem>
-                </Select>
-              </FormControl>
-
-              <FormControl size="small">
-                <FormLabel sx={{ color: '#ccc' }}>Comments</FormLabel>
-                <TextField
-                  variant="outlined"
-                  size="small"
-                  fullWidth
-                  multiline
-                  rows={4}
-                  value={reviewComment}
-                  onChange={(e) => setReviewComment(e.target.value)}
-                  sx={{
-                    border: '1px solid #ccc',
-                    color: '#white',
-                  }}
-                />
-              </FormControl>
-              <Button
-                variant="contained"
-                size="small"
-                type="submit"
+            </Stack>
+            <Stack direction="row" alignItems="center" spacing={2}>
+              {/* Make this with the correct links/information */}
+              <Stack
+                direction="row"
+                alignItems="center"
+                spacing={1}
                 sx={{
-                  alignSelf: 'flex-end',
-                  width: 'fit-content',
-                  minWidth: '100px',
+                  px: 1,
+                  py: 0.5,
+                  borderRadius: 9999,
+                  backgroundColor: alpha(ACCENT, 0.25),
                 }}
               >
-                Submit
-              </Button>
-            </Box>
-            <Divider sx={{ my: 2, borderColor: '#ccc' }} />
-            <Stack>
-              <Typography variant="h6">Reviews</Typography>
-              {selectedApplication.reviews.length > 0 ? (
-                selectedApplication.reviews.map((review, index) => {
-                  return (
-                    <Stack key={index} direction="column">
-                      <Stack direction="row" justifyContent="space-between">
-                        <Typography variant="body2">
-                          Name:{' '}
-                          {reviewerNames[review.reviewerId] || 'Loading...'}
-                        </Typography>
-                        <Typography variant="body2">
-                          {new Date(review.createdAt).toLocaleDateString()} |{' '}
-                          {new Date(review.createdAt).toLocaleTimeString(
-                            'en-US',
-                            { hour12: false },
-                          )}
-                        </Typography>
-                      </Stack>
-                      <Card
-                        sx={{
-                          backgroundColor: 'gray',
-                          borderRadius: 1,
-                        }}
-                      >
-                        <Stack direction="column">
-                          <Typography variant="body2">
-                            {review.rating}/{review.stage}
-                          </Typography>
-                          <Typography variant="body2">
-                            Comment: {review.content}
-                          </Typography>
-                        </Stack>
-                      </Card>
-                    </Stack>
-                  );
-                })
-              ) : (
-                <Typography variant="body2">No reviews yet</Typography>
-              )}
+                <MailOutline fontSize="small" />
+                <Typography variant="body2">
+                  {selectedUser.email ?? 'Email'}
+                </Typography>
+              </Stack>
+              <Stack
+                direction="row"
+                alignItems="center"
+                spacing={1}
+                sx={{
+                  px: 1,
+                  py: 0.5,
+                  borderRadius: 9999,
+                  backgroundColor: alpha(ACCENT, 0.25),
+                }}
+              >
+                <NoteAltOutlined fontSize="small" />
+                <Typography variant="body2">Overview</Typography>
+              </Stack>
+              <Stack
+                direction="row"
+                alignItems="center"
+                spacing={1}
+                sx={{
+                  px: 1,
+                  py: 0.5,
+                  borderRadius: 9999,
+                  backgroundColor: alpha(ACCENT, 0.25),
+                }}
+              >
+                <DescriptionOutlined fontSize="small" />
+                <Typography variant="body2">Application</Typography>
+              </Stack>
+              <Stack
+                direction="row"
+                alignItems="center"
+                spacing={1}
+                sx={{
+                  px: 1,
+                  py: 0.5,
+                  borderRadius: 9999,
+                  backgroundColor: alpha(ACCENT, 0.25),
+                }}
+              >
+                <StickyNote2Outlined fontSize="small" />
+                <Typography variant="body2">Interview Notes</Typography>
+              </Stack>
             </Stack>
           </Stack>
+          <Button
+            variant="outlined"
+            color="inherit"
+            size="small"
+            onClick={handleClose}
+            sx={{ borderColor: alpha(ACCENT, 0.6) }}
+          >
+            <Close />
+          </Button>
+        </Stack>
+        <Card
+          elevation={0}
+          sx={{
+            border: `1px solid ${alpha(ACCENT, 0.35)}`,
+            backgroundColor: 'transparent',
+            p: { xs: 2, md: 2.5 },
+            maxWidth: 900,
+            alignSelf: 'center',
+            width: '100%',
+            mt: 1,
+          }}
+        >
+          <Grid container spacing={1.5}>
+            <Grid item xs={12} md={6}>
+              <FormControl size="small" fullWidth>
+                <FormLabel sx={{ color: '#fff' }}>App Stage</FormLabel>
+                <Select
+                  value={selectedApplication.stage}
+                  fullWidth
+                  sx={{
+                    border: `1px solid ${alpha(ACCENT, 0.4)}`,
+                    color: '#fff',
+                    '.MuiSelect-icon': { color: '#fff' },
+                  }}
+                >
+                  <MenuItem value={selectedApplication.stage}>
+                    {selectedApplication.stage}
+                  </MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <FormControl size="small" fullWidth>
+                <FormLabel sx={{ color: '#fff' }}>Review Step</FormLabel>
+                <Select
+                  value={selectedApplication.stageProgress}
+                  fullWidth
+                  sx={{
+                    border: `1px solid ${alpha(ACCENT, 0.4)}`,
+                    color: '#fff',
+                    '.MuiSelect-icon': { color: '#fff' },
+                  }}
+                >
+                  <MenuItem value={selectedApplication.stageProgress}>
+                    {selectedApplication.stageProgress}
+                  </MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12}>
+              <FormControl size="small" fullWidth>
+                <FormLabel sx={{ color: '#fff' }}>Assigned To</FormLabel>
+                <Box>
+                  {isAdmin ? (
+                    <AssignedRecruiters
+                      applicationId={selectedApplication.id}
+                      assignedRecruiters={selectedApplication.assignedRecruiters}
+                    />
+                  ) : (
+                    <Typography sx={{ color: '#fff', mt: 1 }}>
+                      {selectedApplication.assignedRecruiters
+                        .map((r) => `${r.firstName} ${r.lastName}`)
+                        .join(', ') || 'Unassigned'}
+                    </Typography>
+                  )}
+                </Box>
+              </FormControl>
+            </Grid>
+          </Grid>
+        </Card>
+        <Grid container spacing={1.5}>
+          <Grid item xs={12} md={8}>
+            <Stack
+              direction="column"
+              sx={{
+                border: `1px solid ${alpha(ACCENT, 0.35)}`,
+                borderRadius: 1.5,
+                p: { xs: 2, md: 2.5 },
+                backgroundColor: 'transparent',
+                gap: 1,
+                mt: 2,
+              }}
+            >
+              <Typography
+                variant="h6"
+                textAlign="center"
+                sx={{ fontWeight: 700, color: '#fff' }}
+              >
+                Application Response
+              </Typography>
+              <Divider sx={{ my: 1.5, borderColor: alpha(ACCENT, 0.25) }} />
+              {selectedApplication.response.map((response, index) => (
+                <Stack direction="column" key={index} sx={{ py: 1.5 }}>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                    {index + 1}. {response.question}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{ color: '#fff', whiteSpace: 'pre-wrap' }}
+                  >
+                    {response.answer}
+                  </Typography>
+                  {index < selectedApplication.response.length - 1 && (
+                    <Divider
+                      sx={{ mt: 1.5, borderColor: alpha(ACCENT, 0.2) }}
+                    />
+                  )}
+                </Stack>
+              ))}
+            </Stack>
+          </Grid>
+          <Grid item xs={12} md={4} sx={{ mt: { md: -25 } }}>
+            <Stack
+              direction="column"
+              sx={{
+                border: `1px solid ${alpha(ACCENT, 0.35)}`,
+                borderRadius: 1.5,
+                p: { xs: 2, md: 2.5 },
+                backgroundColor: 'transparent',
+                gap: 1.5,
+                position: { md: 'sticky' },
+                top: { md: -104 },
+              }}
+            >
+              <Typography
+                variant="h6"
+                textAlign="center"
+                sx={{ fontWeight: 700, color: '#fff' }}
+              >
+                Recruiter Review
+              </Typography>
+              <Divider sx={{ my: 1.5, borderColor: alpha(ACCENT, 0.25) }} />
+              <Box
+                component="form"
+                onSubmit={handleFormSubmit}
+                sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
+              >
+                <FormControl size="small">
+                  <FormLabel sx={{ color: '#fff' }}>Rating</FormLabel>
+                  <Select
+                    value={reviewRating?.toString() || ''}
+                    onChange={(e) => handleRatingChange(e.target.value)}
+                    sx={{
+                      border: `1px solid ${alpha(ACCENT, 0.4)}`,
+                      color: '#fff',
+                      '.MuiSelect-icon': { color: '#fff' },
+                    }}
+                  >
+                    <MenuItem value="">N/A</MenuItem>
+                    <MenuItem value={1}>1</MenuItem>
+                    <MenuItem value={2}>2</MenuItem>
+                    <MenuItem value={3}>3</MenuItem>
+                    <MenuItem value={4}>4</MenuItem>
+                    <MenuItem value={5}>5</MenuItem>
+                  </Select>
+                </FormControl>
+
+                <FormControl size="small">
+                  <FormLabel sx={{ color: '#fff' }}>
+                    Final Recommendation
+                  </FormLabel>
+                  <Select
+                    value={decision || ''}
+                    onChange={(e) =>
+                      handleDecisionChange(
+                        e.target.value === 'N/A'
+                          ? null
+                          : (e.target.value as Decision),
+                      )
+                    }
+                    sx={{
+                      border: `1px solid ${alpha(ACCENT, 0.4)}`,
+                      color: '#fff',
+                      '.MuiSelect-icon': { color: '#fff' },
+                    }}
+                  >
+                    <MenuItem value="N/A">N/A</MenuItem>
+                    <MenuItem value={Decision.ACCEPT}>Accept</MenuItem>
+                    <MenuItem value={Decision.REJECT}>Reject</MenuItem>
+                  </Select>
+                </FormControl>
+
+                <FormControl size="small">
+                  <FormLabel sx={{ color: '#fff' }}>Comments</FormLabel>
+                  <TextField
+                    variant="outlined"
+                    size="small"
+                    fullWidth
+                    multiline
+                    rows={4}
+                    value={reviewComment}
+                    onChange={(e) => setReviewComment(e.target.value)}
+                    sx={{
+                      '& .MuiOutlinedInput-root fieldset': {
+                        borderColor: alpha(ACCENT, 0.4),
+                      },
+                      '& .MuiInputBase-input': { color: '#fff' },
+                    }}
+                  />
+                </FormControl>
+                <Button
+                  variant="contained"
+                  size="small"
+                  type="submit"
+                  sx={{
+                    alignSelf: 'flex-end',
+                    width: 'fit-content',
+                    minWidth: '100px',
+                    bgcolor: ACCENT,
+                    '&:hover': { bgcolor: alpha(ACCENT, 0.9) },
+                  }}
+                >
+                  Submit
+                </Button>
+              </Box>
+              <Divider sx={{ my: 1.5, borderColor: alpha(ACCENT, 0.25) }} />
+              <Stack>
+                <Typography variant="h6">Reviews</Typography>
+                {selectedApplication.reviews.length > 0 ? (
+                  selectedApplication.reviews.map((review, index) => {
+                    return (
+                      <Stack key={index} direction="column">
+                        <Stack direction="row" justifyContent="space-between">
+                          <Typography variant="body2">
+                            Name:{' '}
+                            {reviewerNames[review.reviewerId] || 'Loading...'}
+                          </Typography>
+                          <Typography variant="body2">
+                            {new Date(review.createdAt).toLocaleDateString()} |{' '}
+                            {new Date(review.createdAt).toLocaleTimeString(
+                              'en-US',
+                              { hour12: false },
+                            )}
+                          </Typography>
+                        </Stack>
+                        <Card
+                          sx={{
+                            backgroundColor: 'transparent',
+                            borderRadius: 1,
+                            border: `1px solid ${alpha(ACCENT, 0.25)}`,
+                            p: 1,
+                          }}
+                        >
+                          <Stack direction="column">
+                            <Typography variant="body2">
+                              {review.rating}/{review.stage}
+                            </Typography>
+                            <Typography variant="body2">
+                              Comment: {review.content}
+                            </Typography>
+                          </Stack>
+                        </Card>
+                      </Stack>
+                    );
+                  })
+                ) : (
+                  <Typography variant="body2">No reviews yet</Typography>
+                )}
+              </Stack>
+            </Stack>
+          </Grid>
         </Grid>
-      </Grid>
+      </Box>
     </Stack>
   );
 };

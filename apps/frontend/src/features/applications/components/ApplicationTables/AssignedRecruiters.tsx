@@ -7,9 +7,11 @@ import {
   Chip,
   Box,
 } from '@mui/material';
+import type { SelectChangeEvent } from '@mui/material/Select';
 import { AssignedRecruiter } from '@sharedTypes/types/application.types';
 import apiClient from '@api/apiClient';
 import useLoginContext from '@features/auth/components/LoginPage/useLoginContext';
+import { alpha, useTheme } from '@mui/material/styles';
 
 interface AssignedRecruitersProps {
   applicationId: number;
@@ -25,24 +27,13 @@ export function AssignedRecruiters({
   onRefreshData,
 }: AssignedRecruitersProps) {
   const { token: accessToken } = useLoginContext();
+  const theme = useTheme();
+  const ACCENT = '#9B6CFF';
   const [allRecruiters, setAllRecruiters] = useState<AssignedRecruiter[]>([]);
   const [selectedRecruiterIds, setSelectedRecruiterIds] = useState<number[]>(
     [],
   );
   const [loading, setLoading] = useState(false);
-
-  // Fetch all available recruiters
-  const fetchAllRecruiters = async () => {
-    try {
-      setLoading(true);
-      const recruiters = await apiClient.getAllRecruiters(accessToken);
-      setAllRecruiters(recruiters);
-    } catch (error) {
-      console.error('Error fetching recruiters:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // Initialize selected recruiters from props
   useEffect(() => {
@@ -52,11 +43,22 @@ export function AssignedRecruiters({
 
   // Fetch all available recruiters
   useEffect(() => {
+    const fetchAllRecruiters = async () => {
+      try {
+        setLoading(true);
+        const recruiters = await apiClient.getAllRecruiters(accessToken);
+        setAllRecruiters(recruiters);
+      } catch (error) {
+        console.error('Error fetching recruiters:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
     fetchAllRecruiters();
   }, [accessToken]);
 
-  const handleRecruiterChange = async (event: any) => {
-    const newSelectedIds = event.target.value as number[];
+  const handleRecruiterChange = async (event: SelectChangeEvent<number[]>) => {
+    const newSelectedIds = event.target.value as unknown as number[];
     setSelectedRecruiterIds(newSelectedIds);
 
     try {
@@ -100,7 +102,7 @@ export function AssignedRecruiters({
             size="small"
             sx={{
               color: 'white',
-              backgroundColor: '#ccc',
+              backgroundColor: alpha(ACCENT, 0.5),
             }}
           />
         );
@@ -110,7 +112,9 @@ export function AssignedRecruiters({
 
   return (
     <FormControl fullWidth sx={{ minWidth: 300, mt: 2 }}>
-      <InputLabel sx={{ color: 'white' }}>Assigned Recruiters</InputLabel>
+      <InputLabel sx={{ color: alpha(ACCENT, 0.9) }}>
+        Assigned Recruiters
+      </InputLabel>
       <Select
         multiple
         size="small"
@@ -119,15 +123,14 @@ export function AssignedRecruiters({
         renderValue={renderValue}
         disabled={loading}
         sx={{
-          backgroundColor: '#333333',
-          color: 'black',
-          '.MuiSelect-icon': { color: 'black' },
+          color: 'inherit',
+          border: `1px solid ${alpha(ACCENT, 0.4)}`,
         }}
         MenuProps={{
           PaperProps: {
             sx: {
-              backgroundColor: '#333333',
-              color: 'white',
+              backgroundColor: alpha(theme.palette.background.paper, 0.95),
+              color: 'inherit',
             },
           },
         }}
@@ -136,7 +139,7 @@ export function AssignedRecruiters({
           <MenuItem
             key={recruiter.id}
             value={recruiter.id}
-            sx={{ backgroundColor: '#333333', color: 'white' }}
+            sx={{ color: 'inherit' }}
           >
             {recruiter.firstName} {recruiter.lastName}
           </MenuItem>
