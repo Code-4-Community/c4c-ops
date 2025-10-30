@@ -124,298 +124,296 @@ const HomePage = () => {
   };
 
   return (
-    <>
+    <Box
+      sx={{
+        minHeight: '100vh',
+        backgroundColor: '#181818',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
+      {/* Header */}
       <Box
         sx={{
-          minHeight: '100vh',
-          backgroundColor: '#181818',
           display: 'flex',
-          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '20px 40px',
+          borderBottom: '1px solid #2a2a2a',
         }}
       >
-        {/* Header */}
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '20px 40px',
-            borderBottom: '1px solid #2a2a2a',
-          }}
-        >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <img
-              src="/c4clogo.png"
-              alt="C4C Logo"
-              style={{ height: '40px', width: 'auto' }}
-            />
-            <Typography variant="h5" sx={{ fontWeight: 500 }}>
-              2025 Application
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <img
+            src="/c4clogo.png"
+            alt="C4C Logo"
+            style={{ height: '40px', width: 'auto' }}
+          />
+          <Typography variant="h5" sx={{ fontWeight: 500 }}>
+            2025 Application
+          </Typography>
+        </Box>
+        {isAuthenticated ? (
+          <Button
+            variant="contained"
+            onClick={handleSignOut}
+            sx={{
+              backgroundColor: '#6e6e6e !important',
+              color: '#ffffff !important',
+              fontSize: '16px',
+              fontWeight: 600,
+              padding: '10px 24px',
+              textTransform: 'none',
+              borderRadius: '6px',
+              '&:hover': {
+                backgroundColor: '#5a5a5a !important',
+              },
+            }}
+          >
+            Sign Out
+          </Button>
+        ) : (
+          <Button
+            variant="contained"
+            href="https://scaffolding.auth.us-east-2.amazoncognito.com/login?client_id=4c5b8m6tno9fvljmseqgmk82fv&response_type=code&scope=email+openid&redirect_uri=http%3A%2F%2Flocalhost%3A4200%2Flogin"
+            sx={{
+              backgroundColor: '#4a5fa8 !important',
+              color: '#ffffff !important',
+              fontSize: '16px',
+              fontWeight: 600,
+              padding: '10px 24px',
+              textTransform: 'none',
+              borderRadius: '6px',
+              '&:hover': {
+                backgroundColor: '#3d4f8f !important',
+              },
+            }}
+          >
+            Login
+          </Button>
+        )}
+      </Box>
+
+      {/* Main Content */}
+      <Container maxWidth="md" sx={{ flex: 1, py: 8 }}>
+        <Stack spacing={4}>
+          {/* Welcome Banner */}
+          <Box
+            sx={{
+              backgroundColor: '#3a3a3a',
+              borderRadius: '8px',
+              padding: '48px 32px',
+              textAlign: 'center',
+            }}
+          >
+            <Typography
+              variant="h4"
+              sx={{
+                fontWeight: 600,
+                marginBottom: 2,
+                color: '#ffffff !important',
+              }}
+            >
+              Welcome to the C4C Application page!
+            </Typography>
+            <Typography
+              variant="h6"
+              sx={{ color: '#cccccc !important', fontWeight: 400 }}
+            >
+              Apply as a Developer, Designer, or Project Manager here.
             </Typography>
           </Box>
-          {isAuthenticated ? (
-            <Button
-              variant="contained"
-              onClick={handleSignOut}
-              sx={{
-                backgroundColor: '#6e6e6e !important',
-                color: '#ffffff !important',
-                fontSize: '16px',
-                fontWeight: 600,
-                padding: '10px 24px',
-                textTransform: 'none',
-                borderRadius: '6px',
-                '&:hover': {
-                  backgroundColor: '#5a5a5a !important',
-                },
-              }}
-            >
-              Sign Out
-            </Button>
-          ) : (
-            <Button
-              variant="contained"
-              href="https://scaffolding.auth.us-east-2.amazoncognito.com/login?client_id=4c5b8m6tno9fvljmseqgmk82fv&response_type=code&scope=email+openid&redirect_uri=http%3A%2F%2Flocalhost%3A4200%2Flogin"
-              sx={{
-                backgroundColor: '#4a5fa8 !important',
-                color: '#ffffff !important',
-                fontSize: '16px',
-                fontWeight: 600,
-                padding: '10px 24px',
-                textTransform: 'none',
-                borderRadius: '6px',
-                '&:hover': {
-                  backgroundColor: '#3d4f8f !important',
-                },
-              }}
-            >
-              Login
-            </Button>
-          )}
-        </Box>
 
-        {/* Main Content */}
-        <Container maxWidth="md" sx={{ flex: 1, py: 8 }}>
-          <Stack spacing={4}>
-            {/* Welcome Banner */}
+          {/* Role Buttons */}
+          <Box
+            sx={{
+              backgroundColor: '#3a3a3a',
+              borderRadius: '8px',
+              padding: '32px',
+            }}
+          >
+            <Stack spacing={3}>
+              {/* Designer Row */}
+              <Box
+                sx={{
+                  display: 'grid',
+                  gridTemplateColumns: '1.5fr 1fr',
+                  gap: 2,
+                }}
+              >
+                <Button
+                  variant="contained"
+                  sx={{
+                    backgroundColor: '#4a5fa8 !important',
+                    color: '#ffffff !important',
+                    fontSize: '18px',
+                    fontWeight: 600,
+                    padding: '16px 32px',
+                    textTransform: 'none',
+                    borderRadius: '8px',
+                    '&:hover': {
+                      backgroundColor: '#3d4f8f !important',
+                    },
+                  }}
+                >
+                  Designer
+                </Button>
+                <Button
+                  variant="contained"
+                  onClick={() => handleLearnMore('designer')}
+                  sx={{
+                    backgroundColor: '#6e6e6e !important',
+                    color: '#ffffff !important',
+                    fontSize: '18px',
+                    fontWeight: 600,
+                    padding: '16px 32px',
+                    textTransform: 'none',
+                    borderRadius: '8px',
+                    '&:hover': {
+                      backgroundColor: '#5a5a5a !important',
+                    },
+                  }}
+                >
+                  Learn More →
+                </Button>
+              </Box>
+
+              {/* Software Developer Row */}
+              <Box
+                sx={{
+                  display: 'grid',
+                  gridTemplateColumns: '1.5fr 1fr',
+                  gap: 2,
+                }}
+              >
+                <Button
+                  variant="contained"
+                  sx={{
+                    backgroundColor: '#4a5fa8 !important',
+                    color: '#ffffff !important',
+                    fontSize: '18px',
+                    fontWeight: 600,
+                    padding: '16px 32px',
+                    textTransform: 'none',
+                    borderRadius: '8px',
+                    '&:hover': {
+                      backgroundColor: '#3d4f8f !important',
+                    },
+                  }}
+                >
+                  Software Developer
+                </Button>
+                <Button
+                  variant="contained"
+                  onClick={() => handleLearnMore('developer')}
+                  sx={{
+                    backgroundColor: '#6e6e6e !important',
+                    color: '#ffffff !important',
+                    fontSize: '18px',
+                    fontWeight: 600,
+                    padding: '16px 32px',
+                    textTransform: 'none',
+                    borderRadius: '8px',
+                    '&:hover': {
+                      backgroundColor: '#5a5a5a !important',
+                    },
+                  }}
+                >
+                  Learn More →
+                </Button>
+              </Box>
+
+              {/* Product Manager Row */}
+              <Box
+                sx={{
+                  display: 'grid',
+                  gridTemplateColumns: '1.5fr 1fr',
+                  gap: 2,
+                }}
+              >
+                <Button
+                  variant="contained"
+                  sx={{
+                    backgroundColor: '#4a5fa8 !important',
+                    color: '#ffffff !important',
+                    fontSize: '18px',
+                    fontWeight: 600,
+                    padding: '16px 32px',
+                    textTransform: 'none',
+                    borderRadius: '8px',
+                    '&:hover': {
+                      backgroundColor: '#3d4f8f !important',
+                    },
+                  }}
+                >
+                  Product Manager
+                </Button>
+                <Button
+                  variant="contained"
+                  onClick={() => handleLearnMore('pm')}
+                  sx={{
+                    backgroundColor: '#6e6e6e !important',
+                    color: '#ffffff !important',
+                    fontSize: '18px',
+                    fontWeight: 600,
+                    padding: '16px 32px',
+                    textTransform: 'none',
+                    borderRadius: '8px',
+                    '&:hover': {
+                      backgroundColor: '#5a5a5a !important',
+                    },
+                  }}
+                >
+                  Learn More →
+                </Button>
+              </Box>
+            </Stack>
+          </Box>
+
+          {/* Deadline Section */}
+          <Box
+            sx={{
+              backgroundColor: '#3a3a3a',
+              borderRadius: '8px',
+              padding: '40px 32px',
+              textAlign: 'center',
+            }}
+          >
+            <Typography
+              variant="h5"
+              sx={{
+                fontWeight: 600,
+                marginBottom: 3,
+                color: '#ffffff !important',
+              }}
+            >
+              Deadline: October 31, 2025
+            </Typography>
+
+            {/* Countdown Timer */}
             <Box
               sx={{
-                backgroundColor: '#3a3a3a',
+                backgroundColor: '#7b4db8',
                 borderRadius: '8px',
-                padding: '48px 32px',
-                textAlign: 'center',
+                padding: '32px',
               }}
             >
               <Typography
                 variant="h4"
                 sx={{
-                  fontWeight: 600,
-                  marginBottom: 2,
+                  fontWeight: 700,
                   color: '#ffffff !important',
+                  letterSpacing: '2px',
                 }}
               >
-                Welcome to the C4C Application page!
-              </Typography>
-              <Typography
-                variant="h6"
-                sx={{ color: '#cccccc !important', fontWeight: 400 }}
-              >
-                Apply as a Developer, Designer, or Project Manager here.
+                {formatTime(timeLeft.days)} days, {formatTime(timeLeft.hours)}{' '}
+                hours, {formatTime(timeLeft.minutes)} minutes, and{' '}
+                {formatTime(timeLeft.seconds)} seconds left!
               </Typography>
             </Box>
-
-            {/* Role Buttons */}
-            <Box
-              sx={{
-                backgroundColor: '#3a3a3a',
-                borderRadius: '8px',
-                padding: '32px',
-              }}
-            >
-              <Stack spacing={3}>
-                {/* Designer Row */}
-                <Box
-                  sx={{
-                    display: 'grid',
-                    gridTemplateColumns: '1.5fr 1fr',
-                    gap: 2,
-                  }}
-                >
-                  <Button
-                    variant="contained"
-                    sx={{
-                      backgroundColor: '#4a5fa8 !important',
-                      color: '#ffffff !important',
-                      fontSize: '18px',
-                      fontWeight: 600,
-                      padding: '16px 32px',
-                      textTransform: 'none',
-                      borderRadius: '8px',
-                      '&:hover': {
-                        backgroundColor: '#3d4f8f !important',
-                      },
-                    }}
-                  >
-                    Designer
-                  </Button>
-                  <Button
-                    variant="contained"
-                    onClick={() => handleLearnMore('designer')}
-                    sx={{
-                      backgroundColor: '#6e6e6e !important',
-                      color: '#ffffff !important',
-                      fontSize: '18px',
-                      fontWeight: 600,
-                      padding: '16px 32px',
-                      textTransform: 'none',
-                      borderRadius: '8px',
-                      '&:hover': {
-                        backgroundColor: '#5a5a5a !important',
-                      },
-                    }}
-                  >
-                    Learn More →
-                  </Button>
-                </Box>
-
-                {/* Software Developer Row */}
-                <Box
-                  sx={{
-                    display: 'grid',
-                    gridTemplateColumns: '1.5fr 1fr',
-                    gap: 2,
-                  }}
-                >
-                  <Button
-                    variant="contained"
-                    sx={{
-                      backgroundColor: '#4a5fa8 !important',
-                      color: '#ffffff !important',
-                      fontSize: '18px',
-                      fontWeight: 600,
-                      padding: '16px 32px',
-                      textTransform: 'none',
-                      borderRadius: '8px',
-                      '&:hover': {
-                        backgroundColor: '#3d4f8f !important',
-                      },
-                    }}
-                  >
-                    Software Developer
-                  </Button>
-                  <Button
-                    variant="contained"
-                    onClick={() => handleLearnMore('developer')}
-                    sx={{
-                      backgroundColor: '#6e6e6e !important',
-                      color: '#ffffff !important',
-                      fontSize: '18px',
-                      fontWeight: 600,
-                      padding: '16px 32px',
-                      textTransform: 'none',
-                      borderRadius: '8px',
-                      '&:hover': {
-                        backgroundColor: '#5a5a5a !important',
-                      },
-                    }}
-                  >
-                    Learn More →
-                  </Button>
-                </Box>
-
-                {/* Product Manager Row */}
-                <Box
-                  sx={{
-                    display: 'grid',
-                    gridTemplateColumns: '1.5fr 1fr',
-                    gap: 2,
-                  }}
-                >
-                  <Button
-                    variant="contained"
-                    sx={{
-                      backgroundColor: '#4a5fa8 !important',
-                      color: '#ffffff !important',
-                      fontSize: '18px',
-                      fontWeight: 600,
-                      padding: '16px 32px',
-                      textTransform: 'none',
-                      borderRadius: '8px',
-                      '&:hover': {
-                        backgroundColor: '#3d4f8f !important',
-                      },
-                    }}
-                  >
-                    Product Manager
-                  </Button>
-                  <Button
-                    variant="contained"
-                    onClick={() => handleLearnMore('pm')}
-                    sx={{
-                      backgroundColor: '#6e6e6e !important',
-                      color: '#ffffff !important',
-                      fontSize: '18px',
-                      fontWeight: 600,
-                      padding: '16px 32px',
-                      textTransform: 'none',
-                      borderRadius: '8px',
-                      '&:hover': {
-                        backgroundColor: '#5a5a5a !important',
-                      },
-                    }}
-                  >
-                    Learn More →
-                  </Button>
-                </Box>
-              </Stack>
-            </Box>
-
-            {/* Deadline Section */}
-            <Box
-              sx={{
-                backgroundColor: '#3a3a3a',
-                borderRadius: '8px',
-                padding: '40px 32px',
-                textAlign: 'center',
-              }}
-            >
-              <Typography
-                variant="h5"
-                sx={{
-                  fontWeight: 600,
-                  marginBottom: 3,
-                  color: '#ffffff !important',
-                }}
-              >
-                Deadline: October 31, 2025
-              </Typography>
-
-              {/* Countdown Timer */}
-              <Box
-                sx={{
-                  backgroundColor: '#7b4db8',
-                  borderRadius: '8px',
-                  padding: '32px',
-                }}
-              >
-                <Typography
-                  variant="h4"
-                  sx={{
-                    fontWeight: 700,
-                    color: '#ffffff !important',
-                    letterSpacing: '2px',
-                  }}
-                >
-                  {formatTime(timeLeft.days)} days, {formatTime(timeLeft.hours)}{' '}
-                  hours, {formatTime(timeLeft.minutes)} minutes, and{' '}
-                  {formatTime(timeLeft.seconds)} seconds left!
-                </Typography>
-              </Box>
-            </Box>
-          </Stack>
-        </Container>
-      </Box>
-    </>
+          </Box>
+        </Stack>
+      </Container>
+    </Box>
   );
 };
 
