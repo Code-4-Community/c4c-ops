@@ -24,6 +24,8 @@ import {
 } from '@shared/types/application.types';
 import * as crypto from 'crypto';
 import { User } from '../users/user.entity';
+import { forEach } from 'lodash';
+import { Review } from '../reviews/review.entity';
 import { UserStatus } from '@shared/types/user.types';
 import { stagesMap } from './applications.constants';
 import { GetAllApplicationResponseDTO } from './dto/get-all-applications.response.dto';
@@ -50,6 +52,12 @@ export class ApplicationsService {
     const { applications: existingApplications } = user;
     const { year, semester } = getCurrentCycle();
 
+    // TODO:
+    // reach out and find what the index would be in application
+    // print out and log what you're doing just in case theres weird stuff
+    // helper method to convert that string into the position data type
+
+    // TODO Maybe allow for more applications?
     if (getAppForCurrentCycle(existingApplications)) {
       throw new UnauthorizedException(
         `Applicant ${user.id} has already submitted an application for the current cycle`,
@@ -147,8 +155,7 @@ export class ApplicationsService {
       );
     }
 
-    // Update the assignedRecruiterIds field
-    application.assignedRecruiterIds = recruiterIds;
+    application.assignedRecruiterIds = [...new Set(recruiterIds)];
     await this.applicationsRepository.save(application);
   }
 
@@ -451,7 +458,7 @@ export class ApplicationsService {
    * Calculates mean rating for reviews filtered by stage
    */
   private calculateMeanRating(
-    reviews: any[],
+    reviews: Review[],
     stage?: ApplicationStage,
   ): number | null {
     const filteredReviews = stage
@@ -471,7 +478,7 @@ export class ApplicationsService {
   /**
    * Calculates mean rating for challenge stages (both technical and PM challenges)
    */
-  private calculateChallengeMeanRating(reviews: any[]): number | null {
+  private calculateChallengeMeanRating(reviews: Review[]): number | null {
     const challengeReviews = reviews.filter(
       (review) =>
         review.stage === ApplicationStage.T_INTERVIEW ||
@@ -525,7 +532,7 @@ export class ApplicationsService {
   /**
    * Calculates all ratings for an application
    */
-  private calculateAllRatings(reviews: any[]) {
+  private calculateAllRatings(reviews: Review[]) {
     return {
       meanRatingAllReviews: this.calculateMeanRating(reviews),
       meanRatingResume: this.calculateMeanRating(
