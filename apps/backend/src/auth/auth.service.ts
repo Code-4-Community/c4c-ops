@@ -82,27 +82,6 @@ export class AuthService {
     });
   }
 
-  verifyUser(email: string, verificationCode: string): Promise<unknown> {
-    return new Promise((resolve, reject) => {
-      const cognitoUser = new CognitoUser({
-        Username: email,
-        Pool: this.userPool,
-      });
-
-      return cognitoUser.confirmRegistration(
-        verificationCode,
-        true,
-        (err, result) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(result);
-          }
-        },
-      );
-    });
-  }
-
   signin({ email, password }: SignInRequestDto): Promise<SignInResponseDto> {
     const authenticationDetails = new AuthenticationDetails({
       Username: email,
@@ -130,43 +109,6 @@ export class AuthService {
       });
     });
   }
-
-  forgotPassword(email: string): Promise<unknown> {
-    return new Promise((resolve, reject) => {
-      return new CognitoUser({
-        Username: email,
-        Pool: this.userPool,
-      }).forgotPassword({
-        onSuccess: function (result) {
-          resolve(result);
-        },
-        onFailure: function (err) {
-          reject(err);
-        },
-      });
-    });
-  }
-
-  confirmPassword(
-    email: string,
-    verificationCode: string,
-    newPassword: string,
-  ): Promise<unknown> {
-    return new Promise((resolve, reject) => {
-      return new CognitoUser({
-        Username: email,
-        Pool: this.userPool,
-      }).confirmPassword(verificationCode, newPassword, {
-        onSuccess: function (result) {
-          resolve(result);
-        },
-        onFailure: function (err) {
-          reject(err);
-        },
-      });
-    });
-  }
-
   async deleteUser(email: string): Promise<void> {
     const adminDeleteUserCommand = new AdminDeleteUserCommand({
       Username: email,
@@ -181,8 +123,10 @@ export class AuthService {
    * @see https://docs.aws.amazon.com/cognito/latest/developerguide/token-endpoint.html
    *
    * @param code - the authorization code granted by Cognito during the user's login
+   * Naman and Tarun's Documentation: Changed the return type to TokenExchangeResponseDTO to include the refresh token
+   * now the frontend gets the refresh token as well.
    */
-  tokenExchange = async (code: string): Promise<string> => {
+  tokenExchange = async (code: string): Promise<TokenExchangeResponseDTO> => {
     const body = {
       grant_type: 'authorization_code',
       code,
@@ -206,6 +150,47 @@ export class AuthService {
         throw new Error(`Error while fetching tokens from cognito: ${err}`);
       });
     const tokens = res.data as TokenExchangeResponseDTO;
-    return tokens.access_token;
+    return tokens;
   };
+
+  async refreshToken(refresh_token: string): Promise<{ accessToken: string }> {
+    const body = {
+      grant_type: 'refresh_token',
+      client_id: CognitoAuthConfig.clientId,
+      refresh_token: refresh_token,
+    };
+    const tokenExchangeEndpoint = `https://${CognitoAuthConfig.clientName}.auth.${CognitoAuthConfig.region}.amazoncognito.com/oauth2/token`;
+    const urlEncodedBody = new URLSearchParams(body);
+    try {
+      const res = await axios.post(tokenExchangeEndpoint, urlEncodedBody, {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      });
+      const tokens = res.data as TokenExchangeResponseDTO;
+      return {
+        accessToken: tokens.access_token,
+      };
+    } catch (err: any) {
+      console.error(
+        'Cognito Token Refresh Error:',
+        err.response?.data || err.message,
+      );
+      console.error('Full Error Details:', err.toJSON ? err.toJSON() : err);
+      const errorDesc =
+        err.response?.data?.error_description || err.response?.data?.error;
+      const errorCode = err.response?.data?.error || err.response?.status;
+      if (
+        errorCode === 'invalid_grant' ||
+        (typeof errorDesc === 'string' &&
+          errorDesc.toLowerCase().includes('invalid')) ||
+        err.response?.status === 400
+      ) {
+        throw new BadRequestException('Invalid or expired refresh token');
+      }
+      throw new BadRequestException(
+        `Error while refreshing tokens from cognito: ${err.message || err}`,
+      );
+    }
+  }
 }

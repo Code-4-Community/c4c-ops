@@ -7,9 +7,10 @@ import {
   ApplicationStage,
   Position,
   Semester,
-  ApplicationStep,
-} from './types';
-import { UserStatus } from '../users/types';
+  StageProgress,
+  ReviewStatus,
+} from '@shared/types/application.types';
+import { UserStatus } from '@shared/types/user.types';
 import { userFactory } from '../testing/factories/user.factory';
 import { AuthService } from '../auth/auth.service';
 import { UsersService } from '../users/users.service';
@@ -356,7 +357,9 @@ describe('ApplicationsController', () => {
 
     it('should allow recruiters to get all applications', async () => {
       const req = { user: recruiterUser };
-      const mockApplications = [{ id: 1, stage: ApplicationStage.RESUME }];
+      const mockApplications = [
+        { id: 1, stage: ApplicationStage.APP_RECEIVED },
+      ];
       mockApplicationsService.findAllCurrentApplications.mockResolvedValue(
         mockApplications,
       );
@@ -371,7 +374,9 @@ describe('ApplicationsController', () => {
 
     it('should allow admins to get all applications', async () => {
       const req = { user: adminUser };
-      const mockApplications = [{ id: 1, stage: ApplicationStage.RESUME }];
+      const mockApplications = [
+        { id: 1, stage: ApplicationStage.APP_RECEIVED },
+      ];
       mockApplicationsService.findAllCurrentApplications.mockResolvedValue(
         mockApplications,
       );
@@ -398,7 +403,9 @@ describe('ApplicationsController', () => {
 
     it('should filter applications based on user role - recruiters see only assigned applications', async () => {
       const req = { user: recruiterUser };
-      const mockApplications = [{ id: 1, stage: ApplicationStage.RESUME }];
+      const mockApplications = [
+        { id: 1, stage: ApplicationStage.APP_RECEIVED },
+      ];
       mockApplicationsService.findAllCurrentApplications.mockResolvedValue(
         mockApplications,
       );
@@ -412,7 +419,9 @@ describe('ApplicationsController', () => {
 
     it('should filter applications based on user role - admins see all applications', async () => {
       const req = { user: adminUser };
-      const mockApplications = [{ id: 1, stage: ApplicationStage.RESUME }];
+      const mockApplications = [
+        { id: 1, stage: ApplicationStage.APP_RECEIVED },
+      ];
       mockApplicationsService.findAllCurrentApplications.mockResolvedValue(
         mockApplications,
       );
@@ -436,7 +445,7 @@ describe('ApplicationsController', () => {
 
     const mockApplication = {
       id: 1,
-      stage: ApplicationStage.RESUME,
+      stage: ApplicationStage.APP_RECEIVED,
       position: Position.DEVELOPER,
       user: applicantUser,
       reviews: [],
@@ -445,12 +454,13 @@ describe('ApplicationsController', () => {
       createdAt: new Date(),
       year: 2024,
       semester: Semester.FALL,
-      step: ApplicationStep.SUBMITTED,
+      stageProgress: StageProgress.PENDING,
+      reviewStatus: ReviewStatus.UNASSIGNED,
       response: [],
       assignedRecruiterIds: [],
       toGetApplicationResponseDTO: jest.fn().mockReturnValue({
         id: 1,
-        stage: ApplicationStage.RESUME,
+        stage: ApplicationStage.APP_RECEIVED,
         position: Position.DEVELOPER,
         user: applicantUser,
         reviews: [],
@@ -525,14 +535,18 @@ describe('ApplicationsController', () => {
           createdAt: new Date(),
           year: 2024,
           semester: Semester.FALL,
-          step: ApplicationStep.REVIEWED,
+          stageProgress: StageProgress.COMPLETED,
+          reviewStatus: ReviewStatus.UNASSIGNED,
           response: [{ question: 'Why C4C?', answer: 'meow' }],
           toGetApplicationResponseDTO: jest.fn().mockReturnValue({
             id: 1,
             stage: ApplicationStage.T_INTERVIEW,
             position: Position.DEVELOPER,
-            step: ApplicationStep.REVIEWED,
-            reviews: [{ id: 1, rating: 4, stage: ApplicationStage.RESUME }],
+            stageProgress: StageProgress.COMPLETED,
+            reviewStatus: ReviewStatus.UNASSIGNED,
+            reviews: [
+              { id: 1, rating: 4, stage: ApplicationStage.APP_RECEIVED },
+            ],
             numApps: 1,
           }),
           assignedRecruiterIds: [],
@@ -549,7 +563,7 @@ describe('ApplicationsController', () => {
 
         expect(result).toBeDefined();
         expect(result.stage).toBe(ApplicationStage.T_INTERVIEW);
-        expect(result.step).toBe(ApplicationStep.REVIEWED);
+        expect(result.stageProgress).toBe(StageProgress.COMPLETED);
         expect(result.position).toBe(Position.DEVELOPER);
         expect(mockApplicationsService.findAll).toHaveBeenCalledWith(1);
       });
@@ -566,13 +580,15 @@ describe('ApplicationsController', () => {
           createdAt: new Date(),
           year: 2024,
           semester: Semester.FALL,
-          step: ApplicationStep.SUBMITTED,
+          stageProgress: StageProgress.PENDING,
+          reviewStatus: ReviewStatus.UNASSIGNED,
           response: [{ question: 'Why C4C?', answer: 'meow' }],
           toGetApplicationResponseDTO: jest.fn().mockReturnValue({
             id: 1,
             stage: ApplicationStage.APP_RECEIVED,
             position: Position.DEVELOPER,
-            step: ApplicationStep.SUBMITTED,
+            stageProgress: StageProgress.PENDING,
+            reviewStatus: ReviewStatus.UNASSIGNED,
             reviews: [],
             numApps: 1,
           }),
@@ -588,21 +604,21 @@ describe('ApplicationsController', () => {
 
         const result = await controller.getApplication(1, req);
 
-        expect(result.step).toBe(ApplicationStep.SUBMITTED);
+        expect(result.stageProgress).toBe(StageProgress.PENDING);
         expect(result.reviews).toHaveLength(0);
       });
 
       it('should return correct application step when reviews exist', async () => {
         const mockApplication = {
           id: 1,
-          stage: ApplicationStage.INTERVIEW,
+          stage: ApplicationStage.B_INTERVIEW,
           position: Position.PM,
           user: applicantUser,
           reviews: [
             createMockReview({
               id: 1,
               rating: 4,
-              stage: ApplicationStage.RESUME,
+              stage: ApplicationStage.APP_RECEIVED,
             }),
             createMockReview({
               id: 2,
@@ -615,15 +631,17 @@ describe('ApplicationsController', () => {
           createdAt: new Date(),
           year: 2024,
           semester: Semester.FALL,
-          step: ApplicationStep.REVIEWED,
+          stageProgress: StageProgress.COMPLETED,
+          reviewStatus: ReviewStatus.UNASSIGNED,
           response: [{ question: 'Why C4C?', answer: 'meow' }],
           toGetApplicationResponseDTO: jest.fn().mockReturnValue({
             id: 1,
-            stage: ApplicationStage.INTERVIEW,
+            stage: ApplicationStage.B_INTERVIEW,
             position: Position.PM,
-            step: ApplicationStep.REVIEWED,
+            stageProgress: StageProgress.COMPLETED,
+            reviewStatus: ReviewStatus.UNASSIGNED,
             reviews: [
-              { id: 1, rating: 4, stage: ApplicationStage.RESUME },
+              { id: 1, rating: 4, stage: ApplicationStage.APP_RECEIVED },
               { id: 2, rating: 5, stage: ApplicationStage.PM_CHALLENGE },
             ],
             numApps: 1,
@@ -640,7 +658,7 @@ describe('ApplicationsController', () => {
 
         const result = await controller.getApplication(1, req);
 
-        expect(result.step).toBe(ApplicationStep.REVIEWED);
+        expect(result.stageProgress).toBe(StageProgress.COMPLETED);
         expect(result.reviews).toHaveLength(2);
       });
     });
@@ -685,7 +703,7 @@ describe('ApplicationsController', () => {
       it('should reflect status changes immediately after decision is made', async () => {
         const initialApplication = {
           id: 1,
-          stage: ApplicationStage.RESUME,
+          stage: ApplicationStage.APP_RECEIVED,
           position: Position.DEVELOPER,
           user: applicantUser,
           reviews: [],
@@ -694,13 +712,15 @@ describe('ApplicationsController', () => {
           createdAt: new Date(),
           year: 2024,
           semester: Semester.FALL,
-          step: ApplicationStep.SUBMITTED,
+          stageProgress: StageProgress.PENDING,
+          reviewStatus: ReviewStatus.UNASSIGNED,
           response: [{ question: 'Why C4C?', answer: 'meow' }],
           toGetApplicationResponseDTO: jest.fn().mockReturnValue({
             id: 1,
-            stage: ApplicationStage.RESUME,
+            stage: ApplicationStage.APP_RECEIVED,
             position: Position.DEVELOPER,
-            step: ApplicationStep.SUBMITTED,
+            stageProgress: StageProgress.PENDING,
+            reviewStatus: ReviewStatus.UNASSIGNED,
             reviews: [],
             numApps: 1,
           }),
@@ -716,7 +736,7 @@ describe('ApplicationsController', () => {
           .mockReturnValue(initialApplication);
 
         const initialStatus = await controller.getApplication(1, applicantReq);
-        expect(initialStatus.stage).toBe(ApplicationStage.RESUME);
+        expect(initialStatus.stage).toBe(ApplicationStage.APP_RECEIVED);
 
         // Make decision as recruiter
         const recruiterReq = { user: recruiterUser };
@@ -790,9 +810,9 @@ describe('ApplicationsController', () => {
     describe('Multi-stage Status Tracking', () => {
       it('should track status through multiple stages for developers', async () => {
         const stages = [
-          ApplicationStage.RESUME,
-          ApplicationStage.TECHNICAL_CHALLENGE,
-          ApplicationStage.INTERVIEW,
+          ApplicationStage.APP_RECEIVED,
+          ApplicationStage.T_INTERVIEW,
+          ApplicationStage.B_INTERVIEW,
           ApplicationStage.ACCEPTED,
         ];
 
@@ -803,7 +823,7 @@ describe('ApplicationsController', () => {
             position: Position.DEVELOPER,
             user: applicantUser,
             reviews:
-              stage === ApplicationStage.RESUME
+              stage === ApplicationStage.APP_RECEIVED
                 ? []
                 : [createMockReview({ id: 1, rating: 4 })],
             content: null,
@@ -811,21 +831,25 @@ describe('ApplicationsController', () => {
             createdAt: new Date(),
             year: 2024,
             semester: Semester.FALL,
-            step:
-              stage === ApplicationStage.RESUME
-                ? ApplicationStep.SUBMITTED
-                : ApplicationStep.REVIEWED,
+            stageProgress:
+              stage === ApplicationStage.APP_RECEIVED
+                ? StageProgress.PENDING
+                : StageProgress.COMPLETED,
+            reviewStatus: ReviewStatus.UNASSIGNED,
             response: [{ question: 'Why C4C?', answer: 'meow' }],
             toGetApplicationResponseDTO: jest.fn().mockReturnValue({
               id: 1,
               stage,
               position: Position.DEVELOPER,
-              step:
-                stage === ApplicationStage.RESUME
-                  ? ApplicationStep.SUBMITTED
-                  : ApplicationStep.REVIEWED,
+              stageProgress:
+                stage === ApplicationStage.APP_RECEIVED
+                  ? StageProgress.PENDING
+                  : StageProgress.COMPLETED,
+              reviewStatus: ReviewStatus.UNASSIGNED,
               reviews:
-                stage === ApplicationStage.RESUME ? [] : [{ id: 1, rating: 4 }],
+                stage === ApplicationStage.APP_RECEIVED
+                  ? []
+                  : [{ id: 1, rating: 4 }],
               numApps: 1,
             }),
             assignedRecruiterIds: [],
@@ -849,10 +873,10 @@ describe('ApplicationsController', () => {
         const positionStages = [
           {
             position: Position.DEVELOPER,
-            stage: ApplicationStage.TECHNICAL_CHALLENGE,
+            stage: ApplicationStage.T_INTERVIEW,
           },
           { position: Position.PM, stage: ApplicationStage.PM_CHALLENGE },
-          { position: Position.DESIGNER, stage: ApplicationStage.INTERVIEW },
+          { position: Position.DESIGNER, stage: ApplicationStage.B_INTERVIEW },
         ];
 
         for (const { position, stage } of positionStages) {
@@ -867,13 +891,15 @@ describe('ApplicationsController', () => {
             createdAt: new Date(),
             year: 2024,
             semester: Semester.FALL,
-            step: ApplicationStep.REVIEWED,
+            stageProgress: StageProgress.COMPLETED,
+            reviewStatus: ReviewStatus.UNASSIGNED,
             response: [{ question: 'Why C4C?', answer: 'meow' }],
             toGetApplicationResponseDTO: jest.fn().mockReturnValue({
               id: 1,
               stage,
               position,
-              step: ApplicationStep.REVIEWED,
+              stageProgress: StageProgress.COMPLETED,
+              reviewStatus: ReviewStatus.UNASSIGNED,
               reviews: [{ id: 1, rating: 4 }],
               numApps: 1,
             }),
@@ -907,13 +933,15 @@ describe('ApplicationsController', () => {
           createdAt: new Date(),
           year: 2024,
           semester: Semester.FALL,
-          step: ApplicationStep.REVIEWED,
+          stageProgress: StageProgress.COMPLETED,
+          reviewStatus: ReviewStatus.UNASSIGNED,
           response: [{ question: 'Why C4C?', answer: 'meow' }],
           toGetApplicationResponseDTO: jest.fn().mockReturnValue({
             id: 1,
             stage: ApplicationStage.REJECTED,
             position: Position.DEVELOPER,
-            step: ApplicationStep.REVIEWED,
+            stageProgress: StageProgress.COMPLETED,
+            reviewStatus: ReviewStatus.UNASSIGNED,
             reviews: [{ id: 1, rating: 2 }],
             numApps: 1,
           }),

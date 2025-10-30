@@ -9,11 +9,13 @@
     "baseUrl": "src",
     "paths": {
       "@api/*": ["api/*"],
-      "@components/*": ["components/*"],
-      "@containers/*": ["containers/*"],
+      "@features/*": ["features/*"],
       "@public/*": ["../public/*"],
-      "@shared/*": ["../../../shared/*"],
-      "@utils/*": ["utils/*"]
+      "@utils/*": ["utils/*"],
+      "@styles/*": ["styles/*"],
+      "@constants/*": ["constants/*"],
+      "@shared/*": ["shared/*"],
+      "@sharedTypes/*": ["../../shared/*"]
     }
   },
   "files": [],

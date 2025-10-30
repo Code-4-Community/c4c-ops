@@ -1,6 +1,7 @@
 import { IsEmail, IsString } from 'class-validator';
+import { SignUpRequest } from '@shared/dto/request/auth.dto';
 
-export class SignUpRequestDTO {
+export class SignUpRequestDTO implements SignUpRequest {
   @IsString()
   firstName: string;
 

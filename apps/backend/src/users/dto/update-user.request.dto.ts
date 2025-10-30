@@ -1,5 +1,6 @@
 import { Application } from '../../applications/application.entity';
-import { UserStatus, Role, Team } from '../types';
+import { UserStatus, Role, Team } from '@shared/types/user.types';
+import { UpdateUserRequest } from '@shared/dto/request/user.dto';
 import {
   IsEmail,
   IsOptional,
@@ -11,7 +12,7 @@ import {
   IsObject,
 } from 'class-validator';
 
-export class UpdateUserRequestDTO {
+export class UpdateUserRequestDTO implements UpdateUserRequest {
   @IsOptional()
   @IsEnum(UserStatus)
   status?: UserStatus;

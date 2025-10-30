@@ -11,8 +11,8 @@ import {
 } from 'class-validator';
 import { Entity, Column, OneToMany } from 'typeorm';
 import { Application } from '../applications/application.entity';
-import { Role, Team, UserStatus } from './types';
 import { Review } from '../reviews/review.entity';
+import { Role, Team, UserStatus } from '../../../shared/types/user.types';
 
 @Entity()
 export class User {

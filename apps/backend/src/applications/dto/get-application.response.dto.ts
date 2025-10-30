@@ -1,55 +1,55 @@
-import { IsPositive, IsString, IsOptional, IsDate } from 'class-validator';
-import { Review } from '../../reviews/review.entity';
+import { IsPositive, IsDate, IsNumber, IsEnum, IsArray } from 'class-validator';
+import { Type } from 'class-transformer';
 import {
   ApplicationStage,
-  ReviewStage,
-  Position,
-  Response,
-  ReviewStatus,
+  StageProgress,
   Semester,
-} from '../types';
+  Position,
+  ReviewStatus,
+  Response,
+  Review,
+} from '@shared/types/application.types';
+import { GetApplicationResponse } from '@shared/dto/response/application.dto';
+import { AssignedRecruiterDTO } from './assigned-recruiter.dto';
 
-export class AssignedRecruiterDTO {
+/**
+ * Get single application response DTO
+ */
+export class GetApplicationResponseDTO implements GetApplicationResponse {
   @IsPositive()
   id: number;
 
-  @IsString()
-  firstName: string;
-
-  @IsString()
-  lastName: string;
-
-  @IsString()
-  @IsOptional()
-  email?: string;
-
   @IsDate()
-  @IsOptional()
-  assignedAt?: Date;
-}
-
-export class GetApplicationResponseDTO {
-  id: number;
-
+  @Type(() => Date)
   createdAt: Date;
 
+  @IsNumber()
   year: number;
 
+  @IsEnum(Semester)
   semester: Semester;
 
+  @IsEnum(Position)
   position: Position;
 
+  @IsEnum(ApplicationStage)
   stage: ApplicationStage;
 
-  step: ReviewStage;
+  @IsEnum(StageProgress)
+  stageProgress: StageProgress;
 
-  review: ReviewStatus;
+  @IsEnum(ReviewStatus)
+  reviewStatus: ReviewStatus;
 
+  @IsArray()
   response: Response[];
 
+  @IsArray()
   reviews: Review[];
 
+  @IsNumber()
   numApps: number;
 
+  @IsArray()
   assignedRecruiters: AssignedRecruiterDTO[];
 }

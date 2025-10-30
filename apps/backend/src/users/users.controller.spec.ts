@@ -8,7 +8,7 @@ import { AuthService } from '../auth/auth.service';
 import { defaultUser } from '../testing/factories/user.factory';
 
 const mockUsersService: Partial<UsersService> = {
-  findOne: jest.fn(),
+  findUserById: jest.fn(),
 };
 
 describe('UsersController', () => {
@@ -42,7 +42,9 @@ describe('UsersController', () => {
 
   describe('getUser', () => {
     it('should return the user without their applications', async () => {
-      jest.spyOn(mockUsersService, 'findOne').mockResolvedValue(defaultUser);
+      jest
+        .spyOn(mockUsersService, 'findUserById')
+        .mockResolvedValue(defaultUser);
 
       expect(await controller.getUser(1, defaultUser)).toEqual(
         omit(defaultUser, 'applications'),
@@ -53,7 +55,7 @@ describe('UsersController', () => {
       const errorMessge = 'Cannot find user';
 
       jest
-        .spyOn(mockUsersService, 'findOne')
+        .spyOn(mockUsersService, 'findUserById')
         .mockRejectedValue(new Error(errorMessge));
 
       expect(controller.getUser(2, defaultUser)).rejects.toThrow(errorMessge);

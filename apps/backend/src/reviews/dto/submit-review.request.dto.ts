@@ -6,9 +6,10 @@ import {
   IsPositive,
   IsString,
 } from 'class-validator';
-import { ApplicationStage } from '../../applications/types';
+import { ApplicationStage } from '@shared/types/application.types';
+import { SubmitReviewRequest } from '@shared/dto/request/review.dto';
 
-export class SubmitReviewRequestDTO {
+export class SubmitReviewRequestDTO implements SubmitReviewRequest {
   @IsPositive()
   applicantId: number;
 

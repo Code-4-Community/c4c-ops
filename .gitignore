@@ -42,3 +42,5 @@ Thumbs.db
 # Environment file
 *.env
 *.env.*
+
+PR_SUMMARY.md

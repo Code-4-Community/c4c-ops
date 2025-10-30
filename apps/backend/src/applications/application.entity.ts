@@ -13,15 +13,13 @@ import {
   Semester,
   Position,
   ApplicationStage,
-  ReviewStage,
+  StageProgress,
   ReviewStatus,
-} from './types';
-import {
-  GetApplicationResponseDTO,
-  AssignedRecruiterDTO,
-} from './dto/get-application.response.dto';
+} from '@shared/types/application.types';
+import { GetApplicationResponseDTO } from './dto/get-application.response.dto';
+import { AssignedRecruiterDTO } from './dto/assigned-recruiter.dto';
+import { GetAllApplicationResponseDTO } from './dto/get-all-applications.response.dto';
 import { Review } from '../reviews/review.entity';
-import { GetAllApplicationResponseDTO } from './dto/get-all-application.response.dto';
 import { FileUpload } from '../file-upload/entities/file-upload.entity';
 import { PrimaryGeneratedColumn } from 'typeorm';
 
@@ -67,10 +65,10 @@ export class Application {
 
   @Column('varchar', { default: ReviewStatus.UNASSIGNED, nullable: false })
   @IsEnum(ReviewStatus)
-  review: ReviewStatus;
+  reviewStatus: ReviewStatus;
 
-  @Column('varchar', { default: ReviewStage.SUBMITTED, nullable: false })
-  step: ReviewStage;
+  @Column('varchar', { default: StageProgress.PENDING, nullable: false })
+  stageProgress: StageProgress;
 
   @Column('jsonb')
   @IsArray()
@@ -86,7 +84,6 @@ export class Application {
   @Column('int', { array: true, default: [] })
   @IsArray()
   assignedRecruiterIds: number[];
-  reviewStage: ReviewStage;
 
   toGetAllApplicationResponseDTO(
     meanRatingAllReviews,
@@ -94,7 +91,7 @@ export class Application {
     meanRatingChallenge,
     meanRatingTechnicalChallenge,
     meanRatingInterview,
-    reviewStage,
+    stageProgress,
     assignedRecruiters: AssignedRecruiterDTO[] = [],
   ): GetAllApplicationResponseDTO {
     return {
@@ -102,9 +99,9 @@ export class Application {
       firstName: this.user.firstName,
       lastName: this.user.lastName,
       stage: this.stage,
-      step: reviewStage,
+      stageProgress: stageProgress,
       position: this.position,
-      review: this.review,
+      reviewStatus: this.reviewStatus,
       createdAt: this.createdAt,
       meanRatingAllReviews,
       meanRatingResume,
@@ -117,7 +114,7 @@ export class Application {
 
   toGetApplicationResponseDTO(
     numApps: number,
-    reviewStage: ReviewStage,
+    stageProgress: StageProgress,
     assignedRecruiters: AssignedRecruiterDTO[] = [],
   ): GetApplicationResponseDTO {
     return {
@@ -127,8 +124,8 @@ export class Application {
       semester: this.semester,
       position: this.position,
       stage: this.stage,
-      step: reviewStage,
-      review: this.review,
+      stageProgress: stageProgress,
+      reviewStatus: this.reviewStatus,
       response: this.response,
       reviews: this.reviews,
       numApps,
