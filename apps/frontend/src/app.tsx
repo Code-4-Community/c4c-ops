@@ -10,6 +10,7 @@ import ResourcesPage from '@features/applicant/pages/ResourcesPage';
 import SettingsPage from '@shared/pages/SettingsPage';
 import LoginContext from '@features/auth/components/LoginPage/LoginContext';
 import ProtectedRoutes from '@features/auth/components/ProtectedRoutes';
+import LoginPage from '@features/auth/components/LoginPage';
 import Navigation from '@shared/components/Navigation';
 import AdminRoutes from '@features/auth/components/AdminRoutes';
 import HomePage from '@shared/pages/HomePage';
@@ -20,7 +21,7 @@ export const App: React.FC = () => {
     <LoginContext.Provider value={{ setToken, token }}>
       <BrowserRouter>
         <Routes>
-          <Route path="/login" element={<HomePage />} />
+          <Route path="/login" element={<LoginPage />} />
           <Route path="/home" element={<HomePage />} />
 
           <Route element={<ProtectedRoutes token={token} />}>

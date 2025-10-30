@@ -27,6 +27,7 @@ import {
 import apiClient from '@api/apiClient';
 import { AssignedRecruiters } from './AssignedRecruiters';
 import { LOGO_PATHS } from '@constants/recruitment';
+import { useUserData } from '@shared/hooks/useUserData';
 import CodeAmbientBackground from '../../components/CodeAmbientBackground';
 
 type IndividualApplicationDetailsProps = {
@@ -54,6 +55,10 @@ const IndividualApplicationDetails = ({
   const [reviewerNames, setReviewerNames] = useState<ReviewerInfo>({});
 
   const navigate = useNavigate();
+
+  const { user: currentUser, isLoading: isUserLoading } =
+    useUserData(accessToken);
+  const isAdmin = currentUser?.status === 'Admin';
 
   const handleClose = () => {
     navigate('/applications');
@@ -295,10 +300,18 @@ const IndividualApplicationDetails = ({
               <FormControl size="small" fullWidth>
                 <FormLabel sx={{ color: '#fff' }}>Assigned To</FormLabel>
                 <Box>
-                  <AssignedRecruiters
-                    applicationId={selectedApplication.id}
-                    assignedRecruiters={selectedApplication.assignedRecruiters}
-                  />
+                  {isAdmin ? (
+                    <AssignedRecruiters
+                      applicationId={selectedApplication.id}
+                      assignedRecruiters={selectedApplication.assignedRecruiters}
+                    />
+                  ) : (
+                    <Typography sx={{ color: '#fff', mt: 1 }}>
+                      {selectedApplication.assignedRecruiters
+                        .map((r) => `${r.firstName} ${r.lastName}`)
+                        .join(', ') || 'Unassigned'}
+                    </Typography>
+                  )}
                 </Box>
               </FormControl>
             </Grid>

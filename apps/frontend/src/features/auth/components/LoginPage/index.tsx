@@ -1,17 +1,20 @@
 import { useEffect } from 'react';
-import apiClient, { handleTokenRefresh } from '@api/apiClient';
-import { getStoredTokens } from '@utils/tokenUtils';
+import apiClient from '@api/apiClient';
 import useLoginContext from './useLoginContext';
 import { useNavigate } from 'react-router-dom';
-import { Button, Stack } from '@mui/material';
-import { CognitoJwtVerifier } from 'aws-jwt-verify';
+import { Box, CircularProgress, Typography } from '@mui/material';
 
-const verifier = CognitoJwtVerifier.create({
-  userPoolId: import.meta.env.VITE_COGNITO_USER_POOL_ID as string,
-  tokenUse: 'access',
-  clientId: import.meta.env.VITE_COGNITO_CLIENT_ID as string,
-});
-
+/**
+ * LoginPage - Handles Cognito OAuth callback only
+ *
+ * This page is responsible for:
+ * 1. Receiving the auth code from Cognito redirect
+ * 2. Exchanging it for access/refresh tokens
+ * 3. Storing tokens and redirecting to dashboard
+ *
+ * This is NOT a landing page - users should not visit this directly.
+ * They arrive here only after authenticating with Cognito.
+ */
 export default function LoginPage() {
   const { setToken } = useLoginContext();
   const navigate = useNavigate();
@@ -20,20 +23,8 @@ export default function LoginPage() {
     const urlParams = new URLSearchParams(window.location.search);
     const authCode = urlParams.get('code');
 
-    async function getToken() {
-      const sessionToken = sessionStorage.getItem('token');
-
-      if (sessionToken) {
-        try {
-          const token = JSON.parse(sessionToken);
-          await verifier.verify(token);
-          setToken(token);
-          navigate('/');
-        } catch (error) {
-          console.log('Error verifying token:', error);
-          sessionStorage.removeItem('token');
-        }
-      } else if (authCode) {
+    async function handleCognitoCallback() {
+      if (authCode) {
         try {
           const tokenResponse = await apiClient.getToken(authCode);
 
@@ -51,29 +42,42 @@ export default function LoginPage() {
             'token',
             JSON.stringify(tokenResponse.access_token),
           );
+
           setToken(tokenResponse.access_token);
+
+          // Redirect to dashboard after successful login
           navigate('/');
         } catch (error) {
           console.error('Error fetching token:', error);
+          // Redirect to home page on error
+          navigate('/home');
         }
+      } else {
+        // No auth code - redirect to home page
+        navigate('/home');
       }
     }
-    getToken();
+
+    handleCognitoCallback();
   }, [navigate, setToken]);
+
   return (
-    <Stack
-      width="100vw"
-      height="100vh"
-      justifyContent="center"
-      alignItems="center"
+    <Box
+      sx={{
+        width: '100vw',
+        height: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        gap: 3,
+        backgroundColor: '#181818',
+      }}
     >
-      <Button
-        variant="contained"
-        color="primary"
-        href="https://scaffolding.auth.us-east-2.amazoncognito.com/login?client_id=4c5b8m6tno9fvljmseqgmk82fv&response_type=code&scope=email+openid&redirect_uri=http%3A%2F%2Flocalhost%3A4200%2Flogin"
-      >
-        Login
-      </Button>
-    </Stack>
+      <CircularProgress size={60} sx={{ color: '#4a5fa8' }} />
+      <Typography variant="h6" sx={{ color: '#ffffff' }}>
+        Logging you in...
+      </Typography>
+    </Box>
   );
 }
