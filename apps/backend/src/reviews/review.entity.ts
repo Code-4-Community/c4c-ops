@@ -1,5 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { Application } from '../applications/application.entity';
+import { User } from '../users/user.entity';
 import { ApplicationStage } from '@shared/types/application.types';
 
 @Entity()
@@ -17,8 +18,7 @@ export class Review {
   @JoinColumn({ name: 'applicationId' })
   application: Application;
 
-  // TODO should be a many-to-many on Users
-  @Column({ nullable: false })
+  @ManyToOne(() => User, (user) => user.id)
   reviewerId: number;
 
   @Column({ type: 'double precision', nullable: false })
