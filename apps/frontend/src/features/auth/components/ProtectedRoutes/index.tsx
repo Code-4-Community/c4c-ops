@@ -5,7 +5,10 @@ import { Navigate, Outlet } from 'react-router-dom';
  * if the user is authenticated (i.e if an access token exists).
  * If the user is not authenticated, it redirects to the login page.
  */
-function ProtectedRoutes({ token }: { token: string }) {
+function ProtectedRoutes() {
+  const storedToken = localStorage.getItem('token');
+  const token = storedToken ? JSON.parse(storedToken) : '';
+
   return token ? <Outlet /> : <Navigate to="/login" />;
 }
 

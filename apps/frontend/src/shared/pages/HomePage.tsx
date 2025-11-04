@@ -31,18 +31,18 @@ const HomePage = () => {
     const authCode = urlParams.get('code');
 
     async function handleAuth() {
-      const sessionToken = sessionStorage.getItem('token');
+      const localToken = localStorage.getItem('token');
 
-      if (sessionToken) {
+      if (localToken) {
         try {
-          const token = JSON.parse(sessionToken);
+          const token = JSON.parse(localToken);
           await verifier.verify(token);
           setToken(token);
           setIsAuthenticated(true);
           // Don't navigate away - let them stay on the home page
         } catch (error) {
           console.log('Error verifying token:', error);
-          sessionStorage.removeItem('token');
+          localStorage.removeItem('token');
           setIsAuthenticated(false);
         }
       } else if (authCode) {
@@ -59,7 +59,7 @@ const HomePage = () => {
           );
 
           // Keep backward compatibility - store access token for existing code
-          sessionStorage.setItem(
+          localStorage.setItem(
             'token',
             JSON.stringify(tokenResponse.access_token),
           );
@@ -117,7 +117,7 @@ const HomePage = () => {
 
   const handleSignOut = () => {
     // Clear all authentication data
-    sessionStorage.removeItem('token');
+    localStorage.removeItem('token');
     localStorage.removeItem('auth_tokens');
     setToken('');
     setIsAuthenticated(false);

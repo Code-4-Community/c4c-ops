@@ -14,7 +14,11 @@ import AdminRoutes from '@features/auth/components/AdminRoutes';
 import HomePage from '@shared/pages/HomePage';
 
 export const App: React.FC = () => {
-  const [token, setToken] = useState<string>('');
+  const [token, setToken] = useState<string>(() => {
+    const storedToken = localStorage.getItem('token');
+    return storedToken ? JSON.parse(storedToken) : '';
+  });
+
   return (
     <LoginContext.Provider value={{ setToken, token }}>
       <BrowserRouter>
@@ -22,7 +26,7 @@ export const App: React.FC = () => {
           <Route path="/login" element={<HomePage />} />
           <Route path="/home" element={<HomePage />} />
 
-          <Route element={<ProtectedRoutes token={token} />}>
+          <Route element={<ProtectedRoutes />}>
             <Route element={<AdminRoutes />}>
               <Route
                 path="/"

@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
-import apiClient, { handleTokenRefresh } from '@api/apiClient';
-import { getStoredTokens } from '@utils/tokenUtils';
+import apiClient from '@api/apiClient';
 import useLoginContext from './useLoginContext';
 import { useNavigate } from 'react-router-dom';
 import { Button, Stack } from '@mui/material';
@@ -21,23 +20,22 @@ export default function LoginPage() {
     const authCode = urlParams.get('code');
 
     async function getToken() {
-      const sessionToken = sessionStorage.getItem('token');
+      const localToken = localStorage.getItem('token');
 
-      if (sessionToken) {
+      if (localToken) {
         try {
-          const token = JSON.parse(sessionToken);
+          const token = JSON.parse(localToken);
           await verifier.verify(token);
           setToken(token);
           navigate('/');
         } catch (error) {
           console.log('Error verifying token:', error);
-          sessionStorage.removeItem('token');
+          localStorage.removeItem('token');
         }
       } else if (authCode) {
         try {
           const tokenResponse = await apiClient.getToken(authCode);
 
-          // Store both tokens in localStorage for persistence
           localStorage.setItem(
             'auth_tokens',
             JSON.stringify({
@@ -46,13 +44,13 @@ export default function LoginPage() {
             }),
           );
 
-          // Keep backward compatibility - store access token for existing code
-          sessionStorage.setItem(
+          localStorage.setItem(
             'token',
             JSON.stringify(tokenResponse.access_token),
           );
+
           setToken(tokenResponse.access_token);
-          navigate('/');
+          window.location.href = '/';
         } catch (error) {
           console.error('Error fetching token:', error);
         }
@@ -60,6 +58,7 @@ export default function LoginPage() {
     }
     getToken();
   }, [navigate, setToken]);
+
   return (
     <Stack
       width="100vw"
