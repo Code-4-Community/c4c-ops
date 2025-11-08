@@ -303,7 +303,9 @@ const IndividualApplicationDetails = ({
                   {isAdmin ? (
                     <AssignedRecruiters
                       applicationId={selectedApplication.id}
-                      assignedRecruiters={selectedApplication.assignedRecruiters}
+                      assignedRecruiters={
+                        selectedApplication.assignedRecruiters
+                      }
                     />
                   ) : (
                     <Typography sx={{ color: '#fff', mt: 1 }}>
