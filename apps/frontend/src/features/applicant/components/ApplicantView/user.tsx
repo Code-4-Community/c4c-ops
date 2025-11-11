@@ -87,7 +87,7 @@ export const ApplicantView = ({ user }: ApplicantViewProps) => {
           zIndex: 1,
         }}
       >
-        <Typography variant="h4" sx={{ mb: 3 }}>
+        <Typography variant="h4" sx={{ mb: 3, textAlign: 'center' }}>
           Welcome back, {fullName || 'User'}!
         </Typography>
 
