@@ -2,6 +2,7 @@ import {
   BadRequestException,
   UnauthorizedException,
   Injectable,
+  Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -33,6 +34,8 @@ import { AssignedRecruiterDTO } from './dto/assigned-recruiter.dto';
 
 @Injectable()
 export class ApplicationsService {
+  private readonly logger = new Logger(ApplicationsService.name);
+
   constructor(
     @InjectRepository(Application)
     private readonly applicationsRepository: Repository<Application>,
@@ -333,10 +336,12 @@ export class ApplicationsService {
   }
 
   async findAll(userId: number): Promise<Application[]> {
+    this.logger.debug(`Fetching all applications for user ${userId}`);
     const apps = await this.applicationsRepository.find({
       where: { user: { id: userId } },
       relations: ['user', 'reviews'],
     });
+    this.logger.debug(`Found ${apps.length} applications for user ${userId}`);
     return apps;
   }
 

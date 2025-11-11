@@ -34,6 +34,7 @@ type IndividualApplicationDetailsProps = {
   selectedApplication: Application;
   selectedUser: User;
   accessToken: string;
+  onRefreshApplication?: () => Promise<void>;
 };
 
 interface ReviewerInfo {
@@ -44,6 +45,7 @@ const IndividualApplicationDetails = ({
   selectedApplication,
   selectedUser,
   accessToken,
+  onRefreshApplication,
 }: IndividualApplicationDetailsProps) => {
   // Lighter purple accent tuned to match Figma palette
   const ACCENT = '#9B6CFF';
@@ -75,19 +77,26 @@ const IndividualApplicationDetails = ({
   const handleFormSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    if (!selectedUser || ((!reviewRating || !reviewComment) && !decision)) {
-      alert('Please provide both a rating and comment, or a decision.');
+    const trimmedComment = reviewComment.trim();
+
+    if (
+      !selectedUser ||
+      ((!reviewRating || trimmedComment === '') && !decision)
+    ) {
+      alert(
+        'Please provide both a rating and a non-empty comment, or make a decision.',
+      );
       return;
     }
 
     try {
       // Submit review
-      if (reviewRating && reviewComment) {
+      if (reviewRating && trimmedComment) {
         await apiClient.submitReview(accessToken, {
           applicantId: selectedUser.id,
           stage: selectedApplication.stage,
           rating: reviewRating,
-          content: reviewComment,
+          content: trimmedComment,
         });
       }
 
@@ -97,6 +106,10 @@ const IndividualApplicationDetails = ({
       }
 
       alert('Submitted successfully!');
+
+      if (onRefreshApplication) {
+        await onRefreshApplication();
+      }
 
       // Reset form
       setReviewRating(null);
@@ -303,7 +316,9 @@ const IndividualApplicationDetails = ({
                   {isAdmin ? (
                     <AssignedRecruiters
                       applicationId={selectedApplication.id}
-                      assignedRecruiters={selectedApplication.assignedRecruiters}
+                      assignedRecruiters={
+                        selectedApplication.assignedRecruiters
+                      }
                     />
                   ) : (
                     <Typography sx={{ color: '#fff', mt: 1 }}>
