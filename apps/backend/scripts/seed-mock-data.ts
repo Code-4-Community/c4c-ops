@@ -115,7 +115,11 @@ async function main() {
     await clearExistingData(dataSource);
 
     const users = await seedUsers(dataSource, config.personalUser);
-    const applications = await seedApplications(dataSource, users);
+    const applications = await seedApplications(
+      dataSource,
+      users,
+      config.personalUser,
+    );
 
     console.log(
       `Seed complete. Inserted ${users.length} users and ${applications.length} applications.`,
@@ -191,13 +195,20 @@ async function seedUsers(
 async function seedApplications(
   dataSource: DataSource,
   users: User[],
+  personalUserConfig?: PersonalUserConfig,
 ): Promise<Application[]> {
   const appRepo = dataSource.getRepository(Application);
+  const personalUser =
+    personalUserConfig &&
+    users.find(
+      (user) =>
+        user.email?.toLowerCase() === personalUserConfig.email.toLowerCase(),
+    );
 
   const applicantUsers = users.filter(
     (user) => user.status === UserStatus.APPLICANT,
   );
-  if (!applicantUsers.length) {
+  if (!applicantUsers.length && !personalUser) {
     throw new Error('No applicant users available to attach applications.');
   }
 
@@ -245,6 +256,37 @@ async function seedApplications(
       assignedRecruiterIds,
     });
   });
+
+  if (personalUser) {
+    const hardcodedApplication = appRepo.create({
+      user: personalUser,
+      content: `Personal application seed for ${personalUser.firstName} ${personalUser.lastName}.`,
+      createdAt: new Date(Date.UTC(YEAR_DEFAULT, 0, 15, 12, 0, 0)),
+      year: YEAR_DEFAULT,
+      semester: SEMESTER_DEFAULT,
+      position: Position.PM,
+      stage: ApplicationStage.PM_CHALLENGE,
+      stageProgress: StageProgress.PENDING,
+      reviewStatus: ReviewStatus.UNASSIGNED,
+      response: [
+        {
+          question: 'Who owns this application?',
+          answer: `${personalUser.firstName} ${personalUser.lastName} (${personalUser.email}).`,
+        },
+        {
+          question: 'Why is this record seeded?',
+          answer:
+            'This hardcoded row is appended for the personal user defined in seed.config.json.',
+        },
+      ],
+      assignedRecruiterIds:
+        recruiterIds.length === 0
+          ? []
+          : buildAssignedRecruiters(recruiterIds, applications.length),
+    });
+
+    applications.push(hardcodedApplication);
+  }
 
   console.log(`Generating ${applications.length} application rows...`);
   return appRepo.save(applications);

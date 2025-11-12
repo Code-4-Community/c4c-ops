@@ -21,6 +21,7 @@ If you want the seed data to include your own contact information, edit `apps/ba
 - `status` is optional (defaults to `Admin` if omitted).  
 - Team, role, profile picture, GitHub, and LinkedIn fields are intentionally left blank for every seed user.  
 - The script always creates 3 admins, 10 recruiters, and 50 applicants; your personal user is added on top of those counts.  
+- When `personalUser` is defined, the script appends a hardcoded application tied to that user so you can exercise the applicant experience with your own account (even if they already qualify as an `Applicant`).  
 - Remove the `personalUser` block if you do not want an extra record.
 
 ### 2. Ensure Database Environment Variables

@@ -8,6 +8,7 @@ import { Repository } from 'typeorm';
 import { FileUpload } from './entities/file-upload.entity';
 import { ApplicationsService } from '../applications/applications.service';
 import 'multer';
+import { FilePurpose } from '@shared/types/file-upload.types';
 
 @Injectable()
 export class FileUploadService {
@@ -17,10 +18,20 @@ export class FileUploadService {
     private readonly applicationsService: ApplicationsService,
   ) {}
 
-  async handleFileUpload(file: Express.Multer.File, applicationId: number) {
+  async handleFileUpload(
+    file: Express.Multer.File,
+    applicationId: number,
+    purpose: FilePurpose,
+  ) {
     console.log('Received file:', file);
     if (!file) {
       throw new BadRequestException('No file uploaded');
+    }
+    if (!purpose) {
+      throw new BadRequestException('File purpose is required');
+    }
+    if (!Object.values(FilePurpose).includes(purpose)) {
+      throw new BadRequestException('Invalid file purpose');
     }
 
     // Validate file type
@@ -53,12 +64,17 @@ export class FileUploadService {
       size: file.size, // assuming size is passed in the request
       file_data: file.buffer, // the raw buffer from the request
       application: application,
+      purpose: purpose,
     });
 
     await this.fileRepository.save(uploadedFile);
 
     console.log('File uploaded:', uploadedFile);
-    return { message: 'File uploaded successfully', fileId: uploadedFile.id };
+    return {
+      message: 'File uploaded successfully',
+      fileId: uploadedFile.id,
+      purpose: uploadedFile.purpose,
+    };
   }
 
   /**
@@ -81,10 +97,19 @@ export class FileUploadService {
           'file.filename',
           'file.mimetype',
           'file.size',
+          'file.purpose',
           'application.id',
         ]);
       } else {
-        queryBuilder.addSelect('file.file_data');
+        queryBuilder.select([
+          'file.id',
+          'file.filename',
+          'file.mimetype',
+          'file.size',
+          'file.purpose',
+          'file.file_data',
+          'application.id',
+        ]);
       }
 
       const files = await queryBuilder.getMany();
@@ -104,6 +129,7 @@ export class FileUploadService {
           filename: file.filename,
           mimetype: file.mimetype,
           size: file.size,
+          purpose: file.purpose,
           ...(includeFileData && { file_data: file.file_data }),
           applicationId: file.application?.id,
         })),

@@ -4,6 +4,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { FileUpload } from './entities/file-upload.entity';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { ApplicationsService } from '../applications/applications.service';
+import { FilePurpose } from '@shared/types/file-upload.types';
 
 const mockFileRepository = () => ({
   create: jest.fn(),
@@ -11,7 +12,7 @@ const mockFileRepository = () => ({
 });
 
 const mockApplicationsService = {
-  findCurrent: jest.fn(),
+  findOne: jest.fn(),
 };
 
 describe('FileUploadService', () => {
@@ -52,10 +53,14 @@ describe('FileUploadService', () => {
     const applicationId = 123;
     const fakeApplication = { id: applicationId };
     const fakeFile = { id: 1 };
-    mockApplicationsService.findCurrent.mockResolvedValue(fakeApplication);
+    mockApplicationsService.findOne.mockResolvedValue(fakeApplication);
     fileRepository.create.mockReturnValue(fakeFile);
     fileRepository.save.mockResolvedValue(fakeFile);
-    const result = await service.handleFileUpload(mockFile, applicationId);
+    const result = await service.handleFileUpload(
+      mockFile,
+      applicationId,
+      FilePurpose.PM_CHALLENGE,
+    );
     expect(result).toHaveProperty('message', 'File uploaded successfully');
     expect(result).toHaveProperty('fileId', 1);
   });
@@ -70,17 +75,25 @@ describe('FileUploadService', () => {
     const applicationId = 123;
     const fakeApplication = { id: applicationId };
     const fakeFile = { id: 1 };
-    mockApplicationsService.findCurrent.mockResolvedValue(fakeApplication);
+    mockApplicationsService.findOne.mockResolvedValue(fakeApplication);
     fileRepository.create.mockReturnValue(fakeFile);
     fileRepository.save.mockResolvedValue(fakeFile);
-    const result = await service.handleFileUpload(mockFile, applicationId);
+    const result = await service.handleFileUpload(
+      mockFile,
+      applicationId,
+      FilePurpose.PM_CHALLENGE,
+    );
     expect(result).toHaveProperty('message', 'File uploaded successfully');
     expect(result).toHaveProperty('fileId', 1);
   });
 
   it('should throw if no file is uploaded', async () => {
     await expect(
-      service.handleFileUpload(undefined as unknown as Express.Multer.File, 1),
+      service.handleFileUpload(
+        undefined as unknown as Express.Multer.File,
+        1,
+        FilePurpose.PM_CHALLENGE,
+      ),
     ).rejects.toThrow(BadRequestException);
   });
 
@@ -91,9 +104,9 @@ describe('FileUploadService', () => {
       size: 1024,
       buffer: Buffer.from('test'),
     } as Express.Multer.File;
-    await expect(service.handleFileUpload(mockFile, 1)).rejects.toThrow(
-      BadRequestException,
-    );
+    await expect(
+      service.handleFileUpload(mockFile, 1, FilePurpose.PM_CHALLENGE),
+    ).rejects.toThrow(BadRequestException);
   });
 
   it('should throw if file is too large', async () => {
@@ -103,9 +116,9 @@ describe('FileUploadService', () => {
       size: 13 * 1024 * 1024, // 13MB
       buffer: Buffer.from('test'),
     } as Express.Multer.File;
-    await expect(service.handleFileUpload(mockFile, 1)).rejects.toThrow(
-      BadRequestException,
-    );
+    await expect(
+      service.handleFileUpload(mockFile, 1, FilePurpose.PM_CHALLENGE),
+    ).rejects.toThrow(BadRequestException);
   });
 
   it('should throw if application not found', async () => {
@@ -115,10 +128,10 @@ describe('FileUploadService', () => {
       size: 1024,
       buffer: Buffer.from('test'),
     } as Express.Multer.File;
-    mockApplicationsService.findCurrent.mockResolvedValue(undefined);
-    await expect(service.handleFileUpload(mockFile, 1)).rejects.toThrow(
-      NotFoundException,
-    );
+    mockApplicationsService.findOne.mockResolvedValue(undefined);
+    await expect(
+      service.handleFileUpload(mockFile, 1, FilePurpose.PM_CHALLENGE),
+    ).rejects.toThrow(NotFoundException);
   });
 
   it('should throw if file is too large and type is invalid', async () => {
@@ -128,8 +141,8 @@ describe('FileUploadService', () => {
       size: 20 * 1024 * 1024,
       buffer: Buffer.from('test'),
     } as Express.Multer.File;
-    await expect(service.handleFileUpload(mockFile, 1)).rejects.toThrow(
-      BadRequestException,
-    );
+    await expect(
+      service.handleFileUpload(mockFile, 1, FilePurpose.PM_CHALLENGE),
+    ).rejects.toThrow(BadRequestException);
   });
 });
