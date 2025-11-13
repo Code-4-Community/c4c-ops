@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Typography,
   Stack,
@@ -19,6 +19,7 @@ import {
   Application,
   ApplicationStage,
 } from '@sharedTypes/types/application.types';
+import { FilePurpose } from '@sharedTypes/types/file-upload.types';
 
 interface ApplicantViewProps {
   user: User;
@@ -32,6 +33,14 @@ export const ApplicantView = ({ user }: ApplicantViewProps) => {
   );
   const { fullName } = useFullName(accessToken);
   const [applicationId, setApplicationId] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (selectedApplication?.id) {
+      setApplicationId(selectedApplication.id);
+    } else {
+      setApplicationId(null);
+    }
+  }, [selectedApplication]);
 
   return (
     <Box
@@ -121,6 +130,7 @@ export const ApplicantView = ({ user }: ApplicantViewProps) => {
                     <FileUploadBox
                       accessToken={accessToken}
                       applicationId={applicationId}
+                      filePurpose={FilePurpose.PM_CHALLENGE}
                     />
                   )}
                 <Typography variant="h6" mt={2}>

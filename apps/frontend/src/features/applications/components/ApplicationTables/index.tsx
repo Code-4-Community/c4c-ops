@@ -9,7 +9,10 @@ import {
 } from '@sharedTypes/types/application.types';
 import { applicationColumns } from './columns';
 import useLoginContext from '@features/auth/components/LoginPage/useLoginContext';
-import { getCurrentSemester, getCurrentYear } from '@utils/semester';
+import {
+  getRecruitmentSemester as getCurrentSemester,
+  getRecruitmentYear as getCurrentYear,
+} from '@sharedTypes/utils/cycle';
 import {
   defaultPaginationModel,
   defaultPageSizeOptions,

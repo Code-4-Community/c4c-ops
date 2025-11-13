@@ -77,7 +77,17 @@ export class UsersController {
     @Param('userId', ParseIntPipe) userId: number,
     @Request() req,
   ): Promise<GetUserResponseDto> {
-    const user = await this.usersService.findUserById(req.user.id);
+    const canViewOtherUser =
+      req.user.status === UserStatus.ADMIN ||
+      req.user.status === UserStatus.RECRUITER;
+
+    if (!canViewOtherUser && req.user.id !== userId) {
+      throw new UnauthorizedException(
+        'You do not have permission to view this user',
+      );
+    }
+
+    const user = await this.usersService.findUserById(userId);
 
     return toGetUserResponseDto(user);
   }

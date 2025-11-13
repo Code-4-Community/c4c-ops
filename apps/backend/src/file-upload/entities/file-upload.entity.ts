@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
 import { Application } from '../../applications/application.entity';
+import { FilePurpose } from '@shared/types/file-upload.types';
 
 @Entity()
 export class FileUpload {
@@ -17,6 +18,9 @@ export class FileUpload {
 
   @Column({ type: 'bytea' }) // For PostgreSQL binary data
   file_data: Buffer;
+
+  @Column({ type: 'enum', enum: FilePurpose })
+  purpose: FilePurpose;
 
   @ManyToOne(() => Application, (application) => application.attachments, {
     onDelete: 'CASCADE',

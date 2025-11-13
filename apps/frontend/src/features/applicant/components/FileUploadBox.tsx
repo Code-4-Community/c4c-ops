@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
 import { Box, Typography, Button, Snackbar, Alert } from '@mui/material';
 import apiClient from '@api/apiClient';
+import { FilePurpose } from '@sharedTypes/types/file-upload.types';
 
 interface FileUploadBoxProps {
   accessToken: string;
   applicationId: number | null;
+  filePurpose: FilePurpose;
 }
 
 const FileUploadBox: React.FC<FileUploadBoxProps> = ({
   accessToken,
   applicationId,
+  filePurpose,
 }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -61,7 +64,12 @@ const FileUploadBox: React.FC<FileUploadBoxProps> = ({
         return;
       }
 
-      await apiClient.uploadFile(accessToken, applicationId, selectedFile);
+      await apiClient.uploadFile(
+        accessToken,
+        applicationId,
+        selectedFile,
+        filePurpose,
+      );
 
       setToastMessage(`Uploaded: ${selectedFile.name}`);
       setToastSeverity('success');
