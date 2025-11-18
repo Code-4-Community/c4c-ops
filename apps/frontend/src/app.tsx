@@ -3,13 +3,10 @@ import { useState } from 'react';
 
 import ApplicantHomePage from '@features/applicant/pages/ApplicantHomePage';
 import NotFoundPage from '@shared/pages/NotFoundPage';
-import DashboardPage from '@shared/pages/DashboardPage';
 import ApplicationsPage from '@features/applications/pages/ApplicationsPage';
 import ApplicationDetailPage from '@features/applications/pages/ApplicationDetailPage';
-import SettingsPage from '@shared/pages/SettingsPage';
 import LoginContext from '@features/auth/components/LoginPage/LoginContext';
 import ProtectedRoutes from '@features/auth/components/ProtectedRoutes';
-import Navigation from '@shared/components/Navigation';
 import AdminRoutes from '@features/auth/components/AdminRoutes';
 import HomePage from '@shared/pages/HomePage';
 
