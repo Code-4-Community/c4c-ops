@@ -2,6 +2,7 @@ import {
   BadRequestException,
   UnauthorizedException,
   Injectable,
+  Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -33,6 +34,8 @@ import { AssignedRecruiterDTO } from './dto/assigned-recruiter.dto';
 
 @Injectable()
 export class ApplicationsService {
+  private readonly logger = new Logger(ApplicationsService.name);
+
   constructor(
     @InjectRepository(Application)
     private readonly applicationsRepository: Repository<Application>,
@@ -333,10 +336,12 @@ export class ApplicationsService {
   }
 
   async findAll(userId: number): Promise<Application[]> {
+    this.logger.debug(`Fetching all applications for user ${userId}`);
     const apps = await this.applicationsRepository.find({
       where: { user: { id: userId } },
       relations: ['user', 'reviews'],
     });
+    this.logger.debug(`Found ${apps.length} applications for user ${userId}`);
     return apps;
   }
 
@@ -404,10 +409,7 @@ export class ApplicationsService {
     const allApplicationsDto = await Promise.all(
       applications.map(async (app) => {
         const ratings = this.calculateAllRatings(app.reviews);
-        const stageProgress = this.determineStageProgress(
-          app.stage,
-          app.reviews,
-        );
+            const stageProgress = this.determineStageProgress(app, app.reviews);
         const assignedRecruiters =
           await this.getAssignedRecruitersForApplication(app);
 
@@ -493,10 +495,14 @@ export class ApplicationsService {
    * A stage is considered COMPLETED if it has been reviewed
    * Terminal stages (ACCEPTED/REJECTED) are always COMPLETED
    */
-  private determineStageProgress(
-    stage: ApplicationStage,
-    reviews: any[],
-  ): StageProgress {
+  /**
+   * A stage is considered COMPLETED only when all assigned recruiters have
+   * submitted a review for that stage. If no recruiters are assigned, the
+   * stage remains PENDING even if admins or others submit reviews.
+   */
+  private determineStageProgress(app: Application, reviews: any[]): StageProgress {
+    const stage = app.stage;
+
     // Terminal stages are always completed
     if (
       stage === ApplicationStage.ACCEPTED ||
@@ -505,9 +511,26 @@ export class ApplicationsService {
       return StageProgress.COMPLETED;
     }
 
-    // Check if current stage has been reviewed
-    const stageReviewed = reviews.some((review) => review.stage === stage);
-    return stageReviewed ? StageProgress.COMPLETED : StageProgress.PENDING;
+    const assignedRecruiterIds = app.assignedRecruiterIds || [];
+
+    // If there are no assigned recruiters, the stage should not progress
+    if (assignedRecruiterIds.length === 0) {
+      return StageProgress.PENDING;
+    }
+
+    // Collect reviewer IDs who have submitted a review for the current stage
+    const reviewerIdsForStage = new Set(
+      reviews
+        .filter((review) => review.stage === stage)
+        .map((review) => review.reviewerId),
+    );
+
+    // Check that every assigned recruiter has submitted a review for this stage
+    const allAssignedReviewed = assignedRecruiterIds.every((id) =>
+      reviewerIdsForStage.has(id),
+    );
+
+    return allAssignedReviewed ? StageProgress.COMPLETED : StageProgress.PENDING;
   }
 
   /**

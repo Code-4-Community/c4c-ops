@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { FileUploadController } from './file-upload.controller';
 import { FileUploadService } from './file-upload.service';
 import { BadRequestException } from '@nestjs/common';
+import { FilePurpose } from '@shared/types/file-upload.types';
 
 describe('FileUploadController', () => {
   let controller: FileUploadController;
@@ -36,14 +37,26 @@ describe('FileUploadController', () => {
   it('should call service.handleFileUpload and return result', async () => {
     const result = { message: 'File uploaded successfully', fileId: 1 };
     mockService.handleFileUpload.mockResolvedValue(result);
-    const response = await controller.uploadFile(mockFile, 123);
-    expect(service.handleFileUpload).toHaveBeenCalledWith(mockFile, 123);
+    const response = await controller.uploadFile(
+      mockFile,
+      123,
+      FilePurpose.PM_CHALLENGE,
+    );
+    expect(service.handleFileUpload).toHaveBeenCalledWith(
+      mockFile,
+      123,
+      FilePurpose.PM_CHALLENGE,
+    );
     expect(response).toEqual(result);
   });
 
   it('should throw BadRequestException if applicationId is missing', async () => {
     await expect(
-      controller.uploadFile(mockFile, undefined as unknown as number),
+      controller.uploadFile(
+        mockFile,
+        undefined as unknown as number,
+        FilePurpose.PM_CHALLENGE,
+      ),
     ).rejects.toThrow(BadRequestException);
   });
 
@@ -57,17 +70,17 @@ describe('FileUploadController', () => {
     mockService.handleFileUpload.mockImplementation(() => {
       throw new BadRequestException('Invalid file type');
     });
-    await expect(controller.uploadFile(invalidTypeFile, 123)).rejects.toThrow(
-      BadRequestException,
-    );
+    await expect(
+      controller.uploadFile(invalidTypeFile, 123, FilePurpose.PM_CHALLENGE),
+    ).rejects.toThrow(BadRequestException);
 
     // File too large
     const largeFile = { ...mockFile, size: 13 * 1024 * 1024 };
     mockService.handleFileUpload.mockImplementation(() => {
       throw new BadRequestException('File is too large!');
     });
-    await expect(controller.uploadFile(largeFile, 123)).rejects.toThrow(
-      BadRequestException,
-    );
+    await expect(
+      controller.uploadFile(largeFile, 123, FilePurpose.PM_CHALLENGE),
+    ).rejects.toThrow(BadRequestException);
   });
 });

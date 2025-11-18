@@ -10,6 +10,7 @@ import type {
 } from '@sharedTypes/types/application.types';
 import type { User } from '@sharedTypes/types/user.types';
 import type { SubmitReviewRequest } from '@sharedTypes/dto/request/review.dto';
+import { FilePurpose } from '@sharedTypes/types/file-upload.types';
 
 import {
   type TokenResponse,
@@ -292,9 +293,11 @@ export class ApiClient {
     accessToken: string,
     applicationId: number,
     file: File,
+    purpose: FilePurpose,
   ): Promise<{ message: string; fileId: number }> {
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('purpose', purpose);
 
     return this.axiosInstance
       .post(`/api/file-upload/${applicationId}`, formData, {

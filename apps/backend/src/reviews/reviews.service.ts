@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Review } from './review.entity';
@@ -8,6 +8,8 @@ import { SubmitReviewRequestDTO } from './dto/submit-review.request.dto';
 
 @Injectable()
 export class ReviewsService {
+  private readonly logger = new Logger(ReviewsService.name);
+
   constructor(
     @InjectRepository(Review)
     private reviewsRepository: Repository<Review>,
@@ -21,8 +23,14 @@ export class ReviewsService {
     currentUser: User,
     createReviewDTO: SubmitReviewRequestDTO,
   ): Promise<Review> {
+    this.logger.debug(
+      `User ${currentUser.id} submitting review for applicant ${createReviewDTO.applicantId} at stage ${createReviewDTO.stage}`,
+    );
     const application = await this.applicationsService.findCurrent(
       createReviewDTO.applicantId,
+    );
+    this.logger.debug(
+      `Resolved current application ${application.id} for applicant ${createReviewDTO.applicantId}`,
     );
 
     const review = this.reviewsRepository.create({
@@ -35,6 +43,10 @@ export class ReviewsService {
       stage: createReviewDTO.stage,
     });
 
-    return this.reviewsRepository.save(review);
+    const savedReview = await this.reviewsRepository.save(review);
+    this.logger.debug(
+      `Review ${savedReview.id} saved for applicant ${createReviewDTO.applicantId}`,
+    );
+    return savedReview;
   }
 }
