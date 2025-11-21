@@ -318,11 +318,25 @@ export class ApiClient {
   }
 
   public async getFiles(userId: number, accessToken: string): Promise<any> {
-    return this.get(`/api/file-upload/user/${userId}?includeFileData=true`, {
+    return this.get(`/api/file-upload/user/${userId}?includeFileData=false`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
     }) as Promise<any>;
+  }
+
+  public async downloadFile(
+    accessToken: string,
+    fileId: number,
+  ): Promise<Blob> {
+    return this.axiosInstance
+      .get(`/api/file-upload/download/${fileId}`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        responseType: 'blob',
+      })
+      .then((response) => response.data);
   }
 
   private async get(
