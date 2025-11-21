@@ -11,7 +11,7 @@ const verifier = CognitoJwtVerifier.create({
 /**
  * Custom hook to manage authentication state
  *
- * Checks if user has a valid token in sessionStorage and verifies it.
+ * Checks if user has a valid token in localStorage and verifies it.
  * Returns authentication state and sign out handler.
  */
 export const useAuth = () => {
@@ -21,17 +21,17 @@ export const useAuth = () => {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const sessionToken = sessionStorage.getItem('token');
+      const localToken = localStorage.getItem('token');
 
-      if (sessionToken) {
+      if (localToken) {
         try {
-          const token = JSON.parse(sessionToken);
+          const token = JSON.parse(localToken);
           await verifier.verify(token);
           setToken(token);
           setIsAuthenticated(true);
         } catch (error) {
           console.log('Error verifying token:', error);
-          sessionStorage.removeItem('token');
+          localStorage.removeItem('token');
           setIsAuthenticated(false);
         }
       } else {
@@ -45,7 +45,7 @@ export const useAuth = () => {
   }, [setToken]);
 
   const signOut = () => {
-    sessionStorage.removeItem('token');
+    localStorage.removeItem('token');
     localStorage.removeItem('auth_tokens');
     setToken('');
     setIsAuthenticated(false);

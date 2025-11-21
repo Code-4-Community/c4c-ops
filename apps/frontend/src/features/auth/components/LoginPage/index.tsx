@@ -38,7 +38,7 @@ export default function LoginPage() {
           );
 
           // Keep backward compatibility - store access token for existing code
-          sessionStorage.setItem(
+          localStorage.setItem(
             'token',
             JSON.stringify(tokenResponse.access_token),
           );
@@ -46,15 +46,15 @@ export default function LoginPage() {
           setToken(tokenResponse.access_token);
 
           // Redirect to dashboard after successful login
-          navigate('/');
+          navigate('/', { replace: true });
         } catch (error) {
           console.error('Error fetching token:', error);
           // Redirect to home page on error
-          navigate('/home');
+          navigate('/home', { replace: true });
         }
       } else {
         // No auth code - redirect to home page
-        navigate('/home');
+        navigate('/home', { replace: true });
       }
     }
 
