@@ -51,7 +51,11 @@ export class ApplicationsService {
    * @throws { BadRequestException } if the user does not exist in our database (i.e., they have not signed up).
    * @returns { User } the updated user
    */
-  async submitApp(application: Response[], user: User): Promise<Application> {
+  async submitApp(
+    application: Response[],
+    user: User,
+    role?: string,
+  ): Promise<Application> {
     const { applications: existingApplications } = user;
     const { year, semester } = getCurrentCycle();
 
@@ -67,12 +71,25 @@ export class ApplicationsService {
       );
     }
 
+    // Determine position from provided role (if any). Default to DEVELOPER.
+    let positionEnum = Position.DEVELOPER;
+    if (role) {
+      const r = (role || '').toString().toUpperCase();
+      if (r === 'PM' || r === 'PRODUCT_MANAGER' || r === 'PRODUCT MANAGER') {
+        positionEnum = Position.PM;
+      } else if (r === 'DESIGNER') {
+        positionEnum = Position.DESIGNER;
+      } else if (r === 'DEVELOPER') {
+        positionEnum = Position.DEVELOPER;
+      }
+    }
+
     const newApplication: Application = this.applicationsRepository.create({
       user,
       createdAt: new Date(),
       year,
       semester,
-      position: Position.DEVELOPER, // TODO: Change this to be dynamic
+      position: positionEnum,
       stage: ApplicationStage.APP_RECEIVED,
       stageProgress: StageProgress.PENDING,
       response: application,
