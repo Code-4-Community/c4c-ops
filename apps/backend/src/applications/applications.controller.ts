@@ -41,12 +41,13 @@ export class ApplicationsController {
     @Body('application') application: Response[],
     @Body('signature') signature: string,
     @Body('email') email: string,
+    @Body('role') role: string,
   ): Promise<Application> {
     const user = await this.applicationsService.verifySignature(
       email,
       signature,
     );
-    return await this.applicationsService.submitApp(application, user);
+    return await this.applicationsService.submitApp(application, user, role);
   }
 
   @Post('/decision/:appId')

@@ -140,4 +140,22 @@ export class FileUploadService {
       throw new BadRequestException('Failed to retrieve user files');
     }
   }
+
+  /**
+   * Get a specific file by ID for download
+   * @param fileId - The ID of the file
+   * @returns File upload record with file data
+   */
+  async getFileById(fileId: number): Promise<FileUpload> {
+    const file = await this.fileRepository.findOne({
+      where: { id: fileId },
+      relations: ['application', 'application.user'],
+    });
+
+    if (!file) {
+      throw new NotFoundException('File not found');
+    }
+
+    return file;
+  }
 }

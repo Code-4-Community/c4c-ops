@@ -9,8 +9,11 @@ import {
   Get,
   ParseIntPipe,
   Body,
+  Res,
+  StreamableFile,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { Response } from 'express';
 import { FileUploadService } from './file-upload.service';
 import 'multer';
 import { FilePurpose } from '@shared/types/file-upload.types';
@@ -44,5 +47,22 @@ export class FileUploadController {
   ) {
     const includeData = includeFileData === 'true';
     return this.fileUploadService.getUserFiles(userId, includeData);
+  }
+
+  @Get('download/:fileId')
+  async downloadFile(
+    @Param('fileId', ParseIntPipe) fileId: number,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<StreamableFile> {
+    const file = await this.fileUploadService.getFileById(fileId);
+
+    // Set response headers for file download
+    res.set({
+      'Content-Type': file.mimetype,
+      'Content-Disposition': `attachment; filename="${file.filename}"`,
+      'Content-Length': file.size,
+    });
+
+    return new StreamableFile(file.file_data);
   }
 }
