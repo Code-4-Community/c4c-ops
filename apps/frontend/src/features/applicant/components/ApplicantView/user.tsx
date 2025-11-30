@@ -101,7 +101,7 @@ export const ApplicantView = ({ user }: ApplicantViewProps) => {
         </Typography>
 
         {isLoading ? (
-          <CircularProgress sx={{ color: 'white' }} />
+          <CircularProgress sx={{ fontFamily: 'Roboto', color: 'white' }} />
         ) : (
           <div>
             {selectedApplication && (
@@ -194,6 +194,26 @@ export const ApplicantView = ({ user }: ApplicantViewProps) => {
                     </ListItem>
                   ))}
                 </List>
+                <Typography variant="h6" mt={2}>
+                  Upload File(s)
+                </Typography>
+                <Box
+                  sx={{
+                    padding: 4.5,
+                    backgroundColor: '#1e1e1e',
+                    borderRadius: 2,
+                    boxShadow: 2,
+                    width: '80%',
+                    alignSelf: 'center',
+                    mt: 1,
+                  }}
+                >
+                  <FileUploadBox
+                    accessToken={accessToken}
+                    applicationId={applicationId}
+                    filePurpose={FilePurpose.RESUME}
+                  />
+                </Box>
               </>
             )}
           </div>
