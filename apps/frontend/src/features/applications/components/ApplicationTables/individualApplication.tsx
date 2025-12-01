@@ -435,7 +435,7 @@ const IndividualApplicationDetails = ({
               ))}
             </Stack>
           </Grid>
-          <Grid item xs={12} md={4} sx={{ mt: { md: -25 } }}>
+          <Grid item xs={12} md={4} sx={{ mt: { md: 0 } }}>
             <Stack
               direction="column"
               sx={{
@@ -444,8 +444,9 @@ const IndividualApplicationDetails = ({
                 p: { xs: 2, md: 2.5 },
                 backgroundColor: 'transparent',
                 gap: 1.5,
+                // Use sticky positioning without negative offsets to avoid overlap
                 position: { md: 'sticky' },
-                top: { md: -104 },
+                top: { md: 24 },
               }}
             >
               <Typography
