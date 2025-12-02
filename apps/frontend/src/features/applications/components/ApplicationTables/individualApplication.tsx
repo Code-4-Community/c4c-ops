@@ -47,6 +47,9 @@ const IndividualApplicationDetails = ({
   accessToken,
   onRefreshApplication,
 }: IndividualApplicationDetailsProps) => {
+  console.log('Full selectedApplication:', selectedApplication);
+  console.log('Reviews array:', selectedApplication.reviews);
+
   // Lighter purple accent tuned to match Figma palette
   const ACCENT = '#9B6CFF';
   // Assigned recruiters are managed by the AssignedRecruiters child component
@@ -90,6 +93,12 @@ const IndividualApplicationDetails = ({
     }
 
     try {
+      if (currentUser == null) {
+        throw new Error(
+          'the current user should not be null when trying to submit a review',
+        );
+      }
+
       // Submit review
       if (reviewRating && trimmedComment) {
         await apiClient.submitReview(accessToken, {

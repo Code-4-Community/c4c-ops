@@ -409,7 +409,7 @@ export class ApplicationsService {
     const allApplicationsDto = await Promise.all(
       applications.map(async (app) => {
         const ratings = this.calculateAllRatings(app.reviews);
-            const stageProgress = this.determineStageProgress(app, app.reviews);
+        const stageProgress = this.determineStageProgress(app, app.reviews);
         const assignedRecruiters =
           await this.getAssignedRecruitersForApplication(app);
 
@@ -500,7 +500,10 @@ export class ApplicationsService {
    * submitted a review for that stage. If no recruiters are assigned, the
    * stage remains PENDING even if admins or others submit reviews.
    */
-  private determineStageProgress(app: Application, reviews: any[]): StageProgress {
+  private determineStageProgress(
+    app: Application,
+    reviews: any[],
+  ): StageProgress {
     const stage = app.stage;
 
     // Terminal stages are always completed
@@ -530,7 +533,9 @@ export class ApplicationsService {
       reviewerIdsForStage.has(id),
     );
 
-    return allAssignedReviewed ? StageProgress.COMPLETED : StageProgress.PENDING;
+    return allAssignedReviewed
+      ? StageProgress.COMPLETED
+      : StageProgress.PENDING;
   }
 
   /**
