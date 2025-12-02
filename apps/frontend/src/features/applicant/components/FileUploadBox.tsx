@@ -92,7 +92,7 @@ const FileUploadBox: React.FC<FileUploadBoxProps> = ({
         p: 3,
         mt: 4,
         textAlign: 'center',
-        width: 717,
+        width: '100%',
       }}
     >
       <Typography

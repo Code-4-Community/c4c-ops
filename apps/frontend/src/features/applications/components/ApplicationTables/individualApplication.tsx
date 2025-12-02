@@ -14,7 +14,11 @@ import {
 } from '@mui/material';
 import { alpha } from '@mui/material/styles';
 import { useState, useEffect } from 'react';
-import { Application, Decision } from '@sharedTypes/types/application.types';
+import {
+  Application,
+  Decision,
+  Position,
+} from '@sharedTypes/types/application.types';
 import { User } from '@sharedTypes/types/user.types';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -29,6 +33,8 @@ import { AssignedRecruiters } from './AssignedRecruiters';
 import { LOGO_PATHS } from '@constants/recruitment';
 import { useUserData } from '@shared/hooks/useUserData';
 import CodeAmbientBackground from '../../components/CodeAmbientBackground';
+import FileWidget from '../FileWidget';
+import { FilePurpose } from '@sharedTypes/types/file-upload.types';
 
 type IndividualApplicationDetailsProps = {
   selectedApplication: Application;
@@ -58,6 +64,8 @@ const IndividualApplicationDetails = ({
   const [reviewComment, setReviewComment] = useState('');
   const [decision, setDecision] = useState<Decision | null>(null);
   const [reviewerNames, setReviewerNames] = useState<ReviewerInfo>({});
+  const [userFiles, setUserFiles] = useState<any[]>([]);
+  const [filesLoading, setFilesLoading] = useState(true);
 
   const navigate = useNavigate();
 
@@ -155,6 +163,32 @@ const IndividualApplicationDetails = ({
       fetchReviewerNames();
     }
   }, [selectedApplication.reviews, accessToken]);
+
+  // Fetch user files
+  const fetchUserFiles = async () => {
+    try {
+      setFilesLoading(true);
+      const response = await apiClient.getFiles(selectedUser.id, accessToken);
+      setUserFiles(response.files || []);
+    } catch (error) {
+      console.error('Error fetching user files:', error);
+      setUserFiles([]);
+    } finally {
+      setFilesLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUserFiles();
+  }, [selectedUser.id, accessToken]);
+
+  // Helper to find file by purpose
+  const getFileByPurpose = (purpose: FilePurpose) => {
+    return userFiles.find((file) => file.purpose === purpose) || null;
+  };
+
+  // Check if applicant is PM
+  const isPM = selectedApplication.position === Position.PM;
 
   return (
     <Stack
@@ -341,6 +375,34 @@ const IndividualApplicationDetails = ({
             </Grid>
           </Grid>
         </Card>
+
+        {/* File Upload Widgets */}
+        <Grid container spacing={2} sx={{ mt: 1, mb: 1 }}>
+          {/* Resume Widget - Always visible */}
+          <Grid item xs={12} md={isPM ? 6 : 12}>
+            <FileWidget
+              filePurpose={FilePurpose.RESUME}
+              fileData={getFileByPurpose(FilePurpose.RESUME)}
+              applicationId={selectedApplication.id}
+              accessToken={accessToken}
+              onFileUploaded={fetchUserFiles}
+            />
+          </Grid>
+
+          {/* PM Challenge Widget - Only for PM applicants */}
+          {isPM && (
+            <Grid item xs={12} md={6}>
+              <FileWidget
+                filePurpose={FilePurpose.PM_CHALLENGE}
+                fileData={getFileByPurpose(FilePurpose.PM_CHALLENGE)}
+                applicationId={selectedApplication.id}
+                accessToken={accessToken}
+                onFileUploaded={fetchUserFiles}
+              />
+            </Grid>
+          )}
+        </Grid>
+
         <Grid container spacing={1.5}>
           <Grid item xs={12} md={8}>
             <Stack
@@ -382,7 +444,7 @@ const IndividualApplicationDetails = ({
               ))}
             </Stack>
           </Grid>
-          <Grid item xs={12} md={4} sx={{ mt: { md: -25 } }}>
+          <Grid item xs={12} md={4} sx={{ mt: { md: 0 } }}>
             <Stack
               direction="column"
               sx={{
@@ -391,8 +453,9 @@ const IndividualApplicationDetails = ({
                 p: { xs: 2, md: 2.5 },
                 backgroundColor: 'transparent',
                 gap: 1.5,
+                // Use sticky positioning without negative offsets to avoid overlap
                 position: { md: 'sticky' },
-                top: { md: -104 },
+                top: { md: 24 },
               }}
             >
               <Typography

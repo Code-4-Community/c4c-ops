@@ -18,6 +18,7 @@ import FileUploadBox from '../FileUploadBox';
 import {
   Application,
   ApplicationStage,
+  Position,
 } from '@sharedTypes/types/application.types';
 import { FilePurpose } from '@sharedTypes/types/file-upload.types';
 
@@ -41,6 +42,9 @@ export const ApplicantView = ({ user }: ApplicantViewProps) => {
       setApplicationId(null);
     }
   }, [selectedApplication]);
+
+  // Check if applicant position is PM
+  const isPM = selectedApplication?.position === Position.PM;
 
   return (
     <Box
@@ -90,8 +94,8 @@ export const ApplicantView = ({ user }: ApplicantViewProps) => {
           padding: 2,
           borderRadius: 2,
           boxShadow: 2,
-          width: '70%',
-          maxWidth: 500,
+          width: { xs: '95%', md: '70%' },
+          maxWidth: 900,
           position: 'relative',
           zIndex: 1,
         }}
@@ -113,7 +117,7 @@ export const ApplicantView = ({ user }: ApplicantViewProps) => {
                     borderRadius: 2,
                     boxShadow: 2,
                     textAlign: 'center',
-                    width: '82%',
+                    width: '100%',
                     mb: 3,
                     alignSelf: 'center',
                   }}
@@ -123,8 +127,7 @@ export const ApplicantView = ({ user }: ApplicantViewProps) => {
                     {selectedApplication.stage}
                   </Typography>
                 </Box>
-                {!isLoading &&
-                  selectedApplication &&
+                {!isLoading && selectedApplication && isPM &&
                   String(selectedApplication.stage) ===
                     ApplicationStage.PM_CHALLENGE && (
                     <FileUploadBox
@@ -142,7 +145,7 @@ export const ApplicantView = ({ user }: ApplicantViewProps) => {
                     backgroundColor: '#1e1e1e',
                     borderRadius: 2,
                     boxShadow: 2,
-                    width: '80%',
+                    width: '100%',
                     alignSelf: 'center',
                     mt: 1,
                   }}
