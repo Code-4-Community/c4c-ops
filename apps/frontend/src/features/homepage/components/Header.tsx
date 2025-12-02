@@ -29,7 +29,7 @@ export const Header = ({ isAuthenticated, onSignOut }: HeaderProps) => {
           style={{ height: '40px', width: 'auto' }}
         />
         <Typography variant="h5" sx={{ fontWeight: 500 }}>
-          2025 Application
+          2026 Application
         </Typography>
       </Box>
 

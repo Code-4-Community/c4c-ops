@@ -14,6 +14,7 @@ import {
   getRecruitmentYear as getCurrentYear,
 } from '@sharedTypes/utils/cycle';
 import {
+  dataGridStyles,
   defaultPaginationModel,
   defaultPageSizeOptions,
 } from '@styles/dataGridTheme';
@@ -32,49 +33,84 @@ export function ApplicationTable() {
   const showEmpty = !isLoading && !error && data.length === 0;
 
   return (
-    <Container maxWidth="xl">
-      <Stack direction="row" alignItems="center" spacing={2} mt={4} mb={8}>
-        <img
-          src={LOGO_PATHS.SQUARE}
-          alt="C4C Logo"
-          style={{ width: 50, height: 40 }}
-        />
-        <Typography variant="h4" sx={{ fontWeight: 'bold', color: 'white' }}>
-          Database | {getCurrentSemester()} {getCurrentYear()} Recruitment Cycle
-        </Typography>
-      </Stack>
-      {showEmpty ? (
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            height: 300,
-            border: '1px dashed rgba(255,255,255,0.2)',
-            borderRadius: 2,
-            color: 'rgba(255,255,255,0.85)',
-            background: 'rgba(255,255,255,0.02)',
-          }}
+    <Box
+      sx={{
+        minHeight: '100vh',
+        backgroundColor: '#181818',
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
+      <Container
+        maxWidth="xl"
+        sx={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 4,
+          py: 4,
+          minHeight: 0,
+        }}
+      >
+        <Stack
+          direction="row"
+          alignItems="center"
+          spacing={2}
+          sx={{ flexShrink: 0 }}
         >
-          <Typography variant="h6" sx={{ fontWeight: 500 }}>
-            There are no applications at this time
+          <img
+            src={LOGO_PATHS.SQUARE}
+            alt="C4C Logo"
+            style={{ width: 50, height: 40 }}
+          />
+          <Typography variant="h4" sx={{ fontWeight: 'bold', color: 'white' }}>
+            Database | {getCurrentSemester()} {getCurrentYear()} Recruitment
+            Cycle
           </Typography>
-        </Box>
-      ) : (
-        <DataGrid
-          rows={data}
-          columns={applicationColumns(allRecruiters)}
-          initialState={{
-            pagination: {
-              paginationModel: defaultPaginationModel,
-            },
-          }}
-          pageSizeOptions={defaultPageSizeOptions}
-          onRowClick={handleRowClick}
-          disableRowSelectionOnClick
-          sx={{ cursor: 'pointer' }}
-        />
-      )}
-    </Container>
+        </Stack>
+
+        {showEmpty ? (
+          <Box
+            sx={{
+              flex: 1,
+              minHeight: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              border: '1px dashed rgba(255,255,255,0.2)',
+              borderRadius: 2,
+              color: 'rgba(255,255,255,0.85)',
+              background: 'rgba(255,255,255,0.02)',
+            }}
+          >
+            <Typography variant="h6" sx={{ fontWeight: 500 }}>
+              There are no applications at this time
+            </Typography>
+          </Box>
+        ) : (
+          <Box sx={{ flex: 1, minHeight: 0 }}>
+            <DataGrid
+              rows={data}
+              columns={applicationColumns(allRecruiters)}
+              initialState={{
+                pagination: {
+                  paginationModel: defaultPaginationModel,
+                },
+              }}
+              pageSizeOptions={defaultPageSizeOptions}
+              onRowClick={handleRowClick}
+              disableRowSelectionOnClick
+              sx={{
+                ...dataGridStyles,
+                cursor: 'pointer',
+                height: '100%',
+                width: '100%',
+              }}
+            />
+          </Box>
+        )}
+      </Container>
+    </Box>
   );
 }
