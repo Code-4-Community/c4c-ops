@@ -8,7 +8,6 @@ import {
   ListItemText,
   Box,
   CircularProgress,
-  Container,
 } from '@mui/material';
 import { DoneOutline } from '@mui/icons-material';
 import useLoginContext from '@features/auth/components/LoginPage/useLoginContext';
@@ -62,7 +61,7 @@ export const ApplicantView = ({ user }: ApplicantViewProps) => {
           left: '8%',
           fontSize: '120px',
           color: '#8A2BE2',
-          opacity: 0.08,
+          opacity: 0.3,
           fontFamily: 'monospace',
           fontWeight: 'bold',
           pointerEvents: 'none',
@@ -75,7 +74,7 @@ export const ApplicantView = ({ user }: ApplicantViewProps) => {
           right: '8%',
           fontSize: '120px',
           color: '#00FFFF',
-          opacity: 0.08,
+          opacity: 0.3,
           fontFamily: 'monospace',
           fontWeight: 'bold',
           pointerEvents: 'none',
@@ -99,6 +98,8 @@ export const ApplicantView = ({ user }: ApplicantViewProps) => {
           maxWidth: 900,
           position: 'relative',
           zIndex: 1,
+          boxSizing: 'border-box',
+          mx: 'auto',
         }}
       >
         <Box
@@ -108,44 +109,45 @@ export const ApplicantView = ({ user }: ApplicantViewProps) => {
             p: 4,
             borderRadius: 2,
             boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+            width: '100%',
           }}
         >
           <Typography variant="h4" sx={{ mb: 4, textAlign: 'center' }}>
             Welcome back, {fullName || 'User'}!
           </Typography>
 
-        {isLoading ? (
-          <CircularProgress sx={{ color: 'white' }} />
-        ) : (
-          <div>
-            {selectedApplication && (
-              <>
-                <Box
-                  sx={{
-                    padding: 4,
-                    backgroundColor: '#1e1e1e',
-                    borderRadius: 2,
-                    boxShadow: 2,
-                    textAlign: 'center',
-                    width: '100%',
-                    mb: 3,
-                    alignSelf: 'center',
-                  }}
-                >
-                  <Typography variant="h6">Recruitment Stage</Typography>
-                  <Typography variant="body1">
-                    {selectedApplication.stage}
-                  </Typography>
-                </Box>
-                {!isLoading && selectedApplication && isPM &&
-                  String(selectedApplication.stage) ===
-                    ApplicationStage.PM_CHALLENGE && (
-                    <FileUploadBox
-                      accessToken={accessToken}
-                      applicationId={applicationId}
-                      filePurpose={FilePurpose.PM_CHALLENGE}
-                    />
-                  )}
+          {isLoading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+              <CircularProgress sx={{ color: 'white' }} />
+            </Box>
+          ) : selectedApplication ? (
+            <Stack spacing={3} sx={{ width: '100%' }}>
+              <Box
+                sx={{
+                  padding: 4,
+                  backgroundColor: '#1e1e1e',
+                  borderRadius: 2,
+                  boxShadow: 2,
+                  textAlign: 'center',
+                  width: '100%',
+                  boxSizing: 'border-box',
+                }}
+              >
+                <Typography variant="h6">Recruitment Stage</Typography>
+                <Typography variant="body1">
+                  {selectedApplication.stage}
+                </Typography>
+              </Box>
+              {isPM &&
+                String(selectedApplication.stage) ===
+                  ApplicationStage.PM_CHALLENGE && (
+                  <FileUploadBox
+                    accessToken={accessToken}
+                    applicationId={applicationId}
+                    filePurpose={FilePurpose.PM_CHALLENGE}
+                  />
+                )}
+              <Box>
                 <Typography variant="h6" mt={2}>
                   Application Details
                 </Typography>
@@ -158,6 +160,7 @@ export const ApplicantView = ({ user }: ApplicantViewProps) => {
                     width: '100%',
                     alignSelf: 'center',
                     mt: 1,
+                    boxSizing: 'border-box',
                   }}
                 >
                   <Stack spacing={1.5}>
@@ -201,19 +204,9 @@ export const ApplicantView = ({ user }: ApplicantViewProps) => {
                         {selectedApplication.stageProgress}
                       </Typography>
                     </Box>
-                    <Box>
-                      <Typography variant="caption" sx={{ color: '#999' }}>
-                        Applications
-                      </Typography>
-                      <Typography variant="body1">
-                        {selectedApplication.numApps}
-                      </Typography>
-                    </Box>
                   </Stack>
                 </Box>
               </Box>
-
-              {/* Application Responses */}
               {selectedApplication.response &&
                 selectedApplication.response.length > 0 && (
                   <Box>
@@ -270,7 +263,7 @@ export const ApplicantView = ({ user }: ApplicantViewProps) => {
             </Box>
           )}
         </Box>
-      </Container>
+      </Box>
     </Box>
   );
 };
