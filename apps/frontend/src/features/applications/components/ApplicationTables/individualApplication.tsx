@@ -403,7 +403,7 @@ const IndividualApplicationDetails = ({
           )}
         </Grid>
 
-        <Grid container spacing={1.5}>
+        <Grid container spacing={1.5} sx={{ mt: 2 }}>
           <Grid item xs={12} md={8}>
             <Stack
               direction="column"
@@ -413,7 +413,6 @@ const IndividualApplicationDetails = ({
                 p: { xs: 2, md: 2.5 },
                 backgroundColor: 'transparent',
                 gap: 1,
-                mt: 2,
               }}
             >
               <Typography

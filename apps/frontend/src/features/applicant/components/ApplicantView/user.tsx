@@ -127,7 +127,9 @@ export const ApplicantView = ({ user }: ApplicantViewProps) => {
                     {selectedApplication.stage}
                   </Typography>
                 </Box>
-                {!isLoading && selectedApplication && isPM &&
+                {!isLoading &&
+                  selectedApplication &&
+                  isPM &&
                   String(selectedApplication.stage) ===
                     ApplicationStage.PM_CHALLENGE && (
                     <FileUploadBox

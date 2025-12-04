@@ -73,7 +73,9 @@ export class ApplicationsService {
 
     // Determine position from provided role (if any). Default to DEVELOPER.
     let positionEnum = Position.DEVELOPER;
-    this.logger.debug(`submitApp called with role='${role}' for user ${user.email}`);
+    this.logger.debug(
+      `submitApp called with role='${role}' for user ${user.email}`,
+    );
     if (role) {
       const r = (role || '').toString().toUpperCase();
       if (r === 'PM' || r === 'PRODUCT_MANAGER' || r === 'PRODUCT MANAGER') {
