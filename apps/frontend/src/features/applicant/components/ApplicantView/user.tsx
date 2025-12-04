@@ -19,6 +19,7 @@ import FileUploadBox from '../FileUploadBox';
 import {
   Application,
   ApplicationStage,
+  Position,
 } from '@sharedTypes/types/application.types';
 import { FilePurpose } from '@sharedTypes/types/file-upload.types';
 
@@ -43,8 +44,8 @@ export const ApplicantView = ({ user }: ApplicantViewProps) => {
     }
   }, [selectedApplication]);
 
-  const isPMChallengeStage =
-    selectedApplication?.stage === ApplicationStage.PM_CHALLENGE;
+  // Check if applicant position is PM
+  const isPM = selectedApplication?.position === Position.PM;
 
   return (
     <Box
@@ -85,35 +86,17 @@ export const ApplicantView = ({ user }: ApplicantViewProps) => {
       {/* Gradient Blur Effects */}
       <Box
         sx={{
-          position: 'fixed',
-          top: '10%',
-          left: '5%',
-          width: '300px',
-          height: '300px',
-          background: 'radial-gradient(circle, #8A2BE2 0%, transparent 70%)',
-          filter: 'blur(100px)',
-          opacity: 0.4,
-          pointerEvents: 'none',
-          zIndex: 0,
-        }}
-      />
-      <Box
-        sx={{
-          position: 'fixed',
-          top: '10%',
-          right: '5%',
-          width: '300px',
-          height: '300px',
-          background: 'radial-gradient(circle, #00FFFF 0%, transparent 70%)',
-          filter: 'blur(100px)',
-          opacity: 0.4,
-          pointerEvents: 'none',
-          zIndex: 0,
-        }}
-      />
-      <Container
-        maxWidth="sm"
-        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: '#121212',
+          color: 'white',
+          padding: 2,
+          borderRadius: 2,
+          boxShadow: 2,
+          width: { xs: '95%', md: '70%' },
+          maxWidth: 900,
           position: 'relative',
           zIndex: 1,
         }}
@@ -131,42 +114,39 @@ export const ApplicantView = ({ user }: ApplicantViewProps) => {
             Welcome back, {fullName || 'User'}!
           </Typography>
 
-          {isLoading ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-              <CircularProgress sx={{ color: '#90caf9' }} />
-            </Box>
-          ) : selectedApplication ? (
-            <Stack spacing={3}>
-              {/* Recruitment Stage Card */}
-              <Box
-                sx={{
-                  p: 3,
-                  backgroundColor: '#1e1e1e',
-                  borderRadius: 2,
-                  boxShadow: 2,
-                  textAlign: 'center',
-                }}
-              >
-                <Typography variant="h6" sx={{ mb: 1 }}>
-                  Recruitment Stage
-                </Typography>
-                <Typography variant="body1" sx={{ color: '#90caf9' }}>
-                  {selectedApplication.stage}
-                </Typography>
-              </Box>
-
-              {/* PM Challenge Upload Box */}
-              {isPMChallengeStage && (
-                <FileUploadBox
-                  accessToken={accessToken}
-                  applicationId={applicationId}
-                  filePurpose={FilePurpose.PM_CHALLENGE}
-                />
-              )}
-
-              {/* Application Details Card */}
-              <Box>
-                <Typography variant="h6" sx={{ mb: 2 }}>
+        {isLoading ? (
+          <CircularProgress sx={{ color: 'white' }} />
+        ) : (
+          <div>
+            {selectedApplication && (
+              <>
+                <Box
+                  sx={{
+                    padding: 4,
+                    backgroundColor: '#1e1e1e',
+                    borderRadius: 2,
+                    boxShadow: 2,
+                    textAlign: 'center',
+                    width: '100%',
+                    mb: 3,
+                    alignSelf: 'center',
+                  }}
+                >
+                  <Typography variant="h6">Recruitment Stage</Typography>
+                  <Typography variant="body1">
+                    {selectedApplication.stage}
+                  </Typography>
+                </Box>
+                {!isLoading && selectedApplication && isPM &&
+                  String(selectedApplication.stage) ===
+                    ApplicationStage.PM_CHALLENGE && (
+                    <FileUploadBox
+                      accessToken={accessToken}
+                      applicationId={applicationId}
+                      filePurpose={FilePurpose.PM_CHALLENGE}
+                    />
+                  )}
+                <Typography variant="h6" mt={2}>
                   Application Details
                 </Typography>
                 <Box
@@ -175,6 +155,9 @@ export const ApplicantView = ({ user }: ApplicantViewProps) => {
                     backgroundColor: '#1e1e1e',
                     borderRadius: 2,
                     boxShadow: 2,
+                    width: '100%',
+                    alignSelf: 'center',
+                    mt: 1,
                   }}
                 >
                   <Stack spacing={1.5}>

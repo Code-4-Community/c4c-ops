@@ -75,6 +75,6 @@ export class User {
   @OneToMany(() => Application, (application) => application.user)
   applications: Application[];
 
-  @OneToMany(() => Review, (review) => review.reviewerId)
-  review: Review;
+  @OneToMany(() => Review, (review) => review.reviewer)
+  reviews: Review[];
 }

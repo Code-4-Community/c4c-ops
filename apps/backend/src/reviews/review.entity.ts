@@ -18,7 +18,13 @@ export class Review {
   @JoinColumn({ name: 'applicationId' })
   application: Application;
 
-  @ManyToOne(() => User, (user) => user.id)
+  // The relationship to User
+  @ManyToOne(() => User, { nullable: false })
+  @JoinColumn({ name: 'reviewerId' })
+  reviewer: User;
+
+  // The foreign key column
+  @Column({ nullable: false })
   reviewerId: number;
 
   @Column({ type: 'double precision', nullable: false })

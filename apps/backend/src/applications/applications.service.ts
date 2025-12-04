@@ -51,7 +51,11 @@ export class ApplicationsService {
    * @throws { BadRequestException } if the user does not exist in our database (i.e., they have not signed up).
    * @returns { User } the updated user
    */
-  async submitApp(application: Response[], user: User): Promise<Application> {
+  async submitApp(
+    application: Response[],
+    user: User,
+    role?: string,
+  ): Promise<Application> {
     const { applications: existingApplications } = user;
     const { year, semester } = getCurrentCycle();
 
@@ -67,12 +71,27 @@ export class ApplicationsService {
       );
     }
 
+    // Determine position from provided role (if any). Default to DEVELOPER.
+    let positionEnum = Position.DEVELOPER;
+    this.logger.debug(`submitApp called with role='${role}' for user ${user.email}`);
+    if (role) {
+      const r = (role || '').toString().toUpperCase();
+      if (r === 'PM' || r === 'PRODUCT_MANAGER' || r === 'PRODUCT MANAGER') {
+        positionEnum = Position.PM;
+      } else if (r === 'DESIGNER') {
+        positionEnum = Position.DESIGNER;
+      } else if (r === 'DEVELOPER') {
+        positionEnum = Position.DEVELOPER;
+      }
+    }
+    this.logger.debug(`Mapped role '${role}' -> position '${positionEnum}'`);
+
     const newApplication: Application = this.applicationsRepository.create({
       user,
       createdAt: new Date(),
       year,
       semester,
-      position: Position.DEVELOPER, // TODO: Change this to be dynamic
+      position: positionEnum,
       stage: ApplicationStage.APP_RECEIVED,
       stageProgress: StageProgress.PENDING,
       response: application,
@@ -409,7 +428,7 @@ export class ApplicationsService {
     const allApplicationsDto = await Promise.all(
       applications.map(async (app) => {
         const ratings = this.calculateAllRatings(app.reviews);
-            const stageProgress = this.determineStageProgress(app, app.reviews);
+        const stageProgress = this.determineStageProgress(app, app.reviews);
         const assignedRecruiters =
           await this.getAssignedRecruitersForApplication(app);
 
@@ -500,7 +519,10 @@ export class ApplicationsService {
    * submitted a review for that stage. If no recruiters are assigned, the
    * stage remains PENDING even if admins or others submit reviews.
    */
-  private determineStageProgress(app: Application, reviews: any[]): StageProgress {
+  private determineStageProgress(
+    app: Application,
+    reviews: any[],
+  ): StageProgress {
     const stage = app.stage;
 
     // Terminal stages are always completed
@@ -530,7 +552,9 @@ export class ApplicationsService {
       reviewerIdsForStage.has(id),
     );
 
-    return allAssignedReviewed ? StageProgress.COMPLETED : StageProgress.PENDING;
+    return allAssignedReviewed
+      ? StageProgress.COMPLETED
+      : StageProgress.PENDING;
   }
 
   /**
