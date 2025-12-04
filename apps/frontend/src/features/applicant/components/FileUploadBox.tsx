@@ -89,10 +89,11 @@ const FileUploadBox: React.FC<FileUploadBoxProps> = ({
       sx={{
         backgroundColor: '#403f3f',
         borderRadius: 2,
-        p: 3,
-        mt: 4,
+        py: 1,
+        px: 1.5,
         textAlign: 'center',
         width: '100%',
+        boxSizing: 'border-box',
       }}
     >
       <Typography
@@ -108,7 +109,8 @@ const FileUploadBox: React.FC<FileUploadBoxProps> = ({
         sx={{
           border: '1px dashed #999',
           borderRadius: 1,
-          p: 3,
+          py: 1.5,
+          px: 1,
           cursor: 'pointer',
           '&:hover': { borderColor: '#d81b60' },
         }}
