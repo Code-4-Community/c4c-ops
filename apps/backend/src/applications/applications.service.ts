@@ -277,20 +277,17 @@ export class ApplicationsService {
         );
       }
 
-      const stageProgress = this.determineStageProgress(application, reviews);
-      if (stageProgress !== StageProgress.COMPLETED) {
-        // Cannot progress to the next stage until all
-        // assigned recruiters have submitted their reviews for the current stage
-        return;
-      }
-
-      // Check if we're at the last stage in the pipeline
-      if (currentIndex === stagesArr.length - 1) {
-        // Final acceptance
-        newStage = ApplicationStage.ACCEPTED;
+      if (!this.hasAssignedRecruiters(application)) {
+        newStage = this.determineNextStage(stagesArr, currentIndex);
       } else {
-        // Move to next stage in the pipeline
-        newStage = stagesArr[currentIndex + 1];
+        const stageProgress = this.determineStageProgress(application, reviews);
+        if (stageProgress !== StageProgress.COMPLETED) {
+          // Cannot progress to the next stage until all
+          // assigned recruiters have submitted their reviews for the current stage
+          return;
+        }
+
+        newStage = this.determineNextStage(stagesArr, currentIndex);
       }
     } else {
       throw new BadRequestException(`Invalid decision: ${decision}`);
@@ -486,6 +483,21 @@ export class ApplicationsService {
     }
 
     return application;
+  }
+
+  private hasAssignedRecruiters(application: Application): boolean {
+    return (application.assignedRecruiterIds?.length ?? 0) > 0;
+  }
+
+  private determineNextStage(
+    stagesArr: ApplicationStage[],
+    currentIndex: number,
+  ): ApplicationStage {
+    if (currentIndex === stagesArr.length - 1) {
+      return ApplicationStage.ACCEPTED;
+    }
+
+    return stagesArr[currentIndex + 1];
   }
 
   /**
