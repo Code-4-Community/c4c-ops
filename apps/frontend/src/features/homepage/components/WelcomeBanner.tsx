@@ -29,7 +29,20 @@ export const WelcomeBanner = () => {
         variant="h6"
         sx={{ color: '#cccccc !important', fontWeight: 400 }}
       >
-        Apply as a Developer, Designer, or Project Manager here.
+        Apply as a Developer, Designer, or Project Manager{' '}
+        <a
+          href="https://docs.google.com/forms/d/e/1FAIpQLScGimGWc9CGy9gGsGOVzPCyM3hapgg94IPU2LA6qSk0SR3F2Q/viewform?usp=sharing&ouid=114299777948262504771"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            color: '#4a5fa8',
+            textDecoration: 'underline',
+            fontWeight: 600,
+          }}
+        >
+          here
+        </a>
+        .
       </Typography>
     </Box>
   );

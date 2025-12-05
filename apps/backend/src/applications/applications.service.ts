@@ -231,6 +231,8 @@ export class ApplicationsService {
   /**
    * Updates the application stage of the applicant.
    * Moves the stage to either the next stage or to rejected.
+   * NOTE: if any recruiter rejects an applicant, this does not require approval
+   * from other recruiters, and they will be moved to the terminal state
    *
    * @param applicantId the id of the applicant.
    * @param decision enum that contains either the applicant was 'ACCEPT' or 'REJECT'
@@ -247,6 +249,8 @@ export class ApplicationsService {
         `Application for applicant ${applicantId} not found`,
       );
     }
+
+    const reviews = application.reviews ?? [];
 
     // Check if application is in a terminal state
     if (
@@ -271,6 +275,13 @@ export class ApplicationsService {
         throw new BadRequestException(
           `Invalid stage ${application.stage} for position ${application.position}`,
         );
+      }
+
+      const stageProgress = this.determineStageProgress(application, reviews);
+      if (stageProgress !== StageProgress.COMPLETED) {
+        // Cannot progress to the next stage until all
+        // assigned recruiters have submitted their reviews for the current stage
+        return;
       }
 
       // Check if we're at the last stage in the pipeline

@@ -50,6 +50,11 @@ const createMockApplication = (
   ...overrides,
 });
 
+const createReviewsForStage = (
+  stage: ApplicationStage,
+  recruiterIds: number[] = [1],
+) => recruiterIds.map((id) => ({ reviewerId: id, stage } as any));
+
 describe('ApplicationsService', () => {
   let service: ApplicationsService;
   let applicationsRepository: Repository<Application>;
@@ -86,9 +91,15 @@ describe('ApplicationsService', () => {
   describe('processDecision', () => {
     describe('Stage Progression for Developers', () => {
       it('should move from APP_RECEIVED to T_INTERVIEW when accepted', async () => {
+        const recruiterIds = [1, 2];
         const application = createMockApplication({
           stage: ApplicationStage.APP_RECEIVED,
           position: Position.DEVELOPER,
+          assignedRecruiterIds: recruiterIds,
+          reviews: createReviewsForStage(
+            ApplicationStage.APP_RECEIVED,
+            recruiterIds,
+          ),
         });
 
         jest.spyOn(service, 'findCurrent').mockResolvedValue(application);
@@ -103,9 +114,15 @@ describe('ApplicationsService', () => {
       });
 
       it('should move from T_INTERVIEW to B_INTERVIEW when accepted', async () => {
+        const recruiterIds = [1, 2];
         const application = createMockApplication({
           stage: ApplicationStage.T_INTERVIEW,
           position: Position.DEVELOPER,
+          assignedRecruiterIds: recruiterIds,
+          reviews: createReviewsForStage(
+            ApplicationStage.T_INTERVIEW,
+            recruiterIds,
+          ),
         });
 
         jest.spyOn(service, 'findCurrent').mockResolvedValue(application);
@@ -120,9 +137,15 @@ describe('ApplicationsService', () => {
       });
 
       it('should move from B_INTERVIEW to ACCEPTED when accepted', async () => {
+        const recruiterIds = [1, 2];
         const application = createMockApplication({
           stage: ApplicationStage.B_INTERVIEW,
           position: Position.DEVELOPER,
+          assignedRecruiterIds: recruiterIds,
+          reviews: createReviewsForStage(
+            ApplicationStage.B_INTERVIEW,
+            recruiterIds,
+          ),
         });
 
         jest.spyOn(service, 'findCurrent').mockResolvedValue(application);
@@ -152,9 +175,15 @@ describe('ApplicationsService', () => {
 
     describe('Stage Progression for Product Managers', () => {
       it('should move from APP_RECEIVED to PM_CHALLENGE when accepted', async () => {
+        const recruiterIds = [1, 2];
         const application = createMockApplication({
           stage: ApplicationStage.APP_RECEIVED,
           position: Position.PM,
+          assignedRecruiterIds: recruiterIds,
+          reviews: createReviewsForStage(
+            ApplicationStage.APP_RECEIVED,
+            recruiterIds,
+          ),
         });
 
         jest.spyOn(service, 'findCurrent').mockResolvedValue(application);
@@ -169,9 +198,15 @@ describe('ApplicationsService', () => {
       });
 
       it('should move from PM_CHALLENGE to B_INTERVIEW when accepted', async () => {
+        const recruiterIds = [1, 2];
         const application = createMockApplication({
           stage: ApplicationStage.PM_CHALLENGE,
           position: Position.PM,
+          assignedRecruiterIds: recruiterIds,
+          reviews: createReviewsForStage(
+            ApplicationStage.PM_CHALLENGE,
+            recruiterIds,
+          ),
         });
 
         jest.spyOn(service, 'findCurrent').mockResolvedValue(application);
@@ -186,9 +221,15 @@ describe('ApplicationsService', () => {
       });
 
       it('should move from B_INTERVIEW to ACCEPTED when accepted', async () => {
+        const recruiterIds = [1, 2];
         const application = createMockApplication({
           stage: ApplicationStage.B_INTERVIEW,
           position: Position.PM,
+          assignedRecruiterIds: recruiterIds,
+          reviews: createReviewsForStage(
+            ApplicationStage.B_INTERVIEW,
+            recruiterIds,
+          ),
         });
 
         jest.spyOn(service, 'findCurrent').mockResolvedValue(application);
@@ -205,9 +246,15 @@ describe('ApplicationsService', () => {
 
     describe('Stage Progression for Designers', () => {
       it('should move from APP_RECEIVED to B_INTERVIEW when accepted', async () => {
+        const recruiterIds = [1, 2];
         const application = createMockApplication({
           stage: ApplicationStage.APP_RECEIVED,
           position: Position.DESIGNER,
+          assignedRecruiterIds: recruiterIds,
+          reviews: createReviewsForStage(
+            ApplicationStage.APP_RECEIVED,
+            recruiterIds,
+          ),
         });
 
         jest.spyOn(service, 'findCurrent').mockResolvedValue(application);
@@ -222,9 +269,15 @@ describe('ApplicationsService', () => {
       });
 
       it('should move from B_INTERVIEW to ACCEPTED when accepted', async () => {
+        const recruiterIds = [1, 2];
         const application = createMockApplication({
           stage: ApplicationStage.B_INTERVIEW,
           position: Position.DESIGNER,
+          assignedRecruiterIds: recruiterIds,
+          reviews: createReviewsForStage(
+            ApplicationStage.B_INTERVIEW,
+            recruiterIds,
+          ),
         });
 
         jest.spyOn(service, 'findCurrent').mockResolvedValue(application);
@@ -236,6 +289,25 @@ describe('ApplicationsService', () => {
 
         expect(application.stage).toBe(ApplicationStage.ACCEPTED);
         expect(applicationsRepository.save).toHaveBeenCalledWith(application);
+      });
+    });
+
+    describe('Stage Progress Validation', () => {
+      it('should not progress when all assigned recruiters have not reviewed', async () => {
+        const recruiterIds = [1, 2];
+        const application = createMockApplication({
+          stage: ApplicationStage.APP_RECEIVED,
+          position: Position.DEVELOPER,
+          assignedRecruiterIds: recruiterIds,
+          reviews: createReviewsForStage(ApplicationStage.APP_RECEIVED, [1]),
+        });
+
+        jest.spyOn(service, 'findCurrent').mockResolvedValue(application);
+
+        await expect(
+          service.processDecision(1, Decision.ACCEPT),
+        ).rejects.toThrow(BadRequestException);
+        expect(applicationsRepository.save).not.toHaveBeenCalled();
       });
     });
 
@@ -264,20 +336,18 @@ describe('ApplicationsService', () => {
         }
       });
 
-      it('should not change stage if already rejected', async () => {
+      it('should throw if already in a rejected terminal state', async () => {
         const application = createMockApplication({
           stage: ApplicationStage.REJECTED,
         });
 
         jest.spyOn(service, 'findCurrent').mockResolvedValue(application);
-        jest
-          .spyOn(applicationsRepository, 'save')
-          .mockResolvedValue(application);
+        jest.spyOn(applicationsRepository, 'save');
 
-        await service.processDecision(1, Decision.REJECT);
-
-        expect(application.stage).toBe(ApplicationStage.REJECTED);
-        expect(applicationsRepository.save).toHaveBeenCalledWith(application);
+        await expect(
+          service.processDecision(1, Decision.REJECT),
+        ).rejects.toThrow(BadRequestException);
+        expect(applicationsRepository.save).not.toHaveBeenCalled();
       });
     });
 
@@ -400,6 +470,7 @@ describe('ApplicationsService', () => {
         applications: [],
       });
       const response = [{ question: 'Why C4C?', answer: 'meow' }];
+      const recruiterIds = [2, 3];
 
       const newApplication = createMockApplication({
         stage: ApplicationStage.APP_RECEIVED,
@@ -416,14 +487,27 @@ describe('ApplicationsService', () => {
 
       const submittedApp = await service.submitApp(response, user);
       expect(submittedApp.stage).toBe(ApplicationStage.APP_RECEIVED);
+      submittedApp.assignedRecruiterIds = recruiterIds;
+      submittedApp.reviews = createReviewsForStage(
+        ApplicationStage.APP_RECEIVED,
+        recruiterIds,
+      );
 
       jest.spyOn(service, 'findCurrent').mockResolvedValue(submittedApp);
 
       await service.processDecision(1, Decision.ACCEPT);
       expect(submittedApp.stage).toBe(ApplicationStage.T_INTERVIEW);
+      submittedApp.reviews = [
+        ...submittedApp.reviews,
+        ...createReviewsForStage(ApplicationStage.T_INTERVIEW, recruiterIds),
+      ];
 
       await service.processDecision(1, Decision.ACCEPT);
       expect(submittedApp.stage).toBe(ApplicationStage.B_INTERVIEW);
+      submittedApp.reviews = [
+        ...submittedApp.reviews,
+        ...createReviewsForStage(ApplicationStage.B_INTERVIEW, recruiterIds),
+      ];
 
       await service.processDecision(1, Decision.ACCEPT);
       expect(submittedApp.stage).toBe(ApplicationStage.ACCEPTED);
