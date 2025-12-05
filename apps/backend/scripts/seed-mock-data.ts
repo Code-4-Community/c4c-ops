@@ -74,6 +74,31 @@ const REVIEW_STATUS_VALUES = Object.values(ReviewStatus);
 const POSITIONS = Object.values(Position);
 const SEMESTER_DEFAULT = Semester.SPRING;
 const YEAR_DEFAULT = 2026;
+const REVIEW_COMMENTS = [
+  'Strong analytical breakdown with measurable success metrics.',
+  'Creative approach to ambiguous prompts and thoughtful user empathy.',
+  'Great initiative but would like deeper dives into tradeoffs.',
+  'Excellent presentation polish and storytelling under time pressure.',
+  'Solid collaboration signals; digs into blockers proactively.',
+  'Needs more rigor around experimentation but strategy instincts are sound.',
+  'Powerful technical depth with clean architecture diagrams.',
+  'Great culture add with emphasis on mentoring and peer support.',
+];
+const REVIEW_FOCUS_AREAS = [
+  'product sense',
+  'execution',
+  'communication',
+  'technical depth',
+  'user research',
+  'data fluency',
+  'leadership',
+];
+const DAY_IN_MS = 24 * 60 * 60 * 1000;
+const ROLE_LABELS: Record<Position, string> = {
+  [Position.DEVELOPER]: 'Developer',
+  [Position.PM]: 'Product Manager',
+  [Position.DESIGNER]: 'Designer',
+};
 
 async function main() {
   const envLoaded = loadEnvIfPresent('../.env');
@@ -120,9 +145,10 @@ async function main() {
       users,
       config.personalUser,
     );
+    const reviews = await seedReviews(dataSource, applications, users);
 
     console.log(
-      `Seed complete. Inserted ${users.length} users and ${applications.length} applications.`,
+      `Seed complete. Inserted ${users.length} users, ${applications.length} applications, and ${reviews.length} reviews.`,
     );
   } catch (error) {
     console.error('Mock data seed failed:', error);
@@ -231,16 +257,7 @@ async function seedApplications(
     const createdAt = new Date(
       Date.UTC(YEAR_DEFAULT, (index * 3) % 12, (index % 27) + 1, 12, 0, 0),
     );
-    const response: Response[] = [
-      {
-        question: 'Why do you want to work on this role?',
-        answer: `I am excited to contribute as a ${position} during the ${semester} semester.`,
-      },
-      {
-        question: 'What stage best suits you right now?',
-        answer: `Currently focused on ${stage} with ${stageProgress} progress.`,
-      },
-    ];
+    const response = buildApplicationResponses(owner, position);
 
     return appRepo.create({
       user: owner,
@@ -268,17 +285,7 @@ async function seedApplications(
       stage: ApplicationStage.PM_CHALLENGE,
       stageProgress: StageProgress.PENDING,
       reviewStatus: ReviewStatus.UNASSIGNED,
-      response: [
-        {
-          question: 'Who owns this application?',
-          answer: `${personalUser.firstName} ${personalUser.lastName} (${personalUser.email}).`,
-        },
-        {
-          question: 'Why is this record seeded?',
-          answer:
-            'This hardcoded row is appended for the personal user defined in seed.config.json.',
-        },
-      ],
+      response: buildApplicationResponses(personalUser, Position.PM),
       assignedRecruiterIds:
         recruiterIds.length === 0
           ? []
@@ -290,6 +297,100 @@ async function seedApplications(
 
   console.log(`Generating ${applications.length} application rows...`);
   return appRepo.save(applications);
+}
+
+async function seedReviews(
+  dataSource: DataSource,
+  applications: Application[],
+  users: User[],
+): Promise<Review[]> {
+  const reviewRepo = dataSource.getRepository(Review);
+  const recruiterMap = new Map<number, User>(
+    users
+      .filter((user) => user.status === UserStatus.RECRUITER)
+      .map((recruiter) => [recruiter.id, recruiter]),
+  );
+
+  const reviews: Review[] = [];
+
+  applications.forEach((application, index) => {
+    const assigned = application.assignedRecruiterIds ?? [];
+    if (!assigned.length) {
+      return;
+    }
+
+    const reviewCount = index % 3; // cycle through 0, 1, 2 reviews per applicant
+
+    for (let offset = 0; offset < reviewCount; offset++) {
+      const reviewerId = assigned[(index + offset) % assigned.length];
+      const reviewer = recruiterMap.get(reviewerId);
+      if (!reviewer) {
+        continue;
+      }
+
+      const stage =
+        APPLICATION_STAGES[
+          (index + reviewerId + offset) % APPLICATION_STAGES.length
+        ];
+      const ratingBase =
+        1 + ((index * 17 + reviewerId * 13 + offset * 7) % 40) / 10;
+      const rating = Number(Math.min(5, ratingBase).toFixed(1));
+      const commentSeed =
+        (index + reviewerId + offset) % REVIEW_COMMENTS.length;
+      const focus =
+        REVIEW_FOCUS_AREAS[(index + offset) % REVIEW_FOCUS_AREAS.length];
+      const content = `${REVIEW_COMMENTS[commentSeed]} Focused on ${focus} for the ${application.position} track.`;
+      const baseDate = application.createdAt
+        ? new Date(application.createdAt)
+        : new Date(Date.UTC(YEAR_DEFAULT, 0, 1));
+      const createdAt = new Date(baseDate.getTime() + (offset + 1) * DAY_IN_MS);
+
+      reviews.push(
+        reviewRepo.create({
+          application,
+          reviewer,
+          reviewerId,
+          rating,
+          stage,
+          content,
+          createdAt,
+          updatedAt: createdAt,
+        }),
+      );
+    }
+  });
+
+  console.log(`Generating ${reviews.length} review rows...`);
+  if (!reviews.length) {
+    return [];
+  }
+
+  return reviewRepo.save(reviews);
+}
+
+function buildApplicationResponses(
+  owner: User,
+  position: Position,
+): Response[] {
+  return [
+    {
+      question: 'Full Name',
+      answer: buildFullName(owner),
+    },
+    {
+      question: 'Email',
+      answer: owner.email,
+    },
+    {
+      question: 'Role',
+      answer: ROLE_LABELS[position],
+    },
+  ];
+}
+
+function buildFullName(user: User): string {
+  const name = [user.firstName, user.lastName].filter(Boolean).join(' ').trim();
+  return name || 'Unknown Applicant';
 }
 
 function buildNamePairs(): Array<{ firstName: string; lastName: string }> {

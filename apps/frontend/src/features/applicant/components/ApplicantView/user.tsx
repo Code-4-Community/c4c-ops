@@ -95,7 +95,7 @@ export const ApplicantView = ({ user }: ApplicantViewProps) => {
           borderRadius: 2,
           boxShadow: 2,
           width: { xs: '95%', md: '70%' },
-          maxWidth: 900,
+          maxWidth: 700,
           position: 'relative',
           zIndex: 1,
           boxSizing: 'border-box',

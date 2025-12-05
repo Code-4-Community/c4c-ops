@@ -23,7 +23,7 @@ const HomePage = () => {
   const { isAuthenticated, signOut } = useAuth();
 
   // Application deadline
-  const deadline = new Date('2025-10-31T23:59:59');
+  const deadline = new Date('2026-01-01T23:59:59');
 
   return (
     <Box
@@ -36,8 +36,8 @@ const HomePage = () => {
     >
       <Header isAuthenticated={isAuthenticated} onSignOut={signOut} />
 
-      <Container maxWidth="md" sx={{ flex: 1, py: 8 }}>
-        <Stack spacing={4}>
+      <Container maxWidth="md" sx={{ py: 3 }}>
+        <Stack spacing={2}>
           <WelcomeBanner />
           <RoleSelector />
           <DeadlineCountdown deadline={deadline} />
@@ -46,5 +46,4 @@ const HomePage = () => {
     </Box>
   );
 };
-
 export default HomePage;

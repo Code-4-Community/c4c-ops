@@ -62,7 +62,7 @@ export const dataGridStyles: SxProps<Theme> = {
  */
 export const defaultPaginationModel = {
   page: 0,
-  pageSize: 5,
+  pageSize: 10,
 };
 
 /**
