@@ -73,7 +73,7 @@ const STAGE_PROGRESS_VALUES = Object.values(StageProgress);
 const REVIEW_STATUS_VALUES = Object.values(ReviewStatus);
 const POSITIONS = Object.values(Position);
 const SEMESTER_DEFAULT = Semester.SPRING;
-const YEAR_DEFAULT = 2026;
+const YEAR_DEFAULT = 2027;
 const REVIEW_COMMENTS = [
   'Strong analytical breakdown with measurable success metrics.',
   'Creative approach to ambiguous prompts and thoughtful user empathy.',

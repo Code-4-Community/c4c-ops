@@ -1,6 +1,6 @@
 ## Mock Data Seed Script
 
-The `seed-mock-data.ts` script populates the `public.users` and `public.applications` tables with exhaustive mock combinations so the recruitment UI has data to work with. It **wipes existing rows** in `reviews`, `fileuploads`, `applications`, and `users` before inserting fresh data, so only run it against disposable/local databases.
+The `seed-mock-data.ts` script populates the `public.users` and `public.applications` tables with exhaustive mock combinations so the recruitment UI has data to work with. It **wipes existing rows** in `reviews`, `fileuploads`, `applications`, and `users` before inserting fresh data, so only run it against disposable/local databases. Note the cycle to be generated can be changed (FALL/SPRING), year in seed-mock-data.ts.
 
 ### 1. Configure Your Personal User (Optional but requested)
 
